@@ -1,0 +1,2 @@
+class CancelledError(RuntimeError):
+    pass
