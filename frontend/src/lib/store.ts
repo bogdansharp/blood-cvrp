@@ -16,7 +16,8 @@ export type LogEntry = {
 
 export type VehiclePool = {
     capacity: number;
-    quantity: number;
+    quantity: number; // -1 if unlimited
+    time_limit: number; // in seconds, -1 if unlimited
 };
 
 export type Hospital = {

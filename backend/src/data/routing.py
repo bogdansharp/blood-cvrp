@@ -30,20 +30,22 @@ class RoutingData:
 
         missed_idx = []
         result = [(inf, inf)] * len(dst)
+        cached = self._dist_repo.get(src_lat_e6, src_lng_e6, dst) or []
+        cached_dict = {(item[0], item[1]): item for item in cached}
 
         for i, (dst_lat_e6, dst_lng_e6) in enumerate(dst):
             if dst_lat_e6 == src_lat_e6 and dst_lng_e6 == src_lng_e6:
                 result[i] = (0.0, 0.0)
                 continue
-            
-            res = self._dist_repo.get(src_lat_e6, src_lng_e6, dst_lat_e6, dst_lng_e6)
+            cached_item = cached_dict.get((dst_lat_e6, dst_lng_e6))
+            if cached_item is not None:
+                result[i] = (cached_item[2], cached_item[3])
+                continue
 
-            if res is None:
-                missed_idx.append(i)
-            else:
-                result[i] = res
+            missed_idx.append(i) # value is missing in cache
 
         if missed_idx:
+            print(f"Fetching missing routing data for {len(missed_idx)} destinations")
             missing_dst = [dst[i] for i in missed_idx]
 
             try:
@@ -59,6 +61,7 @@ class RoutingData:
                     f"expected={len(missing_dst)}, actual={len(edge_data)}"
                 )
 
+            update_items: list[tuple[int, int, float, float]] = []
             for idx, (edge_dist, edge_time) in enumerate(edge_data):
                 dst_idx = missed_idx[idx]
 
@@ -71,16 +74,11 @@ class RoutingData:
                 edge_time = float(edge_time)
 
                 result[dst_idx] = (edge_dist, edge_time)
-
-                self._dist_repo.update(
-                    src_lat_e6=src_lat_e6,
-                    src_lng_e6=src_lng_e6,
-                    dst_lat_e6=dst[dst_idx][0],
-                    dst_lng_e6=dst[dst_idx][1],
-                    distance=edge_dist,
-                    travel_time=edge_time,
-                )
-
+                update_items.append((dst[dst_idx][0], dst[dst_idx][1], edge_dist, edge_time))
+            
+            if not self._dist_repo.update(src_lat_e6, src_lng_e6, update_items):
+                print(f"Warning: failed to update distance repository with new edges for source ({src_lat_e6}, {src_lng_e6})")
+                
         if any(value == inf for value in result):
             raise RuntimeError("Some edge data is still missing after routing provider fetch")
 

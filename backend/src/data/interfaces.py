@@ -60,12 +60,11 @@ class SolutionRepository(Protocol):
 class DistanceRepository(Protocol):
 
     def get(self, 
-            src_lat_e6: int, src_lng_e6: int, dst_lat_e6: int, dst_lng_e6: int
-        ) -> tuple[float, float] | None: ...
+            src_lat_e6: int, src_lng_e6: int, dst: list[tuple[int, int]],
+        ) -> list[tuple[int, int, float, float]] | None: ...
 
     def update(self, 
-            src_lat_e6: int, src_lng_e6: int, dst_lat_e6: int, dst_lng_e6: int, 
-            distance: float, travel_time: float
+            src_lat_e6: int, src_lng_e6: int, dst: list[tuple[int, int, float, float]],
         ) -> bool: ...
 
     def delete(self, 

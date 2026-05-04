@@ -146,7 +146,7 @@ class SolveDispatcher:
         n = len(scenario.customers)
         vehicles: dict[int, int] = {}
         for pool in scenario.vehicles:
-            if pool.is_unlimited:
+            if pool.is_quantity_unlimited:
                 vehicles[pool.capacity] = INF_CAPACITY
             vcnt = vehicles.get(pool.capacity, 0)
             if vcnt != INF_CAPACITY:

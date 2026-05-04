@@ -31,7 +31,9 @@ INPUT_CSV_ROWS = 132
 BATCH_SIZE = 27
 
 PROFILE = "driving-car"
-MATRIX_URL = f"https://api.openrouteservice.org/v2/matrix/{PROFILE}"
+# MATRIX_URL = f"https://api.openrouteservice.org/v2/matrix/{PROFILE}"
+ORS_BASE_URL = os.getenv("ORS_BASE_URL", "https://api.heigit.org/openrouteservice")
+MATRIX_URL = f"{ORS_BASE_URL}/v2/matrix/{PROFILE}"
 
 SLEEP_BETWEEN_CALLS_SEC = 1
 CALL_TIMEOUT_SEC = 120
@@ -135,8 +137,8 @@ for i1 in range(BATCH_COUNT - 1):
 
         if response.status_code != 200:
             raise RuntimeError(
-                f"Matrix request failed: "
-                f"{response.status_code} {response.text}"
+                f"Matrix request failed:"
+                f"{response.status_code} url={MATRIX_URL} {response.text}"
             )
 
         data = response.json()
@@ -178,7 +180,7 @@ depot_id1 = 97
 depot_id2 = 31
 depot1_hospital = points.get(depot_id1)
 depot2_hospital = points.get(depot_id2)
-vehicles = VehiclePool(capacity=60, quantity=-1)
+vehicles = VehiclePool(capacity=60, quantity=-1, time_limit=9 * 3600)
 scenarios = []
 
 if depot1_hospital is None:
@@ -294,22 +296,41 @@ print(f"Finished saving hospitals. Success: {success_count}, Fail: {fail_count}"
 
 print("Saving distances ...")
 success_count, fail_count = 0, 0
+# for src_id, src in points.items():
+#     for dst_id, dst in points.items():
+#         if src_id == dst_id:
+#             continue
+#         name = f"{src.lat_e6}_{src.lng_e6}_{dst.lat_e6}_{dst.lng_e6}.json"
+#         with open(f"{DISTANCES_DIR}/{name}", "w", encoding="utf-8") as out_file:
+#             try:
+#                 payload = {
+#                     "distance": dist_matrix[idx_lookup[src_id]][idx_lookup[dst_id]],
+#                     "travel_time": time_matrix[idx_lookup[src_id]][idx_lookup[dst_id]]
+#                 }
+#                 json.dump(payload, out_file, indent=2)
+#                 success_count += 1
+#             except Exception as e:
+#                 print(f"Error saving distance from {src_id} to {dst_id} to {name}: {e}")
+#                 fail_count += 1               
 for src_id, src in points.items():
+    edges = []
     for dst_id, dst in points.items():
         if src_id == dst_id:
             continue
-        name = f"{src.lat_e6}_{src.lng_e6}_{dst.lat_e6}_{dst.lng_e6}.json"
-        with open(f"{DISTANCES_DIR}/{name}", "w", encoding="utf-8") as out_file:
-            try:
-                payload = {
-                    "distance": dist_matrix[idx_lookup[src_id]][idx_lookup[dst_id]],
-                    "travel_time": time_matrix[idx_lookup[src_id]][idx_lookup[dst_id]]
-                }
-                json.dump(payload, out_file, indent=2)
-                success_count += 1
-            except Exception as e:
-                print(f"Error saving distance from {src_id} to {dst_id} to {name}: {e}")
-                fail_count += 1
+        edges.append({
+            "dst_lat_e6": dst.lat_e6,
+            "dst_lng_e6": dst.lng_e6,
+            "distance": dist_matrix[idx_lookup[src_id]][idx_lookup[dst_id]],
+            "travel_time": time_matrix[idx_lookup[src_id]][idx_lookup[dst_id]],
+        })
+    name = f"{src.lat_e6}_{src.lng_e6}.json"
+    with open(f"{DISTANCES_DIR}/{name}", "w", encoding="utf-8") as out_file:
+        try:
+            json.dump({"edges": edges}, out_file, indent=2)
+            success_count += 1
+        except Exception as e:
+            print(f"Error saving distance list for {src_id} to {name}: {e}")
+            fail_count += 1
 print(f"Finished saving distances. Success: {success_count}, Fail: {fail_count}")
 
 

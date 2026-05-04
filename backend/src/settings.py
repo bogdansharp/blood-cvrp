@@ -17,7 +17,8 @@ class Settings(BaseSettings):
     storage_root: Path = Field(default=Path("storage"), validation_alias="STORAGE_ROOT")
     ors_api_key: str = Field(default="", validation_alias="ORS_API_KEY")
     ors_base_url: str = Field(
-        default="https://api.openrouteservice.org", 
+        # default="https://api.openrouteservice.org", 
+        default="https://api.heigit.org/openrouteservice",
         validation_alias="ORS_BASE_URL"
     )
     ors_profile: str = Field(default="driving-car", validation_alias="ORS_PROFILE")
