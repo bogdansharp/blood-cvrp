@@ -180,7 +180,7 @@ depot_id1 = 97
 depot_id2 = 31
 depot1_hospital = points.get(depot_id1)
 depot2_hospital = points.get(depot_id2)
-vehicles = VehiclePool(capacity=60, quantity=-1, time_limit=9 * 3600)
+vehicles = VehiclePool(capacity=60, quantity=-1)
 scenarios = []
 
 if depot1_hospital is None:

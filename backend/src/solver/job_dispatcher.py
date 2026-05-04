@@ -28,7 +28,6 @@ class SolveDispatcher:
         method: SolveMethod,
         options: SolveMethodOptions | None = None,
         cancel_event: Any = None,
-        objective: SolverObjective = SolverObjective.MINIMIZE_DISTANCE
     ) -> JobResult:
         # definitions
         self._log: list[LogEntry] = []
@@ -36,6 +35,7 @@ class SolveDispatcher:
         solution_id = None
         cancelled = False
         self._cancel_event = cancel_event
+        objective = options.objective if options and options.objective else SolverObjective.MINIMIZE_DISTANCE
 
         def get_result() -> JobResult:
             return JobResult(

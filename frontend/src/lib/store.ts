@@ -17,7 +17,7 @@ export type LogEntry = {
 export type VehiclePool = {
     capacity: number;
     quantity: number; // -1 if unlimited
-    time_limit: number; // in seconds, -1 if unlimited
+    // time_limit: number; // in seconds, -1 if unlimited
 };
 
 export type Hospital = {
@@ -203,7 +203,7 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         update((state) => ({ ...state, scenario: null, solution: null, error: null }));
     }
 
-    const submitSolveRequest = async (method: SolveMethod): Promise<SolverJobPayload> => {
+    const submitSolveRequest = async (method: SolveMethod, timeLimitHours: number): Promise<SolverJobPayload> => {
         let scenarioId: number | null = null;
         update((state) => {
             scenarioId = state.scenario?.id ?? null;
@@ -217,8 +217,13 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
             throw new Error('No scenario loaded.');
         }
 
+        let timeLimitSeconds = Math.round(timeLimitHours * 3600);
+        if (timeLimitSeconds < 0) {
+            throw new Error('Time limit must be non-negative.');
+        }
+
         const response = await fetch(
-            `${apiBase}/jobs/run/${scenarioId}?method=${encodeURIComponent(method)}`,
+            `${apiBase}/jobs/run/${scenarioId}?method=${encodeURIComponent(method)}&cost_limit=${timeLimitSeconds}`,
             { method: 'POST' }
         );
 

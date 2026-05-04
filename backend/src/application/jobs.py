@@ -28,7 +28,6 @@ class SolveJobRequest(BaseModel):
     name: str = Field(default="Solve Request")
     method: SolveMethod
     options: SolveMethodOptions | None = None
-    objective: SolverObjective = Field(default=SolverObjective.MINIMIZE_DISTANCE)
 
 
 class JobStateMachine:
@@ -81,7 +80,6 @@ class SolveTaskCallable:
             self._request.method,
             self._request.options,
             self._cancel_event,
-            self._request.objective,
         )
 
 

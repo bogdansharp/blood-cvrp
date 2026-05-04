@@ -35,6 +35,7 @@
     let mapLayers: LayerGroup | null = null;
     let leaflet: typeof import('leaflet') | null = null;
     let selectedMethod: SolveMethod = defaultSolveMethod;
+    let timeLimitHours: number = 9;
     let lastMapKey = '';
 
     const unsubscribe = store.subscribe((value) => {
@@ -102,21 +103,6 @@
             return;
         }
 
-        scenario.depots.forEach((depot) => {
-            const position: [number, number] = [depot.lat, depot.lng];
-            bounds.push(position);
-
-            l
-                .circleMarker(position, {
-                    radius: 7,
-                    color: '#0f4c81',
-                    fillColor: '#0f4c81',
-                    fillOpacity: 0.9
-                })
-                .bindPopup(`<strong>Depot:</strong> ${depot.name}`)
-                .addTo(layers);
-        });
-
         scenario.customers.forEach((customer) => {
             const position: [number, number] = [customer.lat, customer.lng];
             bounds.push(position);
@@ -179,6 +165,21 @@
             });
         }
 
+        scenario.depots.forEach((depot) => {
+            const position: [number, number] = [depot.lat, depot.lng];
+            bounds.push(position);
+
+            l
+                .circleMarker(position, {
+                    radius: 7,
+                    color: '#0f4c81',
+                    fillColor: '#0f4c81',
+                    fillOpacity: 0.9
+                })
+                .bindPopup(`<strong>Depot:</strong> ${depot.name}`)
+                .addTo(layers);
+        });
+
         if (bounds.length > 0) {
             map.fitBounds(bounds, { padding: [24, 24] });
         } else {
@@ -201,8 +202,8 @@
         };
     });
 
-    const submitAndTrack = async (method: SolveMethod) => {
-        const job = await store.submitSolveRequest(method);
+    const submitAndTrack = async (method: SolveMethod, timeLimitHours: number) => {
+        const job = await store.submitSolveRequest(method, timeLimitHours);
         const terminalJob = await store.pollJobUntilTerminal(job.id, 100, 1000);
         if (terminalJob.status === 'finished' && terminalJob.solution_id) {
             await store.loadSolution(terminalJob.solution_id);
@@ -263,7 +264,7 @@
             {/if}
         </div>
 
-        <div class="grid min-w-0 grid-cols-1 gap-2 min-[521px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] min-[821px]:grid-cols-[minmax(140px,180px)_minmax(120px,160px)_auto] min-[821px]:justify-end">
+        <div class="grid min-w-0 grid-cols-1 gap-2 min-[521px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] min-[821px]:grid-cols-[minmax(140px,180px)_minmax(120px,160px)_auto_auto] min-[821px]:justify-end">
             <div class="grid min-w-0 gap-1">
                 <label class="text-[11px] leading-none text-neutral-600" for="scenario-select">
                     Scenario
@@ -298,10 +299,20 @@
                 </select>
             </div>
 
+            <div class="grid min-w-0 gap-1">
+                <label class="text-[11px] leading-none text-neutral-600" for="time-limit-input">
+                    Treshold (hours)
+                </label>
+                <input type="number" min="0" id="time-limit-input"
+                    class="h-[30px] min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 min-[821px]:text-[13px] w-20"
+                    bind:value={timeLimitHours}
+                />
+            </div>
+
             <button
                 class="h-[30px] w-full rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 min-[521px]:w-auto min-[821px]:text-[13px]"
                 type="button"
-                onclick={() => submitAndTrack(selectedMethod)}
+                onclick={() => submitAndTrack(selectedMethod, timeLimitHours)}
                 disabled={state.loading || !state.scenario}
             >
                 Solve

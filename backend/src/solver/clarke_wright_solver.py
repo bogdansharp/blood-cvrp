@@ -52,8 +52,12 @@ class ClarkeWrightSolver(Solver):
     ) -> list[Route] | None:
         self._started = perf_counter()
         self._time_limit_ms = None
-        if options and options.time_limit_sec:
-            self._time_limit_ms = options.time_limit_sec * 1000
+        self._cost_limit = float('inf')
+        if options:
+            if options.time_limit_sec is not None:
+                self._time_limit_ms = options.time_limit_sec * 1000
+            if options.cost_limit is not None:
+                self._cost_limit = options.cost_limit
         self._cancel_event = cancel_event
         self._periodic_check()
         self._parse_input(input)
@@ -65,6 +69,8 @@ class ClarkeWrightSolver(Solver):
                 self._periodic_check()
                 demand = self._demand[node]
                 route_cost = self._matrix[0][node] + self._matrix[node][0]
+                if route_cost > self._cost_limit:
+                    raise ValueError(f"Single-node route cost {route_cost} exceeds cost limit {self._cost_limit}")
                 while demand > max_cap:
                     demand -= max_cap
                     self._solution.append(Route([node], max_cap, route_cost, max_cap))
@@ -81,6 +87,8 @@ class ClarkeWrightSolver(Solver):
         }
         try:
             for route in routes.values():
+                if route.cost > self._cost_limit:
+                    raise ValueError(f"Single-node route cost {route.cost} exceeds cost limit {self._cost_limit}")
                 route.vehicle_capacity = self._get_min_vcap(route.demand)
                 self._vavail[route.vehicle_capacity] -= 1
         except ValueError:
@@ -103,6 +111,9 @@ class ClarkeWrightSolver(Solver):
             ri, rj = routes[i], routes[j]
             if ri is rj or ri.nodes[-1] != i or rj.nodes[0] != j:
                 continue
+            new_cost = ri.cost + rj.cost - saving
+            if new_cost > self._cost_limit:
+                continue
             new_demand = ri.demand + rj.demand
             self._vavail[ri.vehicle_capacity] += 1
             self._vavail[rj.vehicle_capacity] += 1
@@ -114,7 +125,7 @@ class ClarkeWrightSolver(Solver):
                 continue
             self._vavail[new_vcap] -= 1
             new_nodes = ri.nodes + rj.nodes
-            new_route = Route(new_nodes, new_demand, ri.cost + rj.cost - saving, new_vcap)
+            new_route = Route(new_nodes, new_demand, new_cost, new_vcap)
             for node in new_nodes:
                 routes[node] = new_route
 
