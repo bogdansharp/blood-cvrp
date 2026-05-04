@@ -185,7 +185,7 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
     };
 
     const loadScenario = async (scenarioId: number): Promise<ScenarioPayload> => {
-        update((state) => ({ ...state, loading: true, error: null }));
+        update((state) => ({ ...state, loading: true, error: null, solution: null }));
 
         const response = await fetch(`${apiBase}/scenarios/${scenarioId}`);
         if (!response.ok) {
@@ -195,7 +195,7 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         }
 
         const scenario = (await response.json()) as ScenarioPayload;
-        update((state) => ({ ...state, scenario, loading: false }));
+        update((state) => ({ ...state, scenario, loading: false, solution: null }));
         return scenario;
     };
 
@@ -247,7 +247,13 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
             }
 
             const job = (await response.json()) as SolverJobPayload;
-            update((state) => ({ ...state, jobs: upsertJob(state.jobs, job) }));
+            update((state) => {
+                const existing = state.jobs.find((item) => item.id === job.id);
+                if (existing && JSON.stringify(existing) === JSON.stringify(job)) {
+                    return state;
+                }
+                return { ...state, jobs: upsertJob(state.jobs, job) };
+            });
 
             if (job.status === 'finished' || job.status === 'failed' || job.status === 'cancelled') {
                 return job;

@@ -35,6 +35,7 @@
     let mapLayers: LayerGroup | null = null;
     let leaflet: typeof import('leaflet') | null = null;
     let selectedMethod: SolveMethod = defaultSolveMethod;
+    let lastMapKey = '';
 
     const unsubscribe = store.subscribe((value) => {
         state = value;
@@ -71,14 +72,7 @@
         const scenario = state.scenario;
         const hospitals = state.hospitals;
 
-        console.log("Updating map", {
-            hasScenario: !!scenario,
-            hospitals: hospitals.length,
-            depots: scenario?.depots.length,
-            customers: scenario?.customers.length
-        });
-
-        if (hospitals.length === 0) {
+        if (!scenario && hospitals.length === 0) {
             map.setView(defaultCenter, defaultZoom);
             return;
         }
@@ -129,10 +123,10 @@
 
             l
                 .circleMarker(position, {
-                    radius: 6,
+                    radius: 5,
                     color: '#b23b00',
                     fillColor: '#b23b00',
-                    fillOpacity: 0.8
+                    fillOpacity: 0.7
                 })
                 .bindPopup(
                     `<strong>Customer:</strong> ${customer.name}<br />Demand: ${customer.demand}`
@@ -171,7 +165,7 @@
                     l
                         .polyline(routePoints, {
                             color: routeColors[routeIndex % routeColors.length],
-                            weight: 4,
+                            weight: 3,
                             opacity: 0.8
                         })
                         .bindPopup(
@@ -209,7 +203,7 @@
 
     const submitAndTrack = async (method: SolveMethod) => {
         const job = await store.submitSolveRequest(method);
-        const terminalJob = await store.pollJobUntilTerminal(job.id, 1000, 1000);
+        const terminalJob = await store.pollJobUntilTerminal(job.id, 100, 1000);
         if (terminalJob.status === 'finished' && terminalJob.solution_id) {
             await store.loadSolution(terminalJob.solution_id);
         }
@@ -230,8 +224,21 @@
         void store.loadScenario(value);
     };
 
-    $: if (map && mapLayers && leaflet && state) {
-        updateMapLayers();
+    const getMapKey = (value: AppViewState) => {
+        const scenarioId = value.scenario?.id ?? 'none';
+        const solutionId = value.solution?.id ?? 'none';
+        const hospitalsCount = value.hospitals.length;
+        const routesCount = value.solution?.routes.length ?? 0;
+        return `${scenarioId}|${solutionId}|${hospitalsCount}|${routesCount}`;
+    };
+
+    $: if (map && mapLayers && leaflet) {
+        const nextKey = getMapKey(state);
+        if (nextKey !== lastMapKey) {
+            // console.log(`Updating map layers key=${nextKey}`);
+            lastMapKey = nextKey;
+            updateMapLayers();
+        }
     }
 
     onDestroy(() => {
