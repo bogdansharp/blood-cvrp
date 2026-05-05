@@ -12,7 +12,10 @@ from pydantic import BaseModel, Field, computed_field, model_validator
 class SolveMethod(str, Enum):
     CLARKE_WRIGHT_SAVINIGS = "clarke_wright_savings"
     CLARKE_WRIGHT_SAVINIGS_WITH_2_OPT = "clarke_wright_savings_with_2_opt"
-    ORTOOLS = "ortools"
+    ORTOOLS_FAST = "ortools_fast"
+    ORTOOLS_BALANCED = "ortools_balanced"
+    ORTOOLS_QUALITY = "ortools_quality"
+    ORTOOLS_EXPERIMENTAL = "ortools_experimental"
 
 class SolverJobStatus(str, Enum):
     QUEUED = "queued"

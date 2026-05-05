@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     )
 
     project_root: Path = Path.cwd()
-    environment: str = Field(default="development", validation_alias="ENVIRONMENT")
     storage_root: Path = Field(default=Path("storage"), validation_alias="STORAGE_ROOT")
+    environment: str = Field(default="development", validation_alias="ENVIRONMENT")
     ors_api_key: str = Field(default="", validation_alias="ORS_API_KEY")
     ors_base_url: str = Field(
         # default="https://api.openrouteservice.org", 
@@ -23,6 +23,12 @@ class Settings(BaseSettings):
     )
     ors_profile: str = Field(default="driving-car", validation_alias="ORS_PROFILE")
     port: int = Field(default=8000, validation_alias="PORT")
+    solver_hard_time_limit_sec: int = Field(
+        default=600, validation_alias="SOLVER_HARD_TIME_LIMIT_SEC", gt=0, le=3600
+    )
+    or_tools_target_time_sec: int = Field(
+        default=10, validation_alias="OR_TOOLS_TARGET_TIME_SEC", gt=0, le=3600
+    )
 
     @field_validator("storage_root", mode="before")
     def resolve_storage_root(cls, value: str | Path, info) -> Path:

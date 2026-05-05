@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from backend.src.api.models import SolveMethod, SolverJob, SolverObjective
+from backend.src.application.dependencies import get_settings
 from backend.src.application.jobs import JobService, SolveJobRequest, get_job_service
 from backend.src.solver.options import SolveMethodOptions
 
@@ -34,8 +35,14 @@ async def run_job(
     cost_limit: int | None = None,
     objective: SolverObjective = SolverObjective.MINIMIZE_TRAVEL_TIME,
     job_service: JobService = Depends(get_job_service),
+    settings = Depends(get_settings),
 ) -> SolverJob:
-    options = SolveMethodOptions(cost_limit=cost_limit, objective=objective)
+    time_limit_sec = settings.solver_hard_time_limit_sec
+    options = SolveMethodOptions(
+        cost_limit=cost_limit, 
+        objective=objective, 
+        time_limit_sec=time_limit_sec
+    )
     request = SolveJobRequest(scenario_id=scenario_id, method=method, options=options)
     try:
         job = job_service.submit(request)

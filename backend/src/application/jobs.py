@@ -1,33 +1,35 @@
 from multiprocessing import Manager
 from typing import Any
 
+from fastapi import Depends
 from pydantic import BaseModel, Field
 
-from backend.src.api.models import Solution, SolveMethod, SolverJob, SolverJobStatus, SolverObjective
-from fastapi import Depends
-
+from backend.src.api.models import Solution, SolveMethod, SolverJob, SolverJobStatus
 from backend.src.application.dependencies import (
     get_job_executor,
     get_job_repository,
     get_routing_data,
     get_scenario_repository,
     get_solution_repository,
+    get_settings,
 )
 from backend.src.data.interfaces import JobRepository, ScenarioRepository, SolutionRepository
 from backend.src.data.routing import RoutingData
+from backend.src.settings import Settings
 from backend.src.solver.clarke_wright_solver import ClarkeWrightSolver
 from backend.src.solver.errors import CancelledError
 from backend.src.solver.job_dispatcher import SolveDispatcher
 from backend.src.solver.job_executor import JobExecutor
 from backend.src.solver.models import JobResult, SolverRegistry
 from backend.src.solver.options import SolveMethodOptions
+from backend.src.solver.ortools import OrToolsPreset, OrToolsSolver
 
 
 class SolveJobRequest(BaseModel):
     scenario_id: int
     name: str = Field(default="Solve Request")
     method: SolveMethod
-    options: SolveMethodOptions | None = None
+    options: SolveMethodOptions
 
 
 class JobStateMachine:
@@ -42,7 +44,7 @@ class JobStateMachine:
 
     def can_transition(self, from_status: SolverJobStatus, to_status: SolverJobStatus) -> bool:
         return to_status in self._ALLOWED[from_status]
-    
+
     def transition(self, from_status: SolverJobStatus, to_status: SolverJobStatus) -> SolverJobStatus:
         if self.can_transition(from_status, to_status):
             return to_status
@@ -68,7 +70,7 @@ class SolveTaskCallable:
     def __call__(self) -> JobResult | None:
         if self._cancel_event and self._cancel_event.is_set():
             return None
-        
+
         dispatcher = SolveDispatcher(
             registry=self._methods_registry,
             scenario_repo=self._scenario_repo,
@@ -90,6 +92,7 @@ class JobService:
         scenario_repo: ScenarioRepository,
         routing: RoutingData,
         executor: JobExecutor,
+        settings: Settings,
         method_registry: SolverRegistry | None = None,
         state_machine: JobStateMachine | None = None,
     ) -> None:
@@ -98,6 +101,7 @@ class JobService:
         self._scenario_repo = scenario_repo
         self._routing = routing
         self._executor = executor
+        self._settings = settings
         self._sm = state_machine or JobStateMachine()
         self._cancel_manager = Manager()
         self._cancel_tokens: dict[int, Any] = {}
@@ -105,8 +109,25 @@ class JobService:
             self._method_registry = method_registry
         else:
             self._method_registry = SolverRegistry()
+            or_tools_time_sec = self._settings.or_tools_target_time_sec
             self._method_registry.register(
                 SolveMethod.CLARKE_WRIGHT_SAVINIGS, ClarkeWrightSolver()
+            )
+            self._method_registry.register(
+                SolveMethod.ORTOOLS_FAST,
+                OrToolsSolver(preset=OrToolsPreset.FAST, target_time_sec=or_tools_time_sec),
+            )
+            self._method_registry.register(
+                SolveMethod.ORTOOLS_BALANCED,
+                OrToolsSolver(preset=OrToolsPreset.BALANCED, target_time_sec=or_tools_time_sec),
+            )
+            self._method_registry.register(
+                SolveMethod.ORTOOLS_QUALITY,
+                OrToolsSolver(preset=OrToolsPreset.QUALITY, target_time_sec=or_tools_time_sec),
+            )
+            self._method_registry.register(
+                SolveMethod.ORTOOLS_EXPERIMENTAL,
+                OrToolsSolver(preset=OrToolsPreset.EXPERIMENTAL, target_time_sec=or_tools_time_sec),
             )
 
 
@@ -120,7 +141,7 @@ class JobService:
         persisted_job = self._job_repo.create(created_job)
         if persisted_job is None:
             raise RuntimeError("Failed to create job in repository")
-        
+
         cancel_event = self._cancel_manager.Event()
         self._cancel_tokens[persisted_job.id] = cancel_event
 
@@ -134,13 +155,13 @@ class JobService:
         )
         self._executor.submit(persisted_job.id, task)
         return persisted_job
-    
+
 
     def get_job(self, job_id: int) -> SolverJob | None:
         job = self._job_repo.get(job_id)
         if job is None:
             return None
-        
+
         if job.status.is_terminal:
             return job
 
@@ -151,7 +172,7 @@ class JobService:
 
         if executor_status == job.status:
             return job
-        
+
         if executor_status == SolverJobStatus.RUNNING:
             if job.status == SolverJobStatus.QUEUED:
                 job.status = self._sm.transition(job.status, SolverJobStatus.RUNNING)
@@ -177,11 +198,11 @@ class JobService:
 
         saved_job = self._job_repo.update(job)
         return saved_job
-    
+
 
     def get_jobs(self) -> list[SolverJob]:
         return self._job_repo.get_all()
-    
+
 
     def cancel(self, job_id: int) -> bool:
         job = self.get_job(job_id)
@@ -189,7 +210,7 @@ class JobService:
             return False
         if job.status.is_terminal:
             return False
-        
+
         # Cancel the job before started
         try:
             if self._executor.cancel(job_id):
@@ -205,7 +226,7 @@ class JobService:
             return False
         cancel_token.set()
         return True
-    
+
 
     def get_result(self, job_id: int) -> Solution:
         job = self.get_job(job_id)
@@ -229,6 +250,7 @@ def get_job_service(
     scenario_repo: ScenarioRepository = Depends(get_scenario_repository),
     routing: RoutingData = Depends(get_routing_data),
     executor: JobExecutor = Depends(get_job_executor),
+    settings: Settings = Depends(get_settings),
 ) -> JobService:
     return JobService(
         job_repo=job_repo,
@@ -236,4 +258,5 @@ def get_job_service(
         scenario_repo=scenario_repo,
         routing=routing,
         executor=executor,
+        settings=settings,
     )
