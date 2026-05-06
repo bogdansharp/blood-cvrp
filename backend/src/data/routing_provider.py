@@ -1,3 +1,5 @@
+import time
+
 import requests
 
 from backend.src.data.interfaces import RoutingProvider
@@ -29,11 +31,19 @@ class ORSRoutingProvider(RoutingProvider):
         self._geometry_url = ors_base_url + self._GEOMETRY_ENDPOINT
         self._max_snap_dist = max_snap_dist
         self._simplify_geometry = simplify_geometry
+        self._geometry_cooldown_until = 0.0
 
 
     def get_geometry(self, 
         src_lat_e6: int, src_lng_e6: int, dst_lat_e6: int, dst_lng_e6: int
     ) -> list[tuple[int, int]]:
+        now = time.time()
+        if now < self._geometry_cooldown_until:
+            remaining = int(self._geometry_cooldown_until - now)
+            raise RuntimeError(
+                f"Geometry requests are paused for {remaining}s due to rate limiting"
+            )
+
         coordinates = [
             [src_lng_e6 / 1e6, src_lat_e6 / 1e6],
             [dst_lng_e6 / 1e6, dst_lat_e6 / 1e6],
@@ -56,6 +66,11 @@ class ORSRoutingProvider(RoutingProvider):
             json=payload, 
             timeout=self._call_timeout_sec
         )
+        if response.status_code == 429:
+            self._geometry_cooldown_until = time.time() + 60
+            raise RuntimeError(
+                f"Geometry request failed: {response.status_code} {response.text}"
+            )
         if response.status_code != 200:
             raise RuntimeError(
                 f"Geometry request failed: "

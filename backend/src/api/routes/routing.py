@@ -8,14 +8,15 @@ router = APIRouter(prefix="/routing", tags=["routing"])
 async def get_geometry(
     src_lat_e6: int, src_lng_e6: int, dst_lat_e6: int, dst_lng_e6: int,
     routing_service: RoutingService = Depends(get_routing_service),
-) -> list[tuple[int, int]]:
+) -> list[tuple[float, float]]:
     try:
-        geometry = routing_service.get_geometry(
+        geometry_e6 = routing_service.get_geometry(
             src_lat_e6=src_lat_e6,
             src_lng_e6=src_lng_e6,
             dst_lat_e6=dst_lat_e6,
             dst_lng_e6=dst_lng_e6
         )
+        geometry = [(lat_e6 / 1e6, lng_e6 / 1e6) for lat_e6, lng_e6 in geometry_e6]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     return geometry

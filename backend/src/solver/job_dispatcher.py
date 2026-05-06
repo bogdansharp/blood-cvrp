@@ -2,8 +2,8 @@ import datetime
 from time import perf_counter
 from typing import Any
 
-from backend.src.api.models import Hospital, LogEntry, LogLevel, RoutePath, Solution, SolveMethod, SolverObjective
-from backend.src.solver.options import SolveMethodOptions
+from backend.src.api.models import Hospital, LogEntry, LogLevel, RoutePath, Solution, SolveMethod
+from backend.src.solver.options import SolveMethodOptions, SolverObjective
 from backend.src.data.interfaces import ScenarioRepository, SolutionRepository
 from backend.src.data.routing import RoutingData
 from backend.src.solver.errors import CancelledError
@@ -35,6 +35,7 @@ class SolveDispatcher:
         solution_id = None
         cancelled = False
         self._cancel_event = cancel_event
+        self._options = options
         objective = options.objective if options and options.objective else SolverObjective.MINIMIZE_DISTANCE
 
         def get_result() -> JobResult:
@@ -215,6 +216,7 @@ class SolveDispatcher:
             name=name,
             scenario_id=self._scenario.id,
             method=method,
+            options=self._options,
             total_distance=total_distance,
             total_travel_time=total_duration,
             routes=route_paths,

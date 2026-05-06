@@ -4,6 +4,61 @@ export type SolveMethod =
     | 'clarke_wright_savings'
     | 'clarke_wright_savings_with_2_opt'
     | 'ortools';
+
+export const SOLVE_METHOD_LABELS: Record<SolveMethod, string> = {
+    'clarke_wright_savings': 'Clarke-Wright Savings',
+    'clarke_wright_savings_with_2_opt': 'Clarke-Wright Savings with 2-opt',
+    'ortools': 'OR-Tools',
+};
+
+export type SolverObjective = 'minimize_distance' | 'minimize_travel_time';
+
+export type ORFirstSolutionStrategy =
+    | 'AUTOMATIC'
+    | 'PATH_CHEAPEST_ARC'
+    | 'SAVINGS'
+    | 'PARALLEL_CHEAPEST_INSERTION'
+    | 'LOCAL_CHEAPEST_INSERTION'
+    | 'GLOBAL_CHEAPEST_ARC';
+
+export const OR_FIRST_SOLUTION_STRATEGY_LABELS: Record<ORFirstSolutionStrategy, string> = {
+    AUTOMATIC: 'Automatic',
+    PATH_CHEAPEST_ARC: 'Path cheapest arc',
+    SAVINGS: 'Savings',
+    PARALLEL_CHEAPEST_INSERTION: 'Parallel cheapest insertion',
+    LOCAL_CHEAPEST_INSERTION: 'Local cheapest insertion',
+    GLOBAL_CHEAPEST_ARC: 'Global cheapest arc',
+};
+
+export type ORLocalSearchMetaheuristic =
+    | 'NONE'
+    | 'AUTOMATIC'
+    | 'GREEDY_DESCENT'
+    | 'GUIDED_LOCAL_SEARCH'
+    | 'SIMULATED_ANNEALING'
+    | 'TABU_SEARCH';
+
+export const OR_LOCAL_SEARCH_METAHEURISTIC_LABELS: Record<ORLocalSearchMetaheuristic, string> = {
+    NONE: 'None',
+    AUTOMATIC: 'Automatic',
+    GREEDY_DESCENT: 'Greedy descent',
+    GUIDED_LOCAL_SEARCH: 'Guided local search',
+    SIMULATED_ANNEALING: 'Simulated annealing',
+    TABU_SEARCH: 'Tabu search',
+};
+
+export type SolveMethodOptions = {
+    random_seed?: number | null;
+    time_limit_sec?: number | null;
+    objective?: SolverObjective;
+    cost_limit?: number | null;
+    or_balance_routes?: boolean;
+    or_target_time_sec?: number;
+    or_first_solution_strategy?: ORFirstSolutionStrategy | null;
+    or_local_search_metaheuristic?: ORLocalSearchMetaheuristic | null;
+};
+
+
 export type JobStatus = 'queued' | 'cancelled' | 'running' | 'finished' | 'failed';
 
 export type LogLevel = 'info' | 'warning' | 'error' | 'debug';
@@ -61,6 +116,7 @@ export type SolverJobPayload = {
     id: number;
     scenario_id: number;
     method: SolveMethod;
+    options: SolveMethodOptions | null;
     status: JobStatus;
     name?: string | null;
     log: LogEntry[];
@@ -91,6 +147,7 @@ export type SolutionPayload = {
     total_distance: number;
     total_travel_time: number;
     routes: RoutePath[];
+    options: SolveMethodOptions | null;
     created_at: string;
 };
 
@@ -135,6 +192,7 @@ export type AppViewState = {
     loading: boolean;
     hospitals: HospitalLocation[];
     error: string | null;
+    geometries: Map<string, [number, number][]>;
 };
 
 export const jobStatusLabel = (status: JobStatus): string => {
@@ -148,7 +206,8 @@ const initialState: AppViewState = {
     solution: null,
     loading: false,
     hospitals: [],
-    error: null
+    error: null,
+    geometries: new Map(),
 };
 
 export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
@@ -199,11 +258,42 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         return scenario;
     };
 
+    const upateGeometries = (
+        g: Map<string, [number, number][]>, 
+        key: string, 
+        value: [number, number][],
+    ): Map<string, [number, number][]> => {
+        g.set(key, value);
+        return g;
+    }
+
+    const loadGeometry = async (src_lat_e6: number, src_lng_e6: number, dst_lat_e6: number, dst_lng_e6: number): Promise<[number, number][]> => {
+        update((state) => ({ ...state, loading: true, error: null}));
+
+        const response = await fetch(`${apiBase}/routing/geometry?src_lat_e6=${src_lat_e6}&src_lng_e6=${src_lng_e6}&dst_lat_e6=${dst_lat_e6}&dst_lng_e6=${dst_lng_e6}`);
+        if (!response.ok) {
+            const detail = await response.text();
+            update((state) => ({ ...state, loading: false, error: detail }));
+            throw new Error(detail);
+        }
+
+        const geometry: [number, number][] = (await response.json());
+        const key = `${src_lat_e6}_${src_lng_e6}_${dst_lat_e6}_${dst_lng_e6}`;
+        update((state) => ({ ...state, loading: false, geometries: upateGeometries(state.geometries, key, geometry) }));
+        return geometry;
+    };
+
     const resetScenario = () => {
         update((state) => ({ ...state, scenario: null, solution: null, error: null }));
     }
 
-    const submitSolveRequest = async (method: SolveMethod, timeLimitHours: number): Promise<SolverJobPayload> => {
+    const submitSolveRequest = async (
+        method: SolveMethod, 
+        timeLimitHours: number,
+        orFirstSolution: ORFirstSolutionStrategy,
+        orLocalSearch: ORLocalSearchMetaheuristic,
+        orBalanceRoutes: boolean = false,
+    ): Promise<SolverJobPayload> => {
         let scenarioId: number | null = null;
         update((state) => {
             scenarioId = state.scenario?.id ?? null;
@@ -222,8 +312,14 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
             throw new Error('Time limit must be non-negative.');
         }
 
+        let orParams: string = "";
+        if (method === 'ortools') {
+            orParams += `&or_first_solution=${encodeURIComponent(orFirstSolution)}`;
+            orParams += `&or_local_search=${encodeURIComponent(orLocalSearch)}`;
+            orParams += `&or_balance_routes=${orBalanceRoutes}`;
+        }
         const response = await fetch(
-            `${apiBase}/jobs/run/${scenarioId}?method=${encodeURIComponent(method)}&cost_limit=${timeLimitSeconds}`,
+            `${apiBase}/jobs/run/${scenarioId}?method=${encodeURIComponent(method)}&cost_limit=${timeLimitSeconds}${orParams}`,
             { method: 'POST' }
         );
 
@@ -310,6 +406,7 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         submitSolveRequest,
         pollJobUntilTerminal,
         loadSolution,
-        fetchHospitals
+        fetchHospitals,
+        loadGeometry,
     };
 };

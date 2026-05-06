@@ -78,7 +78,7 @@ class RoutingData:
             
             if not self._dist_repo.update(src_lat_e6, src_lng_e6, update_items):
                 print(f"Warning: failed to update distance repository with new edges for source ({src_lat_e6}, {src_lng_e6})")
-                
+
         if any(value == inf for value in result):
             raise RuntimeError("Some edge data is still missing after routing provider fetch")
 
@@ -173,6 +173,7 @@ class RoutingData:
             return geometry
 
         try:
+            print(f"Fetching geometry ({src_lat_e6}, {src_lng_e6}) -> ({dst_lat_e6}, {dst_lng_e6})")
             geometry = self._routing.get_geometry(
                 src_lat_e6, src_lng_e6, dst_lat_e6, dst_lng_e6
             )

@@ -22,7 +22,7 @@ from backend.src.solver.job_dispatcher import SolveDispatcher
 from backend.src.solver.job_executor import JobExecutor
 from backend.src.solver.models import JobResult, SolverRegistry
 from backend.src.solver.options import SolveMethodOptions
-from backend.src.solver.ortools import OrToolsPreset, OrToolsSolver
+from backend.src.solver.ortools import OrToolsSolver
 
 
 class SolveJobRequest(BaseModel):
@@ -114,20 +114,8 @@ class JobService:
                 SolveMethod.CLARKE_WRIGHT_SAVINIGS, ClarkeWrightSolver()
             )
             self._method_registry.register(
-                SolveMethod.ORTOOLS_FAST,
-                OrToolsSolver(preset=OrToolsPreset.FAST, target_time_sec=or_tools_time_sec),
-            )
-            self._method_registry.register(
-                SolveMethod.ORTOOLS_BALANCED,
-                OrToolsSolver(preset=OrToolsPreset.BALANCED, target_time_sec=or_tools_time_sec),
-            )
-            self._method_registry.register(
-                SolveMethod.ORTOOLS_QUALITY,
-                OrToolsSolver(preset=OrToolsPreset.QUALITY, target_time_sec=or_tools_time_sec),
-            )
-            self._method_registry.register(
-                SolveMethod.ORTOOLS_EXPERIMENTAL,
-                OrToolsSolver(preset=OrToolsPreset.EXPERIMENTAL, target_time_sec=or_tools_time_sec),
+                SolveMethod.ORTOOLS,
+                OrToolsSolver(target_time_sec=or_tools_time_sec),
             )
 
 
@@ -137,6 +125,7 @@ class JobService:
             scenario_id=payload.scenario_id,
             method=payload.method,
             status=SolverJobStatus.QUEUED,
+            options=payload.options,
         )
         persisted_job = self._job_repo.create(created_job)
         if persisted_job is None:

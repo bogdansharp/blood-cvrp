@@ -4,6 +4,8 @@ from enum import Enum
 
 from pydantic import BaseModel, Field, computed_field, model_validator
 
+from backend.src.solver.options import SolveMethodOptions
+
 
 ###############################################################################
 #       ENUMS
@@ -12,10 +14,7 @@ from pydantic import BaseModel, Field, computed_field, model_validator
 class SolveMethod(str, Enum):
     CLARKE_WRIGHT_SAVINIGS = "clarke_wright_savings"
     CLARKE_WRIGHT_SAVINIGS_WITH_2_OPT = "clarke_wright_savings_with_2_opt"
-    ORTOOLS_FAST = "ortools_fast"
-    ORTOOLS_BALANCED = "ortools_balanced"
-    ORTOOLS_QUALITY = "ortools_quality"
-    ORTOOLS_EXPERIMENTAL = "ortools_experimental"
+    ORTOOLS = "ortools"
 
 class SolverJobStatus(str, Enum):
     QUEUED = "queued"
@@ -38,11 +37,6 @@ class LogLevel(str, Enum):
     WARNING = "warning"
     DEBUG = "debug"
     ERROR = "error"
-
-class SolverObjective(str, Enum):
-    MINIMIZE_DISTANCE = "minimize_distance"
-    MINIMIZE_TRAVEL_TIME = "minimize_travel_time"    
-
 
 ###############################################################################
 #       DATA CLASSES
@@ -178,6 +172,7 @@ class SolverJob(BaseModel):
     scenario_id: int
     status: SolverJobStatus
     method: SolveMethod
+    options: SolveMethodOptions | None = None
     name: str | None = None
     log: list[LogEntry] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -208,6 +203,7 @@ class Solution(BaseModel):
     name: str
     scenario_id: int
     method: SolveMethod
+    options: SolveMethodOptions | None = None
     total_distance: float
     total_travel_time: float
     routes: list[RoutePath]

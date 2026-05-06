@@ -4,7 +4,7 @@
     import type { LayerGroup, Map as LeafletMap } from 'leaflet';
     import { onDestroy, onMount } from 'svelte';
     import 'leaflet/dist/leaflet.css';
-    import { createStore, type AppViewState, type SolveMethod } from '$lib/store';
+    import { createStore, OR_FIRST_SOLUTION_STRATEGY_LABELS, OR_LOCAL_SEARCH_METAHEURISTIC_LABELS, SOLVE_METHOD_LABELS, type AppViewState, type ORFirstSolutionStrategy, type ORLocalSearchMetaheuristic, type SolveMethod } from '$lib/store';
     import JobsSection from '$lib/components/JobsSection.svelte';
     import ScenarioSection from '$lib/components/ScenarioSection.svelte';
 
@@ -12,11 +12,6 @@
     const defaultZoom = 8;
 
     const defaultSolveMethod: SolveMethod = 'clarke_wright_savings';
-    const solveMethods: SolveMethod[] = [
-        'clarke_wright_savings',
-        'clarke_wright_savings_with_2_opt',
-        'ortools'
-    ];
 
     const store = createStore();
 
@@ -27,7 +22,8 @@
         solution: null,
         hospitals: [],
         loading: false,
-        error: null
+        geometries: new Map(),
+        error: null,
     };
 
     let mapContainer: HTMLDivElement | null = null;
@@ -35,6 +31,9 @@
     let mapLayers: LayerGroup | null = null;
     let leaflet: typeof import('leaflet') | null = null;
     let selectedMethod: SolveMethod = defaultSolveMethod;
+    let orLocalSearch: ORLocalSearchMetaheuristic = 'NONE';
+    let orFirstSolution: ORFirstSolutionStrategy = 'AUTOMATIC';
+    let orBalanceRoutes: boolean = false;
     let timeLimitHours: number = 9;
     let lastMapKey = '';
 
@@ -129,15 +128,29 @@
                     '#c2410c', '#be123c', '#0f766e', '#a16207'
                 ];
 
+                let prevPos: [number, number] | null = null;
                 route.sequence.forEach((h) => {  
                     const position = [h.lat, h.lng] as [number, number];
+                    const lat_e6 = h.lat_e6;
+                    const lng_e6 = h.lng_e6;
                     if (!position) {
                         console.warn("Route hospital has invalid coordinates", h);
                         return;
                     }
 
+                    if (prevPos) {
+                        const key = `${prevPos[0]}_${prevPos[1]}_${lat_e6}_${lng_e6}`;
+                        let geometry = state.geometries.get(key);
+                        if (!geometry) {
+                            routePoints.push(position);
+                            store.loadGeometry(prevPos[0], prevPos[1], lat_e6, lng_e6);
+                        } else {
+                            routePoints.push(...geometry);
+                        }
+                    }
                     routePoints.push(position);
                     bounds.push(position);
+                    prevPos = [lat_e6, lng_e6];
                 });
 
                 if (routePoints.length >= 2) {
@@ -203,7 +216,7 @@
     });
 
     const submitAndTrack = async (method: SolveMethod, timeLimitHours: number) => {
-        const job = await store.submitSolveRequest(method, timeLimitHours);
+        const job = await store.submitSolveRequest(method, timeLimitHours, orFirstSolution, orLocalSearch, orBalanceRoutes);
         const terminalJob = await store.pollJobUntilTerminal(job.id, 100, 1000);
         if (terminalJob.status === 'finished' && terminalJob.solution_id) {
             await store.loadSolution(terminalJob.solution_id);
@@ -250,27 +263,27 @@
 </script>
 
 
-<main class="min-h-dvh w-full bg-white text-neutral-950 min-[821px]:grid min-[821px]:h-dvh min-[821px]:w-screen min-[821px]:grid-rows-[72px_minmax(0,1fr)] min-[821px]:overflow-hidden">
-    <header class="z-20 grid gap-2 border-b border-neutral-300 bg-white p-2 min-[821px]:grid-cols-[minmax(190px,auto)_minmax(0,1fr)] min-[821px]:items-center min-[821px]:gap-3 min-[821px]:px-3">
+<main class="min-h-dvh w-full bg-white text-neutral-950 min-[821px]:grid min-[821px]:h-dvh min-[821px]:w-screen min-[821px]:grid-rows-[auto_minmax(0,1fr)] min-[821px]:overflow-hidden">
+    <header class="z-20 grid gap-2 border-b border-neutral-300 bg-white p-2 min-[821px]:grid-cols-[180px_minmax(0,1fr)] min-[821px]:items-start min-[821px]:gap-3 min-[821px]:px-3">
         <div class="min-w-0">
-            <h1 class="m-0 text-base font-semibold leading-tight min-[821px]:whitespace-nowrap min-[821px]:text-lg">
+            <h1 class="m-0 text-base font-semibold leading-tight min-[821px]:text-lg">
                 Blood CVRP App
             </h1>
 
             {#if state.error}
-                <p class="m-0 text-xs leading-tight text-red-700 min-[821px]:max-w-[280px] min-[821px]:truncate">
+                <p class="m-0 text-xs leading-tight text-red-700 min-[821px]:max-w-[180px] min-[821px]:break-words">
                     {state.error}
                 </p>
             {/if}
         </div>
 
-        <div class="grid min-w-0 grid-cols-1 gap-2 min-[521px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] min-[821px]:grid-cols-[minmax(140px,180px)_minmax(120px,160px)_auto_auto] min-[821px]:justify-end">
-            <div class="grid min-w-0 gap-1">
+        <div class="grid min-w-0 grid-cols-1 gap-2 min-[520px]:grid-cols-2 min-[821px]:flex min-[821px]:flex-wrap min-[821px]:items-end min-[821px]:justify-end">
+            <div class="grid min-w-0 gap-1 min-[821px]:w-[170px]">
                 <label class="text-[11px] leading-none text-neutral-600" for="scenario-select">
                     Scenario
                 </label>
                 <select
-                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 min-[821px]:text-[13px]"
+                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
                     id="scenario-select"
                     onchange={handleScenarioChange}
                     disabled={state.loading}
@@ -284,33 +297,78 @@
                 </select>
             </div>
 
-            <div class="grid min-w-0 gap-1">
+            <div class="grid min-w-0 gap-1 min-[821px]:w-[180px]">
                 <label class="text-[11px] leading-none text-neutral-600" for="method-select">
                     Method
                 </label>
                 <select
-                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 min-[821px]:text-[13px]"
+                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
                     id="method-select"
                     bind:value={selectedMethod}
                 >
-                    {#each solveMethods as method}
-                        <option value={method}>{method}</option>
+                    {#each Object.entries(SOLVE_METHOD_LABELS) as [key, label]}
+                        <option value={key}>{label}</option>
                     {/each}
                 </select>
             </div>
 
-            <div class="grid min-w-0 gap-1">
+            <div class="grid min-w-0 gap-1 min-[821px]:w-[95px]">
                 <label class="text-[11px] leading-none text-neutral-600" for="time-limit-input">
-                    Treshold (hours)
+                    Limit, hours
                 </label>
-                <input type="number" min="0" id="time-limit-input"
-                    class="h-[30px] min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 min-[821px]:text-[13px] w-20"
+                <input
+                    type="number"
+                    min="0"
+                    id="time-limit-input"
+                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
                     bind:value={timeLimitHours}
                 />
             </div>
 
+            <label class="flex h-[30px] items-center gap-2 rounded-md border border-neutral-300 px-2 text-xs text-neutral-700 min-[821px]:mb-0">
+                <input
+                    type="checkbox"
+                    class="h-4 w-4"
+                    bind:checked={orBalanceRoutes}
+                    disabled={selectedMethod !== 'ortools'}
+                />
+                Balance
+            </label>
+
+            <div class="grid min-w-0 gap-1 min-[821px]:w-[170px]">
+                <label class="text-[11px] leading-none text-neutral-600" for="or-first-solution-select">
+                    First solution
+                </label>
+                <select
+                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 disabled:bg-neutral-100"
+                    id="or-first-solution-select"
+                    bind:value={orFirstSolution}
+                    disabled={selectedMethod !== 'ortools'}
+                >
+                    {#each Object.entries(OR_FIRST_SOLUTION_STRATEGY_LABELS) as [key, label]}
+                        <option value={key}>{label}</option>
+                    {/each}
+                </select>
+            </div>
+
+            <div class="grid min-w-0 gap-1 min-[821px]:w-[160px]">
+                <label class="text-[11px] leading-none text-neutral-600" for="or-local-search-select">
+                    Local search
+                </label>
+                <select
+                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 disabled:bg-neutral-100"
+                    id="or-local-search-select"
+                    bind:value={orLocalSearch}
+                    disabled={selectedMethod !== 'ortools'}
+                >
+                    {#each Object.entries(OR_LOCAL_SEARCH_METAHEURISTIC_LABELS) as [key, label]}
+                        <option value={key}>{label}</option>
+                    {/each}
+                </select>
+            </div>
+
             <button
-                class="h-[30px] w-full rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 min-[521px]:w-auto min-[821px]:text-[13px]"
+                class="h-[30px] w-full rounded-md border border-[#0f4c81] bg-[#0f4c81] px-4 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 min-[520px]:col-span-2 min-[821px]:col-span-1 min-[821px]:w-auto"
                 type="button"
                 onclick={() => submitAndTrack(selectedMethod, timeLimitHours)}
                 disabled={state.loading || !state.scenario}
