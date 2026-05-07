@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 import threading
 from contextlib import asynccontextmanager
 
@@ -33,7 +34,9 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 async def lifespan(app: FastAPI):
     # RUNS_DIR.mkdir(parents=True, exist_ok=True)
     
-    settings: Settings = load_settings()
+    settings: Settings = load_settings(
+        project_root=Path(__file__).resolve().parents[2]
+    )
     max_workers = max(1, (os.cpu_count() or 2) - 1)
 
     app.state.settings = settings
