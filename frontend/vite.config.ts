@@ -2,23 +2,37 @@ import { defineConfig } from 'vitest/config';
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 
-export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()],
-	test: {
-		expect: { requireAssertions: true },
-		projects: [
-			{
-				extends: './vite.config.ts',
-				test: {
-					name: 'server',
-					environment: 'node',
-					include: [
-						'src/**/*.{test,spec}.{js,ts}',
-						'tests/**/*.{test,spec}.{js,ts}'
-					],
-					exclude: ['src/**/*.svelte.{test,spec}.{js,ts}']
+export default defineConfig(({ mode }) => {
+	const isTest = mode === 'test';
+
+	return {
+		plugins: [tailwindcss(), sveltekit()],
+		...(isTest
+			? {
+				resolve: {
+					conditions: ['browser', 'development']
 				}
 			}
-		]
-	}
+			: {}),
+		test: {
+			expect: { requireAssertions: true },
+			projects: [
+				{
+					extends: './vite.config.ts',
+					test: {
+						name: 'server',
+						environment: 'jsdom',
+						include: [
+							'src/**/*.{test,spec}.{js,ts}',
+							'tests/unit/**/*.{test,spec}.{js,ts}'
+						],
+						exclude: [
+							'src/**/*.svelte.{test,spec}.{js,ts}',
+							'tests/e2e/**'
+						]
+					}
+				}
+			]
+		}
+	};
 });
