@@ -1,0 +1,69 @@
+name: DORA Metrics
+
+on:
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: read
+
+jobs:
+  dora:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Calculate deployment frequency
+        uses: DeveloperMetrics/deployment-frequency@main
+        continue-on-error: true
+        with:
+          workflows: "CD,Release"
+          actions-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Calculate lead time for changes
+        uses: DeveloperMetrics/lead-time-for-changes@main
+        continue-on-error: true
+        with:
+          workflows: "CD"
+          actions-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Write evaluation note
+        run: |
+          mkdir -p dora
+          cat > dora/README.md <<'EOF'
+          DORA evaluation notes:
+          - Deployment frequency is estimated from successful CD/release workflow runs.
+          - Lead time is estimated from commits/merges to successful deployment.
+          - Change failure rate is approximated from failed deployment workflow runs.
+          EOF
+
+      - name: Upload DORA notes
+        uses: actions/upload-artifact@v7
+        with:
+          name: dora-notes
+          path: dora/
+
+      
+      - name: Notify stakeholders
+        uses: ./.github/workflows/_notify-teams.yml@main
+        with:
+          title: "DORA Metrics Evaluation"
+          status: 'success'
+          MS_TEAMS_WEBHOOK_URI: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+
+
+  # Notify stakeholders about dora evaluation results
+  notify:
+    name: Notify stakeholders
+    needs: dora
+    if: always() # Notify every outcome of dora evaluation
+    uses: ./.github/workflows/_notify-teams.yml
+    with:
+      title: "DORA Metrics Evaluation"
+      status: ${{ needs.dora.result }}
+    secrets:
+      MS_TEAMS_WEBHOOK_URI: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}

@@ -1,0 +1,106 @@
+# Deploy/promote artifact through staging and production
+name: CD
+on:
+    workflow_dispatch:
+      inputs:
+        release_tag:
+          description: "Release tag to deploy: vX.Y.Z"
+          required: true
+          type: string
+
+jobs:
+  deploy-staging:
+    name: Deploy to staging
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      # Download release artifact
+      - name: Download release artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p artifact
+          gh release download "${{ inputs.release_tag }}" \
+            --pattern "blood-cvrp-${{ inputs.release_tag }}.tar.gz" \
+            --dir artifact
+
+      # Deploy to staging
+      - name: Simulate staging deployment
+        env:
+          ENVIRONMENT: staging
+          ORS_API_KEY: ${{ secrets.ORS_API_KEY }}
+          ORS_BASE_URL: ${{ vars.ORS_BASE_URL }}
+          STORAGE_ROOT: ${{ vars.STORAGE_ROOT }}
+          OR_TOOLS_TARGET_TIME_SEC: ${{ vars.OR_TOOLS_TARGET_TIME_SEC }}
+          SOLVER_HARD_TIME_LIMIT_SEC: ${{ vars.SOLVER_HARD_TIME_LIMIT_SEC }}
+        run: |
+          echo "Deploying to staging"
+          echo "Environment: $ENVIRONMENT"
+          test -n "$ORS_API_KEY"
+          ls -la artifact
+
+
+  staging-smoke-tests:
+    name: Staging smoke tests
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: API health check
+        run: curl --fail "${{ vars.STAGING_URL }}/api/v1/health"
+
+      - name: Run Playwright smoke tests
+        working-directory: frontend
+        env:
+          BASE_URL: ${{ vars.STAGING_URL }}
+        run: |
+          npm ci
+          npx playwright install chromium --with-deps
+          npm run test:e2e
+
+
+  deploy-production:
+    name: Deploy to production
+    needs: staging-smoke-tests
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      # Download release artifact
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p artifact
+          gh release download "${{ inputs.release_tag }}" \
+            --pattern "blood-cvrp-${{ inputs.release_tag }}.tar.gz" \
+            --dir artifact
+
+      # Deploy to production
+      - name: Simulate production deployment
+        env:
+          ENVIRONMENT: production
+          ORS_API_KEY: ${{ secrets.ORS_API_KEY }}
+          ORS_BASE_URL: ${{ vars.ORS_BASE_URL }}
+        run: |
+          echo "Deploying same artifact to production"
+          test -n "$ORS_API_KEY"
+          ls -la artifact
+
+  # Notify stakeholders about production deployment
+  notify:
+    name: Notify production deployment result
+    needs: deploy-production
+    if: always() # Notify every outcome of production deployment
+    uses: ./.github/workflows/_notify-teams.yml
+    with:
+      title: "Production Deployment"
+      status: ${{ needs.deploy-production.result }}
+      environment: production
+      release_tag: ${{ inputs.release_tag }}
+    secrets:
+      MS_TEAMS_WEBHOOK_URI: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}

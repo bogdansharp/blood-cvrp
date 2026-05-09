@@ -1,0 +1,90 @@
+name: Backend Checks Subworkflow
+
+on:
+  workflow_call:
+    inputs:
+      upload-coverage:
+        required: false
+        type: boolean
+        default: false
+
+      upload-runtime:
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  backend:
+    name: Backend checks
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend/requirements-dev.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      # Linting
+      - name: Ruff lint
+        run: ruff check .
+
+      # Formatting check
+      - name: Ruff format check
+        run: ruff format --check .
+
+      # Security Static Analysis
+      - name: Bandit security scan
+        run: bandit -r . -x tests
+
+      # Dependency vulnerability audit
+      - name: Dependency audit
+        run: pip-audit
+
+      # Tests with coverage
+      - name: Tests with coverage
+        env:
+          ENVIRONMENT: test
+          STORAGE_ROOT: backend/seed/storage
+          ORS_API_KEY: dummy
+          ORS_BASE_URL: https://api.heigit.org/openrouteservice
+          OR_TOOLS_TARGET_TIME_SEC: 10
+          SOLVER_HARD_TIME_LIMIT_SEC: 600
+        run: pytest --cov=. --cov-report=xml
+
+      # Upload coverage report as artifact
+      - name: Upload backend coverage
+        if: inputs.upload-coverage
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-coverage-${{ github.sha }}
+          path: backend/coverage.xml
+          if-no-files-found: error
+
+      # Upload backend source code as artifact
+      - name: Upload backend source code
+        if: inputs.upload-runtime
+        uses: actions/upload-artifact@v7
+        with:
+          name: backend-source-${{ github.sha }}
+          path: |
+            backend/**
+            !backend/**/__pycache__/**
+            !backend/.pytest_cache/**
+            !backend/storage/**
+            !backend/**/*.pyc
+          if-no-files-found: error

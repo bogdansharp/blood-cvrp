@@ -1,0 +1,34 @@
+name: Notify Teams
+
+on:
+  workflow_call:
+    inputs:
+      title:
+        required: true
+        type: string
+      status:
+        required: true
+        type: string
+      environment:
+        required: false
+        type: string
+        default: none
+      release_tag:
+        required: false
+        type: string
+        default: ""
+    secrets:
+      MS_TEAMS_WEBHOOK_URI:
+        required: true
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Teams notification
+        run: |
+            curl -H "Content-Type: application/json" \
+                -d "{
+                \"text\": \"${{ inputs.title }}: ${{ inputs.status }}\nEnvironment: ${{ inputs.environment }}\nRelease: ${{ inputs.release_tag }}\nRepository: ${{ github.repository }}\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+                }" \
+                "${{ secrets.MS_TEAMS_WEBHOOK_URI }}"

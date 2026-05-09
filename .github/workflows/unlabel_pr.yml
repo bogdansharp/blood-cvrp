@@ -1,0 +1,28 @@
+name: Remove Approved PR Label
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  pull-requests: read
+  issues: write
+
+jobs:
+  label-approved:
+    if: github.event.review.state == 'changes_requested'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                name: 'approved'
+              })
+            } catch (error) {
+              if (error.status !== 404) throw error
+            }

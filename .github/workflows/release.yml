@@ -1,0 +1,168 @@
+# Release validation before publishing a version
+name: Release
+on:
+  release:
+     types: [published]
+
+permissions:
+  security-events: write
+  packages: read
+  actions: read
+  contents: write
+  pull-requests: read
+
+jobs:
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: 'Dependency Review'
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+
+  codeql:
+    name: CodeQL analysis
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["python", "javascript-typescript"]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4
+
+  sonarqube:
+    name: SonarCloud scan
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: SonarQube Cloud scan
+        uses: SonarSource/sonarqube-scan-action@v8
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # Backend checks
+  backend:
+    uses: ./.github/workflows/_backend-checks.yml
+    with:
+      upload-coverage: true
+      upload-runtime: true
+    needs: [codeql, dependency-review]
+
+  # Frontend checks
+  frontend:
+    uses: ./.github/workflows/_frontend-checks.yml
+    with:
+      upload-runtime: true
+    needs: [codeql, dependency-review]
+
+  # Package and publish release
+  release:
+    name: Publish release
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+    if: success()
+    steps:
+      # Download backend source code for packaging
+      - name: Download backend source code
+        uses: actions/download-artifact@v7
+        with:
+          name: backend-source-${{ github.sha }}
+          path: |
+            backend/**
+
+        # Download frontend build artifacts for packaging
+      - name: Download frontend build
+        uses: actions/download-artifact@v7
+        with:
+          name: frontend-build-${{ github.sha }}
+          path: frontend/build
+
+      # Package the release artifacts
+      - name: Package release
+        run: |
+          mkdir -p release
+          tar \
+            --exclude='.git' \
+            --exclude='.venv' \
+            --exclude='frontend/node_modules' \
+            --exclude='frontend/.svelte-kit' \
+            --exclude='backend/storage' \
+            --exclude='storage' \
+            -czf release/blood-cvrp-${{ github.event.release.tag_name }}.tar.gz backend frontend/build README.md CHANGELOG.md
+
+
+      # Software Bill of Materials (SBOM) generation
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: release/blood-cvrp-${{ github.event.release.tag_name }}-sbom.spdx.json
+
+      # Create checksums for release artifacts
+      - name: Create checksums
+        run: |
+          cd release
+          sha256sum * > SHA256SUMS.txt
+
+      # Create GitHub Release and upload artifacts
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${GITHUB_EVENT_RELEASE_TAG_NAME}" >/dev/null 2>&1; then
+            gh release upload "${GITHUB_EVENT_RELEASE_TAG_NAME}" release/* --clobber
+          else
+            gh release create "${GITHUB_REF_NAME}" release/* \
+              --title "${GITHUB_REF_NAME}" \
+              --generate-notes
+          fi
+
+  # Trigger CD workflow after successful release
+  trigger-cd:
+    name: Trigger CD
+    runs-on: ubuntu-latest
+    needs: release
+    if: success()
+
+    steps:
+      - name: Trigger CD workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run cd.yml \
+            --ref master \
+            -f release_tag="${{ github.event.release.tag_name }}"
+
+  # Notify stakeholders about the release result
+  notify-release:
+    name: Notify release result
+    needs: [release, trigger-cd]
+    if: always()
+    uses: ./.github/workflows/_notify-teams.yml
+    with:
+      title: "Release"
+      status: ${{ needs.release.result }}
+      environment: release
+      release_tag: ${{ github.event.release.tag_name }}
+    secrets:
+      MS_TEAMS_WEBHOOK_URI: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
