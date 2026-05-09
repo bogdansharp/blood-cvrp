@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 
 export type SolveMethod =
     | 'clarke_wright_savings'
@@ -193,13 +193,14 @@ export type AppViewState = {
     hospitals: HospitalLocation[];
     error: string | null;
     geometries: Map<string, [number, number][]>;
+    geometryVersion: number;
 };
 
 export const jobStatusLabel = (status: JobStatus): string => {
     return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
-const initialState: AppViewState = {
+export const createInitialState = (): AppViewState => ({
     scenario: null,
     scenarios: [],
     jobs: [],
@@ -208,10 +209,177 @@ const initialState: AppViewState = {
     hospitals: [],
     error: null,
     geometries: new Map(),
+    geometryVersion: 0,
+});
+
+type GeometryRequest = {
+    key: string;
+    src_lat_e6: number;
+    src_lng_e6: number;
+    dst_lat_e6: number;
+    dst_lng_e6: number;
+    attempts: number;
+};
+
+const makeGeometryKey = (
+    src_lat_e6: number,
+    src_lng_e6: number,
+    dst_lat_e6: number,
+    dst_lng_e6: number,
+): string => {
+    return `${src_lat_e6}_${src_lng_e6}_${dst_lat_e6}_${dst_lng_e6}`;
+};
+
+const sleep = (ms: number): Promise<void> => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
-    const { subscribe, update, set } = writable<AppViewState>(initialState);
+    const { subscribe, update, set } = writable<AppViewState>(createInitialState());
+
+    let geometryQueue: GeometryRequest[] = [];
+    let geometryQueuedKeys = new Set<string>();
+    let geometryInProgress = false;
+    let currentGeometryKey: string | null = null;
+    let geometryCooldownUntil: number | null = null;
+
+    const clearGeometryQueue = () => {
+        geometryQueue = [];
+        geometryQueuedKeys = new Set<string>();
+        currentGeometryKey = null;
+        geometryCooldownUntil = null;
+    };
+
+    const enqueueGeometriesForSolution = (solution: SolutionPayload) => {
+        const snapshot = get({ subscribe });
+
+        for (const route of solution.routes) {
+            let previous: Hospital | null = null;
+
+            for (const current of route.sequence) {
+                if (previous) {
+                    const key = makeGeometryKey(
+                        previous.lat_e6,
+                        previous.lng_e6,
+                        current.lat_e6,
+                        current.lng_e6,
+                    );
+
+                    const alreadyLoaded = snapshot.geometries.has(key);
+                    const alreadyQueued = geometryQueuedKeys.has(key);
+                    const currentlyLoading = currentGeometryKey === key;
+
+                    if (!alreadyLoaded && !alreadyQueued && !currentlyLoading) {
+                        geometryQueue.push({
+                            key,
+                            src_lat_e6: previous.lat_e6,
+                            src_lng_e6: previous.lng_e6,
+                            dst_lat_e6: current.lat_e6,
+                            dst_lng_e6: current.lng_e6,
+                            attempts: 0,
+                        });
+
+                        geometryQueuedKeys.add(key);
+                    }
+                }
+
+                previous = current;
+            }
+        }
+
+        void processGeometryQueue();
+    };
+
+    const processGeometryQueue = async () => {
+        if (geometryInProgress) {
+            return;
+        }
+
+        geometryInProgress = true;
+
+        try {
+            while (geometryQueue.length > 0) {
+                if (geometryCooldownUntil && Date.now() < geometryCooldownUntil) {
+                    await sleep(geometryCooldownUntil - Date.now());
+                }
+
+                const request = geometryQueue.shift();
+
+                if (!request) {
+                    continue;
+                }
+
+                geometryQueuedKeys.delete(request.key);
+
+                const snapshot = get({ subscribe });
+
+                if (snapshot.geometries.has(request.key)) {
+                    continue;
+                }
+
+                currentGeometryKey = request.key;
+
+                const response = await fetch(
+                    `${apiBase}/routing/geometry?src_lat_e6=${request.src_lat_e6}&src_lng_e6=${request.src_lng_e6}&dst_lat_e6=${request.dst_lat_e6}&dst_lng_e6=${request.dst_lng_e6}`,
+                );
+
+                if (!response.ok) {
+                    const detail = await response.text();
+
+                    if (request.attempts < 1) {
+                        request.attempts += 1;
+                        geometryQueue.unshift(request);
+                        geometryQueuedKeys.add(request.key);
+
+                        geometryCooldownUntil = Date.now() + 60_000;
+                        currentGeometryKey = null;
+
+                        update((state) => ({
+                            ...state,
+                            error: detail || 'Route geometry request failed. Retrying in 60 seconds.',
+                        }));
+
+                        await sleep(60_000);
+                        continue;
+                    }
+
+                    currentGeometryKey = null;
+
+                    update((state) => ({
+                        ...state,
+                        error: detail || 'Route geometry request failed. Using straight-line fallback.',
+                    }));
+
+                    continue;
+                }
+
+                const geometry = (await response.json()) as [number, number][];
+
+                update((state) => {
+                    if (state.geometries.has(request.key)) {
+                        return state;
+                    }
+
+                    const geometries = new Map(state.geometries);
+                    geometries.set(request.key, geometry);
+
+                    return {
+                        ...state,
+                        geometries,
+                        geometryVersion: state.geometryVersion + 1,
+                        error: null,
+                    };
+                });
+
+                currentGeometryKey = null;
+
+                await sleep(50);
+            }
+        } finally {
+            geometryInProgress = false;
+            currentGeometryKey = null;
+        }
+    };
 
     const upsertJob = (jobs: SolverJobPayload[], job: SolverJobPayload): SolverJobPayload[] => {
         const index = jobs.findIndex((item) => item.id === job.id);
@@ -244,6 +412,8 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
     };
 
     const loadScenario = async (scenarioId: number): Promise<ScenarioPayload> => {
+        clearGeometryQueue();
+
         update((state) => ({ ...state, loading: true, error: null, solution: null }));
 
         const response = await fetch(`${apiBase}/scenarios/${scenarioId}`);
@@ -267,23 +437,46 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         return g;
     }
 
-    const loadGeometry = async (src_lat_e6: number, src_lng_e6: number, dst_lat_e6: number, dst_lng_e6: number): Promise<[number, number][]> => {
-        update((state) => ({ ...state, loading: true, error: null}));
+    const loadGeometry = async (
+        src_lat_e6: number,
+        src_lng_e6: number,
+        dst_lat_e6: number,
+        dst_lng_e6: number,
+    ): Promise<[number, number][]> => {
+        const key = makeGeometryKey(src_lat_e6, src_lng_e6, dst_lat_e6, dst_lng_e6);
+        const existing = get({ subscribe }).geometries.get(key);
 
-        const response = await fetch(`${apiBase}/routing/geometry?src_lat_e6=${src_lat_e6}&src_lng_e6=${src_lng_e6}&dst_lat_e6=${dst_lat_e6}&dst_lng_e6=${dst_lng_e6}`);
+        if (existing) {
+            return existing;
+        }
+
+        const response = await fetch(
+            `${apiBase}/routing/geometry?src_lat_e6=${src_lat_e6}&src_lng_e6=${src_lng_e6}&dst_lat_e6=${dst_lat_e6}&dst_lng_e6=${dst_lng_e6}`,
+        );
+
         if (!response.ok) {
             const detail = await response.text();
-            update((state) => ({ ...state, loading: false, error: detail }));
             throw new Error(detail);
         }
 
-        const geometry: [number, number][] = (await response.json());
-        const key = `${src_lat_e6}_${src_lng_e6}_${dst_lat_e6}_${dst_lng_e6}`;
-        update((state) => ({ ...state, loading: false, geometries: upateGeometries(state.geometries, key, geometry) }));
+        const geometry = (await response.json()) as [number, number][];
+
+        update((state) => {
+            const geometries = new Map(state.geometries);
+            geometries.set(key, geometry);
+
+            return {
+                ...state,
+                geometries,
+                geometryVersion: state.geometryVersion + 1,
+            };
+        });
+
         return geometry;
     };
 
     const resetScenario = () => {
+        clearGeometryQueue();
         update((state) => ({ ...state, scenario: null, solution: null, error: null }));
     }
 
@@ -367,6 +560,8 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
     };
 
     const loadSolution = async (solutionId: number): Promise<SolutionPayload> => {
+        clearGeometryQueue();
+
         const response = await fetch(`${apiBase}/solutions/${solutionId}`);
         if (!response.ok) {
             const detail = await response.text();
@@ -376,6 +571,8 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
 
         const solution = (await response.json()) as SolutionPayload;
         update((state) => ({ ...state, solution }));
+        enqueueGeometriesForSolution(solution);
+
         return solution;
     };
 
@@ -399,7 +596,7 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
     return {
         subscribe,
         set,
-        reset: () => set(initialState),
+        reset: () => { clearGeometryQueue(); set(createInitialState()); },
         loadScenarioList,
         loadScenario,
         resetScenario,

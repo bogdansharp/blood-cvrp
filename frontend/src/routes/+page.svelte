@@ -4,7 +4,7 @@
     import type { LayerGroup, Map as LeafletMap } from 'leaflet';
     import { onDestroy, onMount } from 'svelte';
     import 'leaflet/dist/leaflet.css';
-    import { createStore, OR_FIRST_SOLUTION_STRATEGY_LABELS, OR_LOCAL_SEARCH_METAHEURISTIC_LABELS, SOLVE_METHOD_LABELS, type AppViewState, type ORFirstSolutionStrategy, type ORLocalSearchMetaheuristic, type SolveMethod } from '$lib/store';
+    import { createInitialState, createStore, OR_FIRST_SOLUTION_STRATEGY_LABELS, OR_LOCAL_SEARCH_METAHEURISTIC_LABELS, SOLVE_METHOD_LABELS, type AppViewState, type ORFirstSolutionStrategy, type ORLocalSearchMetaheuristic, type SolveMethod } from '$lib/store';
     import JobsSection from '$lib/components/JobsSection.svelte';
     import ScenarioSection from '$lib/components/ScenarioSection.svelte';
 
@@ -15,16 +15,7 @@
 
     const store = createStore();
 
-    let state: AppViewState = {
-        scenario: null,
-        scenarios: [],
-        jobs: [],
-        solution: null,
-        hospitals: [],
-        loading: false,
-        geometries: new Map(),
-        error: null,
-    };
+    let state: AppViewState = createInitialState();
 
     let mapContainer: HTMLDivElement | null = null;
     let map: LeafletMap | null = null;
@@ -36,6 +27,7 @@
     let orBalanceRoutes: boolean = false;
     let timeLimitHours: number = 9;
     let lastMapKey = '';
+    let lastFitBoundsKey = '';
 
     const unsubscribe = store.subscribe((value) => {
         state = value;
@@ -59,7 +51,7 @@
         updateMapLayers();
     };
 
-    const updateMapLayers = () => {
+    const updateMapLayers = (shouldFitBounds = false) => {
         if (!map || !mapLayers || !leaflet) {
             return;
         }
@@ -73,7 +65,9 @@
         const hospitals = state.hospitals;
 
         if (!scenario && hospitals.length === 0) {
-            map.setView(defaultCenter, defaultZoom);
+            if (shouldFitBounds) {
+                map.setView(defaultCenter, defaultZoom);
+            }
             return;
         }
 
@@ -95,7 +89,7 @@
                     .addTo(layers);
             });
 
-            if (bounds.length > 0) {
+            if (bounds.length > 0 && shouldFitBounds) {
                 map.fitBounds(bounds, { padding: [24, 24] });
             }
 
@@ -128,29 +122,36 @@
                     '#c2410c', '#be123c', '#0f766e', '#a16207'
                 ];
 
-                let prevPos: [number, number] | null = null;
-                route.sequence.forEach((h) => {  
-                    const position = [h.lat, h.lng] as [number, number];
-                    const lat_e6 = h.lat_e6;
-                    const lng_e6 = h.lng_e6;
-                    if (!position) {
-                        console.warn("Route hospital has invalid coordinates", h);
+                let previous: typeof route.sequence[number] | null = null;
+
+                route.sequence.forEach((current) => {
+                    if (
+                        !Number.isFinite(current.lat) ||
+                        !Number.isFinite(current.lng) ||
+                        !Number.isFinite(current.lat_e6) ||
+                        !Number.isFinite(current.lng_e6)
+                    ) {
+                        console.warn('Route hospital has invalid coordinates', current);
                         return;
                     }
 
-                    if (prevPos) {
-                        const key = `${prevPos[0]}_${prevPos[1]}_${lat_e6}_${lng_e6}`;
-                        let geometry = state.geometries.get(key);
-                        if (!geometry) {
-                            routePoints.push(position);
-                            store.loadGeometry(prevPos[0], prevPos[1], lat_e6, lng_e6);
-                        } else {
+                    bounds.push([current.lat, current.lng]);
+
+                    if (previous) {
+                        const key = `${previous.lat_e6}_${previous.lng_e6}_${current.lat_e6}_${current.lng_e6}`;
+                        const geometry = state.geometries.get(key);
+
+                        if (geometry && geometry.length >= 2) {
                             routePoints.push(...geometry);
+                        } else {
+                            routePoints.push(
+                                [previous.lat, previous.lng],
+                                [current.lat, current.lng]
+                            );
                         }
                     }
-                    routePoints.push(position);
-                    bounds.push(position);
-                    prevPos = [lat_e6, lng_e6];
+
+                    previous = current;
                 });
 
                 if (routePoints.length >= 2) {
@@ -193,10 +194,12 @@
                 .addTo(layers);
         });
 
-        if (bounds.length > 0) {
-            map.fitBounds(bounds, { padding: [24, 24] });
-        } else {
-            map.setView(defaultCenter, defaultZoom);
+        if (shouldFitBounds) {
+            if (bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [24, 24] });
+            } else{
+                map.setView(defaultCenter, defaultZoom);
+            }
         }
     };
 
@@ -239,19 +242,34 @@
     };
 
     const getMapKey = (value: AppViewState) => {
-        const scenarioId = value.scenario?.id ?? 'none';
-        const solutionId = value.solution?.id ?? 'none';
-        const hospitalsCount = value.hospitals.length;
+        const scnId = value.scenario?.id ?? 'none';
+        const solId = value.solution?.id ?? 'none';
+        const hospCount = value.hospitals.length;
         const routesCount = value.solution?.routes.length ?? 0;
-        return `${scenarioId}|${solutionId}|${hospitalsCount}|${routesCount}`;
+        const geomVer = value.geometryVersion;
+        return `${scnId}|${solId}|${hospCount}|${routesCount}|${geomVer}`;
+    };
+
+    const getFitBoundsKey = (value: AppViewState) => {
+        const scnId = value.scenario?.id ?? 'none';
+        const hospCount = value.hospitals.length;
+        const depotsCount = value.scenario?.depots.length ?? 0;
+        const cstmCount = value.scenario?.customers.length ?? 0;
+
+        return `${scnId}|${hospCount}|${depotsCount}|${cstmCount}`;
     };
 
     $: if (map && mapLayers && leaflet) {
-        const nextKey = getMapKey(state);
-        if (nextKey !== lastMapKey) {
-            // console.log(`Updating map layers key=${nextKey}`);
-            lastMapKey = nextKey;
-            updateMapLayers();
+        const nextMapKey = getMapKey(state);
+        const nextFitBoundsKey = getFitBoundsKey(state);
+
+        if (nextMapKey !== lastMapKey) {
+            const shouldFitBounds = nextFitBoundsKey !== lastFitBoundsKey;
+
+            lastMapKey = nextMapKey;
+            lastFitBoundsKey = nextFitBoundsKey;
+
+            updateMapLayers(shouldFitBounds);
         }
     }
 
