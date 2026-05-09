@@ -9,7 +9,7 @@ permissions:
   issues: write
 
 jobs:
-  label-approved:
+  label-remove:
     if: github.event.review.state == 'changes_requested'
     runs-on: ubuntu-latest
     steps:

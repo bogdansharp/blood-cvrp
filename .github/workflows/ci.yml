@@ -20,7 +20,7 @@ on:
 
 permissions:
   contents: read
-  security-events: write
+  pull-requests: read
 
 # Cancel in-progress runs for branch when new commits are pushed
 concurrency:
@@ -63,7 +63,6 @@ jobs:
     uses: ./.github/workflows/_backend-checks.yml
     with:
       upload-coverage: true
-      upload-runtime: false
     needs: changes
     # Run if backend files or workflow files changed, or if it's a push to main
     if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.workflows == 'true' || github.ref_name == 'master'
@@ -71,8 +70,6 @@ jobs:
   # Frontend checks
   frontend:
     uses: ./.github/workflows/_frontend-checks.yml
-    with:
-      upload-runtime: false
     needs: changes
     if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.workflows == 'true' || github.ref_name == 'master'
 

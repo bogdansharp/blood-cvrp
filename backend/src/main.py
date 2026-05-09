@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from backend.src.data.routing_provider import ORSRoutingProvider
 from backend.src.data.routing import RoutingData
@@ -53,6 +54,10 @@ async def lifespan(app: FastAPI):
             ors_base_url=settings.ors_base_url,
         ),
     )
+
+    frontend_build = Path("frontend/build")
+    if frontend_build.exists():
+        app.mount("/", StaticFiles(directory=frontend_build, html=True), name="frontend")
 
     try:
         yield

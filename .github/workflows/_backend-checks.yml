@@ -8,11 +8,6 @@ on:
         type: boolean
         default: false
 
-      upload-runtime:
-        required: false
-        type: boolean
-        default: false
-
 jobs:
   backend:
     name: Backend checks
@@ -73,18 +68,4 @@ jobs:
         with:
           name: backend-coverage-${{ github.sha }}
           path: backend/coverage.xml
-          if-no-files-found: error
-
-      # Upload backend source code as artifact
-      - name: Upload backend source code
-        if: inputs.upload-runtime
-        uses: actions/upload-artifact@v7
-        with:
-          name: backend-source-${{ github.sha }}
-          path: |
-            backend/**
-            !backend/**/__pycache__/**
-            !backend/.pytest_cache/**
-            !backend/storage/**
-            !backend/**/*.pyc
           if-no-files-found: error

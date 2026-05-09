@@ -2,11 +2,6 @@ name: Frontend Checks Subworkflow
 
 on:
   workflow_call:
-    inputs:
-      upload-runtime:
-        required: false
-        type: boolean
-        default: false
 
 jobs:
   frontend:
@@ -21,13 +16,10 @@ jobs:
         include:
           - node-version: "22"
             full-checks: false
-            upload-runtime: false
           - node-version: "24"
             full-checks: true
-            upload-runtime: ${{ inputs.upload-runtime }}
           - node-version: "26"
             full-checks: false
-            upload-runtime: false
 
     defaults:
       run:
@@ -75,12 +67,3 @@ jobs:
       - name: Node audit
         if: matrix.full-checks
         run: npm audit --audit-level=high
-
-      # Upload compiled frontend build as artifact
-      - name: Upload frontend build
-        if: matrix.upload-runtime
-        uses: actions/upload-artifact@v7
-        with:
-          name: frontend-build-${{ github.sha }}
-          path: frontend/build
-          if-no-files-found: error
