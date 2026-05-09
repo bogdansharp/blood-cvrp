@@ -51,6 +51,57 @@
         updateMapLayers();
     };
 
+    const getBearingDegrees = (from: [number, number], to: [number, number]) => {
+        const fromLat = from[0] * Math.PI / 180;
+        const toLat = to[0] * Math.PI / 180;
+        const deltaLng = (to[1] - from[1]) * Math.PI / 180;
+
+        const y = Math.sin(deltaLng) * Math.cos(toLat);
+        const x =
+            Math.cos(fromLat) * Math.sin(toLat) -
+            Math.sin(fromLat) * Math.cos(toLat) * Math.cos(deltaLng);
+
+        return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+    };
+
+    const addDirectionArrows = (
+        points: [number, number][],
+        color: string,
+        layers: LayerGroup
+    ) => {
+        if (!leaflet || points.length < 2) {
+            return;
+        }
+
+        const step = Math.max(2, Math.floor(points.length / 4));
+
+        for (let index = step; index < points.length; index += step) {
+            const previous = points[index - 1];
+            const current = points[index];
+
+            const angle = getBearingDegrees(previous, current) - 90;
+
+            const icon = leaflet.divIcon({
+                className: 'route-arrow-icon',
+                html: `<div style="
+                    transform: rotate(${angle}deg);
+                    color: ${color};
+                    font-size: 18px;
+                    line-height: 18px;
+                ">➤</div>`,
+                iconSize: [18, 18],
+                iconAnchor: [9, 9],
+            });
+
+            leaflet
+                .marker(current, {
+                    icon,
+                    interactive: false,
+                })
+                .addTo(layers);
+        }
+    };
+
     const updateMapLayers = (shouldFitBounds = false) => {
         if (!map || !mapLayers || !leaflet) {
             return;
@@ -161,13 +212,10 @@
                     const hours = Math.floor(totalMinutes / 60);
                     const minutes = totalMinutes % 60;
                     const formattedTime = `${hours}h ${String(minutes).padStart(2, '0')}m`;
+                    const routeColor = routeColors[routeIndex % routeColors.length];
 
                     l
-                        .polyline(routePoints, {
-                            color: routeColors[routeIndex % routeColors.length],
-                            weight: 3,
-                            opacity: 0.8
-                        })
+                        .polyline(routePoints, { color: routeColor, weight: 3, opacity: 0.8 })
                         .bindPopup(
                             `Route ${routeIndex + 1}<br />` +
                             `Distance: ${distanceKm} km<br />` +
@@ -175,6 +223,8 @@
                             `Capacity: ${route.vehicle_capacity_used} / ${route.vehicle_capacity}`
                         )
                         .addTo(layers);
+
+                    addDirectionArrows(routePoints, routeColor, layers);
                 }
             });
         }
