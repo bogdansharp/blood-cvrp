@@ -4,7 +4,7 @@ from typing import Any
 
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
-from backend.src.solver.errors import CancelledError
+from backend.src.solver.errors import CancelledError, SolverFailedError
 from backend.src.solver.models import INF_VEHICLES, Route, Solver, SolverInput
 from backend.src.solver.options import ORFirstSolutionStrategy, ORLocalSearchMetaheuristic, SolveMethodOptions
 
@@ -41,20 +41,6 @@ LOCAL_SEARCH_MAP = {
 class OrToolsSolver(Solver):
 
     BALANCE_FACTOR = 200
-
-    def __init__(self, 
-        target_time_sec: int = 10,
-        balance_routes: bool = False,
-        first_solution_strategy: ORFirstSolutionStrategy 
-            = ORFirstSolutionStrategy.AUTOMATIC,
-        local_search_metaheuristic: ORLocalSearchMetaheuristic 
-            = ORLocalSearchMetaheuristic.AUTOMATIC,
-    ) -> None:
-        self.target_time_sec = target_time_sec
-        self.balance_routes = balance_routes
-        self.first_solution = first_solution_strategy
-        self.local_search = local_search_metaheuristic
-
 
     def _check_cancelled(self) -> None:
         if self._cancel_event is not None and self._cancel_event.is_set():
@@ -106,11 +92,13 @@ class OrToolsSolver(Solver):
         self._cancel_event = cancel_event
         self._cost_limit_float = inf
 
-        time_limit_sec = self.target_time_sec
-        balance_routes = self.balance_routes
-        first_solution = self.first_solution
-        local_search = self.local_search
+        time_limit_sec = 10
+        balance_routes = False
+        first_solution = ORFirstSolutionStrategy.AUTOMATIC
+        local_search = ORLocalSearchMetaheuristic.AUTOMATIC
+
         if options:
+            time_limit_sec = options.or_target_time_sec
             if options.time_limit_sec is not None:
                 time_limit_sec = min(options.time_limit_sec, time_limit_sec)
             if options.cost_limit is not None:
@@ -127,8 +115,8 @@ class OrToolsSolver(Solver):
             self._parse_input(input)
         except CancelledError:
             raise
-        except ValueError:
-            return None
+        except ValueError as e:
+            raise SolverFailedError(str(e)) from e
 
         manager = pywrapcp.RoutingIndexManager(
             self._n + 1,
@@ -175,11 +163,16 @@ class OrToolsSolver(Solver):
         search_parameters.time_limit.nanos = int((time_limit_sec - seconds) * 1e9)
 
         self._check_cancelled()
+        def cancellation_callback() -> None:
+            if self._cancel_event is not None and self._cancel_event.is_set():
+                routing.solver().FinishCurrentSearch()
+
+        routing.AddAtSolutionCallback(cancellation_callback)
         solution = routing.SolveWithParameters(search_parameters)
         self._check_cancelled()
 
         if solution is None:
-            return None
+            raise SolverFailedError("OR-Tools did not find a feasible solution")
 
         routes: list[Route] = []
 
@@ -201,7 +194,9 @@ class OrToolsSolver(Solver):
 
             route_cost = self._route_cost(nodes)
             if route_cost > self._cost_limit_float:
-                return None
+                raise SolverFailedError(
+                    f"Route cost {route_cost} exceeds cost limit {self._cost_limit_float}"
+                )
 
             route_demand = self._route_demand(nodes)
             routes.append(Route(

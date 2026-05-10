@@ -3,7 +3,7 @@ from time import perf_counter
 from typing import Any
 
 from backend.src.solver.options import SolveMethodOptions
-from backend.src.solver.errors import CancelledError
+from backend.src.solver.errors import CancelledError, SolverFailedError
 from backend.src.solver.models import Route, Solver, SolverInput
 
 
@@ -77,8 +77,8 @@ class ClarkeWrightSolver(Solver):
                     self._vavail[max_cap] -= 1
                     max_cap = self._get_max_vcap()
                 self._demand[node] = demand
-        except ValueError:
-            return None
+        except ValueError as e:
+            raise SolverFailedError(str(e)) from e
 
         self._periodic_check()
         routes = {
@@ -91,8 +91,8 @@ class ClarkeWrightSolver(Solver):
                     raise ValueError(f"Single-node route cost {route.cost} exceeds cost limit {self._cost_limit}")
                 route.vehicle_capacity = self._get_min_vcap(route.demand)
                 self._vavail[route.vehicle_capacity] -= 1
-        except ValueError:
-            return None
+        except ValueError as e:
+            raise SolverFailedError(str(e)) from e
 
         self._periodic_check()
         savings = []
@@ -129,7 +129,7 @@ class ClarkeWrightSolver(Solver):
             for node in new_nodes:
                 routes[node] = new_route
 
-        unique_routes = list({id(r): r for r in routes.values()}.values())
+        unique_routes = {id(r): r for r in routes.values()}.values()
         self._solution.extend(list(unique_routes))
         for route in self._solution:
             route.nodes = [0] + route.nodes + [0]

@@ -4,7 +4,7 @@ from typing import Any
 
 from backend.src.api.models import LogEntry, LogLevel, Solution
 from backend.src.application.jobs import SolveJobRequest
-from backend.src.solver.errors import CancelledError
+from backend.src.solver.errors import CancelledError, SolverFailedError
 from backend.src.solver.job_executor import JobExecutor
 from backend.src.solver.job_preparer import JobPreparer
 from backend.src.solver.models import JobResult
@@ -110,10 +110,19 @@ class JobPipeline:
             )
             cancelled = True
             return get_result()
+        except SolverFailedError as e:
+            solver_ms = int((perf_counter() - started) * 1000)
+            self._log_entry(
+                LogLevel.ERROR,
+                f"Solver failed for scenario {scenario_id} with method {method.value}: {str(e)}"
+            )
+            failed = True
+            return get_result()
         except Exception as e:
             solver_ms = int((perf_counter() - started) * 1000)
-            self._log_entry(LogLevel.ERROR,
-                f"Solver failed for scenario {scenario_id} with method {method.value}: {str(e)}"
+            self._log_entry(
+                LogLevel.ERROR,
+                f"Unexpected solver error for scenario {scenario_id} with method {method.value}: {str(e)}"
             )
             failed = True
             return get_result()
