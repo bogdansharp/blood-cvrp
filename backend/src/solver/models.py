@@ -9,7 +9,8 @@ from backend.src.api.models import LogEntry, SolveMethod
 from backend.src.solver.options import SolveMethodOptions
 
 
-INF = 10**9
+INF_VEHICLES = 10**9
+
 
  
 class SolverInput(BaseModel):
@@ -53,22 +54,30 @@ class JobResult:
     preparation_ms: int = 0
     results_ms: int = 0
     cancelled: bool = False
+    failed: bool = False
 
 
 class Solver(Protocol):
-    def solve(self, input: SolverInput, options: SolveMethodOptions | None, cancel_event: Any | None) -> list[Route] | None: ...
+    def solve(self, 
+        input: SolverInput, 
+        options: SolveMethodOptions | None, 
+        cancel_event: Any | None
+    ) -> list[Route] | None: ...
 
 
 class SolverRegistry:
     def __init__(self) -> None:
-        self._methods: dict[SolveMethod, Solver] = {}
+        self._methods: dict[SolveMethod, Any] = {}
 
-    def register(self, method: SolveMethod, solver: Solver) -> None:
+    def register(self, 
+        method: SolveMethod, 
+        solver: Any
+    ) -> None:
         if method in self._methods:
             raise ValueError(f"Solver method already registered: {method}")
         self._methods[method] = solver
 
-    def get(self, method: SolveMethod) -> Solver:
+    def get(self, method: SolveMethod) -> Any:
         if method not in self._methods:
             raise KeyError(f"Unknown solver method: {method}")
         return self._methods[method]

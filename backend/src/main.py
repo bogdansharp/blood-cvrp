@@ -14,7 +14,6 @@ from backend.src.data.routing_provider import ORSRoutingProvider
 from backend.src.data.routing import RoutingData
 from backend.src.solver.job_executor import JobExecutor
 
-# from application.data_access import RUNS_DIR
 from backend.src.api.routes.scenarios import router as scenarios_router
 from backend.src.api.routes.hospitals import router as hospitals_router
 from backend.src.api.routes.solutions import router as solutions_router
@@ -38,10 +37,10 @@ async def lifespan(app: FastAPI):
     settings: Settings = load_settings(
         project_root=Path(__file__).resolve().parents[2]
     )
-    max_workers = max(1, (os.cpu_count() or 2) - 1)
+    # max_workers = max(1, (os.cpu_count() or 2) - 1)
 
     app.state.settings = settings
-    app.state.executor = JobExecutor(max_workers=max_workers)
+    app.state.executor = JobExecutor()
     app.state.jobs = {}
     app.state.lock = threading.Lock()
     app.state.job_subscribers = {}

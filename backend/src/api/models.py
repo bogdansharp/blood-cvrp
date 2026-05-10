@@ -46,23 +46,16 @@ class LogLevel(str, Enum):
 class VehiclePool:
     capacity: int
     quantity: int = -1      # -1 if unlimited
-    # time_limit: int = -1    # in seconds, -1 if unlimited
 
     def __post_init__(self) -> None:
         if self.capacity < 1:
             raise ValueError("capacity must be >= 1")
         if self.quantity != -1 and self.quantity < 1:
             raise ValueError("quantity must be >= 1 or -1 for unlimited")
-        # if self.time_limit != -1 and self.time_limit < 1:
-        #     raise ValueError("time_limit must be >= 1 or -1 for unlimited")
 
     @property
     def is_quantity_unlimited(self) -> bool:
         return self.quantity == -1
-    
-    # @property
-    # def is_time_unlimited(self) -> bool:
-    #     return self.time_limit == -1
 
 
 @dataclass
@@ -166,6 +159,12 @@ class Scenario(BaseModel):
     vehicles: list[VehiclePool]
     depots: list[Depot]
     customers: list[Hospital]
+
+class SolveJobRequest(BaseModel):
+    scenario_id: int
+    name: str = Field(default="Solve Request")
+    method: SolveMethod
+    options: SolveMethodOptions
 
 class SolverJob(BaseModel):
     id: int

@@ -2,34 +2,25 @@ from multiprocessing import Manager
 from typing import Any
 
 from fastapi import Depends
-from pydantic import BaseModel, Field
 
-from backend.src.api.models import Solution, SolveMethod, SolverJob, SolverJobStatus
+from backend.src.api.models import Solution, SolveJobRequest, SolveMethod, SolverJob, SolverJobStatus
 from backend.src.application.dependencies import (
     get_job_executor,
     get_job_repository,
     get_routing_data,
     get_scenario_repository,
     get_solution_repository,
-    get_settings,
 )
 from backend.src.data.interfaces import JobRepository, ScenarioRepository, SolutionRepository
 from backend.src.data.routing import RoutingData
-from backend.src.settings import Settings
 from backend.src.solver.clarke_wright_solver import ClarkeWrightSolver
 from backend.src.solver.errors import CancelledError
-from backend.src.solver.job_dispatcher import SolveDispatcher
 from backend.src.solver.job_executor import JobExecutor
+from backend.src.solver.job_pipeline import JobPipeline
 from backend.src.solver.models import JobResult, SolverRegistry
-from backend.src.solver.options import SolveMethodOptions
 from backend.src.solver.ortools import OrToolsSolver
-
-
-class SolveJobRequest(BaseModel):
-    scenario_id: int
-    name: str = Field(default="Solve Request")
-    method: SolveMethod
-    options: SolveMethodOptions
+from backend.src.solver.job_preparer import JobPreparer
+from backend.src.solver.job_results import JobResults
 
 
 class JobStateMachine:
@@ -51,39 +42,6 @@ class JobStateMachine:
         raise ValueError(f"Invalid state transition from {from_status} to {to_status}")
 
 
-class SolveTaskCallable:
-    def __init__(self, 
-        request: SolveJobRequest, 
-        solution_repo: SolutionRepository, 
-        scenario_repo: ScenarioRepository, 
-        routing: RoutingData,
-        methods_registry: SolverRegistry,
-        cancel_event: Any,
-    ) -> None:
-        self._request = request
-        self._solution_repo = solution_repo
-        self._scenario_repo = scenario_repo
-        self._routing = routing
-        self._methods_registry = methods_registry
-        self._cancel_event = cancel_event
-
-    def __call__(self) -> JobResult | None:
-        if self._cancel_event and self._cancel_event.is_set():
-            return None
-
-        dispatcher = SolveDispatcher(
-            registry=self._methods_registry,
-            scenario_repo=self._scenario_repo,
-            solution_repo=self._solution_repo,
-            routing=self._routing
-        )
-        return dispatcher.dispatch(
-            self._request.scenario_id,
-            self._request.method,
-            self._request.options,
-            self._cancel_event,
-        )
-
 
 class JobService:
     def __init__(self, 
@@ -92,7 +50,6 @@ class JobService:
         scenario_repo: ScenarioRepository,
         routing: RoutingData,
         executor: JobExecutor,
-        settings: Settings,
         method_registry: SolverRegistry | None = None,
         state_machine: JobStateMachine | None = None,
     ) -> None:
@@ -101,21 +58,28 @@ class JobService:
         self._scenario_repo = scenario_repo
         self._routing = routing
         self._executor = executor
-        self._settings = settings
         self._sm = state_machine or JobStateMachine()
         self._cancel_manager = Manager()
         self._cancel_tokens: dict[int, Any] = {}
+        self._job_preparer = JobPreparer(
+            scenario_repo=self._scenario_repo,
+            solution_repo=self._solution_repo,
+            routing=self._routing
+        )
+        self._job_results = JobResults(
+            solution_repo=self._solution_repo,
+        )
         if method_registry is not None:
             self._method_registry = method_registry
         else:
             self._method_registry = SolverRegistry()
-            or_tools_time_sec = self._settings.or_tools_target_time_sec
             self._method_registry.register(
-                SolveMethod.CLARKE_WRIGHT_SAVINIGS, ClarkeWrightSolver()
+                SolveMethod.CLARKE_WRIGHT_SAVINIGS, 
+                ClarkeWrightSolver
             )
             self._method_registry.register(
                 SolveMethod.ORTOOLS,
-                OrToolsSolver(target_time_sec=or_tools_time_sec),
+                OrToolsSolver,
             )
 
 
@@ -134,13 +98,13 @@ class JobService:
         cancel_event = self._cancel_manager.Event()
         self._cancel_tokens[persisted_job.id] = cancel_event
 
-        task = SolveTaskCallable(
-            request=payload, 
-            solution_repo=self._solution_repo, 
-            scenario_repo=self._scenario_repo, 
-            routing=self._routing,
-            methods_registry=self._method_registry,
+        task = JobPipeline(
+            request=payload,
+            job_preparer=self._job_preparer,
+            job_results=self._job_results,
+            solver_cls=self._method_registry.get(payload.method),
             cancel_event=cancel_event,
+            executor=self._executor,
         )
         self._executor.submit(persisted_job.id, task)
         return persisted_job
@@ -239,7 +203,6 @@ def get_job_service(
     scenario_repo: ScenarioRepository = Depends(get_scenario_repository),
     routing: RoutingData = Depends(get_routing_data),
     executor: JobExecutor = Depends(get_job_executor),
-    settings: Settings = Depends(get_settings),
 ) -> JobService:
     return JobService(
         job_repo=job_repo,
@@ -247,5 +210,4 @@ def get_job_service(
         scenario_repo=scenario_repo,
         routing=routing,
         executor=executor,
-        settings=settings,
     )

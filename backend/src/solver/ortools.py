@@ -5,7 +5,7 @@ from typing import Any
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from backend.src.solver.errors import CancelledError
-from backend.src.solver.models import INF as INF_CAPACITY, Route, Solver, SolverInput
+from backend.src.solver.models import INF_VEHICLES, Route, Solver, SolverInput
 from backend.src.solver.options import ORFirstSolutionStrategy, ORLocalSearchMetaheuristic, SolveMethodOptions
 
 
@@ -74,7 +74,7 @@ class OrToolsSolver(Solver):
         for capacity, quantity in sorted(input.vehicles.items()):
             if quantity <= 0 or capacity <= 0:
                 continue
-            if quantity >= INF_CAPACITY:
+            if quantity >= INF_VEHICLES:
                 quantity = self._n
             self._capacities.extend([capacity] * quantity)
         if not self._capacities:
