@@ -14,13 +14,14 @@ class ORSRoutingProvider(RoutingProvider):
     _MATRIX_ENDPOINT = f"/v2/matrix/{_PROFILE}"
     _SNAP_ENDPOINT = f"/v2/snap/{_PROFILE}"
     _GEOMETRY_ENDPOINT = f"/v2/directions/{_PROFILE}/geojson"
+    _REQUEST_CONTENT_TYPE = "application/json"
 
     def __init__(self, 
         ors_api_key: str, 
         ors_base_url: str,
         call_timeout_sec: int = 30, 
         max_snap_dist: int = 500,
-        simplify_geometry: bool = False,
+        simplify_geometry: bool = True,
     ) -> None:
         ors_base_url = ors_base_url.rstrip("/")
 
@@ -33,6 +34,11 @@ class ORSRoutingProvider(RoutingProvider):
         self._simplify_geometry = simplify_geometry
         self._geometry_cooldown_until = 0.0
 
+    def _get_headers(self) -> dict[str, str]:
+        return {
+            "Authorization": self._ors_api_key,
+            "Content-Type": self._REQUEST_CONTENT_TYPE
+        }
 
     def get_geometry(self, 
         src_lat_e6: int, src_lng_e6: int, dst_lat_e6: int, dst_lng_e6: int
@@ -48,10 +54,6 @@ class ORSRoutingProvider(RoutingProvider):
             [src_lng_e6 / 1e6, src_lat_e6 / 1e6],
             [dst_lng_e6 / 1e6, dst_lat_e6 / 1e6],
         ]
-        headers = {
-            "Authorization": self._ors_api_key,
-            "Content-Type": "application/json"
-        }
         payload = {
             "coordinates":            coordinates,
             "elevation":               False,
@@ -62,7 +64,7 @@ class ORSRoutingProvider(RoutingProvider):
         }
         response = requests.post(
             self._geometry_url, 
-            headers=headers, 
+            headers=self._get_headers(), 
             json=payload, 
             timeout=self._call_timeout_sec
         )
@@ -131,10 +133,6 @@ class ORSRoutingProvider(RoutingProvider):
             locations.append([dst_lng_e6 / 1e6, dst_lat_e6 / 1e6])
 
         src_idxs, dst_idxs = [0], list(range(1, len(locations)))
-        headers = {
-            "Authorization": self._ors_api_key,
-            "Content-Type": "application/json"
-        }
         payload = {
             "locations":            locations,
             "destinations":         dst_idxs,
@@ -145,7 +143,7 @@ class ORSRoutingProvider(RoutingProvider):
         }
         response = requests.post(
             self._matrix_url, 
-            headers=headers, 
+            headers=self._get_headers(), 
             json=payload, 
             timeout=self._call_timeout_sec
         )
@@ -187,17 +185,13 @@ class ORSRoutingProvider(RoutingProvider):
         lat_e6: int, lng_e6: int
     ) -> tuple[int, int, float]:
         locations = [[lng_e6 / 1e6, lat_e6 / 1e6]]
-        headers = {
-            "Authorization": self._ors_api_key,
-            "Content-Type": "application/json"
-        }
         payload = {
             "locations":            locations,
             "radius":               self._max_snap_dist,
         }
         response = requests.post(
             self._snap_url, 
-            headers=headers, 
+            headers=self._get_headers(), 
             json=payload, 
             timeout=self._call_timeout_sec
         )
