@@ -73,30 +73,35 @@
             return;
         }
 
-        const step = Math.max(2, Math.floor(points.length / 4));
+        const arrowCount = Math.min(4, Math.max(1, Math.floor(points.length / 12)));
+        const step = Math.max(2, Math.floor(points.length / (arrowCount + 1)));
 
         for (let index = step; index < points.length; index += step) {
             const previous = points[index - 1];
             const current = points[index];
 
-            const angle = getBearingDegrees(previous, current) - 90;
+            const angle = getBearingDegrees(previous, current);
 
             const icon = leaflet.divIcon({
                 className: 'route-arrow-icon',
-                html: `<div style="
-                    transform: rotate(${angle}deg);
-                    color: ${color};
-                    font-size: 18px;
-                    line-height: 18px;
-                ">➤</div>`,
-                iconSize: [18, 18],
-                iconAnchor: [9, 9],
+                html: `
+                    <svg
+                        width="20" height="20" viewBox="0 0 20 20"
+                        style="transform: rotate(${angle}deg);color: ${color};display: block;"
+                        aria-hidden="true"
+                    >
+                        <path d="M10 2 L16 14 L10 11 L4 14 Z" fill="currentColor"/>
+                    </svg>
+                `,
+                iconSize: [20, 20],
+                iconAnchor: [10, 10],
             });
 
             leaflet
                 .marker(current, {
                     icon,
                     interactive: false,
+                    keyboard: false,
                 })
                 .addTo(layers);
         }
