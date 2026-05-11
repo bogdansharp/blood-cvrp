@@ -1,13 +1,15 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from backend.src.application.routing import RoutingService, get_routing_service
 
 router = APIRouter(prefix="/routing", tags=["routing"])
 
 
-@router.get("/geometry")
+@router.get("/geometry", responses={500: {"description": "Error fetching geometry"}})
 async def get_geometry(
     src_lat_e6: int, src_lng_e6: int, dst_lat_e6: int, dst_lng_e6: int,
-    routing_service: RoutingService = Depends(get_routing_service),
+    routing_service: Annotated[RoutingService, Depends(get_routing_service)],
 ) -> list[tuple[float, float]]:
     try:
         geometry_e6 = routing_service.get_geometry(
@@ -21,10 +23,10 @@ async def get_geometry(
         raise HTTPException(status_code=500, detail=str(e))
     return geometry
 
-@router.get("/snap")
+@router.get("/snap", responses={500: {"description": "Error fetching snap location"}})
 async def get_snap_location(
     lat_e6: int, lng_e6: int,
-    routing_service: RoutingService = Depends(get_routing_service),
+    routing_service: Annotated[RoutingService, Depends(get_routing_service)],
 ) -> tuple[int, int, float]:
     try:
         snap_location = routing_service.get_snap_location(
