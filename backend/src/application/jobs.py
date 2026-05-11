@@ -3,7 +3,7 @@ from typing import Any
 
 from fastapi import Depends
 
-from backend.src.api.models import Solution, SolveJobRequest, SolveMethod, SolverJob, SolverJobStatus
+from backend.src.api.models import Solution, SolveMethod, SolverJob, SolverJobStatus
 from backend.src.application.dependencies import (
     get_job_executor,
     get_job_repository,
@@ -11,6 +11,7 @@ from backend.src.application.dependencies import (
     get_scenario_repository,
     get_solution_repository,
 )
+from backend.src.application.models import SolveJobRequest
 from backend.src.data.interfaces import JobRepository, ScenarioRepository, SolutionRepository
 from backend.src.data.routing import RoutingData
 from backend.src.solver.clarke_wright_solver import ClarkeWrightSolver
@@ -22,6 +23,7 @@ from backend.src.solver.ortools import OrToolsSolver
 from backend.src.solver.job_preparer import JobPreparer
 from backend.src.solver.job_results import JobResults
 
+    
 
 class JobStateMachine:
 

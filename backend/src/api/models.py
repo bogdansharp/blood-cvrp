@@ -160,12 +160,6 @@ class Scenario(BaseModel):
     depots: list[Depot]
     customers: list[Hospital]
 
-class SolveJobRequest(BaseModel):
-    scenario_id: int
-    name: str = Field(default="Solve Request")
-    method: SolveMethod
-    options: SolveMethodOptions
-
 class SolverJob(BaseModel):
     id: int
     scenario_id: int

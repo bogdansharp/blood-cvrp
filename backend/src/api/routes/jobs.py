@@ -35,7 +35,10 @@ async def get_job(
     return job
 
 
-@router.post("/run/{scenario_id}", responses={400: {"description": "Invalid request"}})
+@router.post("/run/{scenario_id}", responses={
+    400: {"description": "Invalid request"},
+    500: {"description": "Internal server error"},
+})
 async def run_job(
     scenario_id: int,
     method: SolveMethod,
@@ -59,8 +62,10 @@ async def run_job(
     request = SolveJobRequest(scenario_id=scenario_id, method=method, options=options)
     try:
         job = job_service.submit(request)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
     return job
 
 
