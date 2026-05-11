@@ -30,6 +30,8 @@ class JobExecutor:
         max_solvers: int = 4,
         max_preparation: int = 4
     ) -> None:
+        if max_solvers > max_preparation:
+            raise ValueError("max_solvers cannot be greater than max_preparation")
         self._prep_pool = ThreadPoolExecutor(
             max_workers=max_preparation, 
             thread_name_prefix="prep-worker"

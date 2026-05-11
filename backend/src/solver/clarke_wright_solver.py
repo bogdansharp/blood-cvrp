@@ -16,6 +16,12 @@ class ClarkeWrightSolver(Solver):
     def _parse_input(self, input: SolverInput) -> None:
         self._n = input.n
         self._matrix = input.cost
+        for i, row in enumerate(self._matrix):
+            for j in range(len(row)):
+                if i == j:
+                    continue
+                if row[j] < 0:
+                    raise ValueError(f"Invalid cost value: {row[j]} at ({i}, {j})")
         self._demand = input.demand.copy()
         self._vcap = sorted(input.vehicles.keys())
         self._vavail = dict(input.vehicles)
@@ -60,7 +66,10 @@ class ClarkeWrightSolver(Solver):
                 self._cost_limit = options.cost_limit
         self._cancel_event = cancel_event
         self._periodic_check()
-        self._parse_input(input)
+        try:
+            self._parse_input(input)
+        except ValueError as e:
+            raise SolverFailedError(str(e)) from e
         self._solution = []
 
         try:

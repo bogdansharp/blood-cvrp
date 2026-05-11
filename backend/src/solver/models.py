@@ -1,4 +1,4 @@
-from asyncio import Protocol
+from typing import Protocol
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -65,13 +65,16 @@ class Solver(Protocol):
     ) -> list[Route] | None: ...
 
 
+type SolverClass = type[Solver]
+
+
 class SolverRegistry:
     def __init__(self) -> None:
-        self._methods: dict[SolveMethod, Any] = {}
+        self._methods: dict[SolveMethod, SolverClass] = {}
 
     def register(self, 
         method: SolveMethod, 
-        solver: Any
+        solver: SolverClass
     ) -> None:
         if method in self._methods:
             raise ValueError(f"Solver method already registered: {method}")
