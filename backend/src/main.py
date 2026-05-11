@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from multiprocessing import Manager
 import os
 from pathlib import Path
 import threading
@@ -46,6 +47,8 @@ async def lifespan(app: FastAPI):
     app.state.lock = threading.Lock()
     app.state.job_subscribers = {}
     app.state.repos = create_repositories(storage_root=settings.storage_root)
+    app.state.cancel_manager = Manager()
+    app.state.cancel_tokens = {}
     app.state.routing_data = RoutingData(
         dist_repo=app.state.repos.distances,
         geom_repo=app.state.repos.geometries,

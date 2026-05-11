@@ -15,8 +15,8 @@ class HospitalService:
     def get_hospital(self, id: int) -> Hospital | None:
         return self._repo.get(id)
 
-    def delete_hospital(self, id: int) -> None:
-        self._repo.delete(id)
+    def delete_hospital(self, id: int) -> bool:
+        return self._repo.delete(id)
 
 
 def get_hospital_service(

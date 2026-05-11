@@ -1,7 +1,7 @@
 from typing import Any
 
 from backend.src.api.models import Scenario
-from backend.src.data.interfaces import ScenarioRepository, SolutionRepository
+from backend.src.data.interfaces import ScenarioRepository
 from backend.src.data.routing import RoutingData
 from backend.src.solver.errors import CancelledError
 from backend.src.solver.models import INF_VEHICLES, SolverInput
@@ -12,11 +12,9 @@ class JobPreparer:
   
     def __init__(self,
         scenario_repo: ScenarioRepository,
-        solution_repo: SolutionRepository,
         routing: RoutingData,
     ) -> None:
         self._scenario_repo = scenario_repo
-        self._solution_repo = solution_repo
         self._routing = routing
 
 

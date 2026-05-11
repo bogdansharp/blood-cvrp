@@ -1,10 +1,11 @@
-from multiprocessing import Manager
 from typing import Any
 
 from fastapi import Depends
 
 from backend.src.api.models import Solution, SolveMethod, SolverJob, SolverJobStatus
 from backend.src.application.dependencies import (
+    get_cancel_manager,
+    get_cancel_tokens,
     get_job_executor,
     get_job_repository,
     get_routing_data,
@@ -47,42 +48,25 @@ class JobStateMachine:
 
 class JobService:
     def __init__(self, 
-        job_repo: JobRepository, 
+        job_repo: JobRepository,
         solution_repo: SolutionRepository,
-        scenario_repo: ScenarioRepository,
-        routing: RoutingData,
         executor: JobExecutor,
-        method_registry: SolverRegistry | None = None,
+        job_preparer: JobPreparer,
+        job_results: JobResults,
+        cancel_manager: Any,
+        cancel_tokens: dict[int, Any],
+        method_registry: SolverRegistry,
         state_machine: JobStateMachine | None = None,
     ) -> None:
         self._job_repo = job_repo
         self._solution_repo = solution_repo
-        self._scenario_repo = scenario_repo
-        self._routing = routing
         self._executor = executor
         self._sm = state_machine or JobStateMachine()
-        self._cancel_manager = Manager()
-        self._cancel_tokens: dict[int, Any] = {}
-        self._job_preparer = JobPreparer(
-            scenario_repo=self._scenario_repo,
-            solution_repo=self._solution_repo,
-            routing=self._routing
-        )
-        self._job_results = JobResults(
-            solution_repo=self._solution_repo,
-        )
-        if method_registry is not None:
-            self._method_registry = method_registry
-        else:
-            self._method_registry = SolverRegistry()
-            self._method_registry.register(
-                SolveMethod.CLARKE_WRIGHT_SAVINIGS, 
-                ClarkeWrightSolver
-            )
-            self._method_registry.register(
-                SolveMethod.ORTOOLS,
-                OrToolsSolver,
-            )
+        self._cancel_manager = cancel_manager
+        self._cancel_tokens = cancel_tokens
+        self._job_preparer = job_preparer
+        self._job_results = job_results
+        self._method_registry = method_registry
 
 
     def submit(self, payload: SolveJobRequest) -> SolverJob:
@@ -205,11 +189,26 @@ def get_job_service(
     scenario_repo: ScenarioRepository = Depends(get_scenario_repository),
     routing: RoutingData = Depends(get_routing_data),
     executor: JobExecutor = Depends(get_job_executor),
+    cancel_manager: Any = Depends(get_cancel_manager),
+    cancel_tokens: dict[int, Any] = Depends(get_cancel_tokens),
 ) -> JobService:
+    job_preparer = JobPreparer(
+        scenario_repo=scenario_repo,
+        routing=routing,
+    )
+    job_results = JobResults(
+        solution_repo=solution_repo,
+    )
+    registry = SolverRegistry()
+    registry.register(SolveMethod.CLARKE_WRIGHT_SAVINIGS, ClarkeWrightSolver)
+    registry.register(SolveMethod.ORTOOLS, OrToolsSolver)
     return JobService(
         job_repo=job_repo,
         solution_repo=solution_repo,
-        scenario_repo=scenario_repo,
-        routing=routing,
         executor=executor,
+        job_preparer=job_preparer,
+        job_results=job_results,
+        cancel_manager=cancel_manager,
+        cancel_tokens=cancel_tokens,
+        method_registry=registry,
     )

@@ -15,8 +15,8 @@ class SolutionService:
     def get_solution(self, id: int) -> Solution | None:
         return self._repo.get(id)
 
-    def delete_solution(self, id: int) -> None:
-        self._repo.delete(id)
+    def delete_solution(self, id: int) -> bool:
+        return self._repo.delete(id)
 
 
 def get_solution_service(
