@@ -37,10 +37,11 @@ async def lifespan(app: FastAPI):
     settings: Settings = load_settings(
         project_root=Path(__file__).resolve().parents[2]
     )
-    # max_workers = max(1, (os.cpu_count() or 2) - 1)
+    max_prep_workers = max(1, (os.cpu_count() or 2) - 1)
+    max_solver_workers = max_prep_workers // 2 or 1
 
     app.state.settings = settings
-    app.state.executor = JobExecutor()
+    app.state.executor = JobExecutor(max_solvers=max_solver_workers, max_preparation=max_prep_workers)
     app.state.jobs = {}
     app.state.lock = threading.Lock()
     app.state.job_subscribers = {}
