@@ -31,7 +31,7 @@ class JSONDistanceRepository(DistanceRepository):
                 (int(item["dst_lat_e6"]), int(item["dst_lng_e6"]), float(item["distance"]), float(item["travel_time"]))
                 for item in data.get("edges", [])
             ]
-        except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError):
+        except (OSError, KeyError, TypeError, ValueError):
             return []
         
     def _save_src_edges(self,
@@ -65,7 +65,7 @@ class JSONDistanceRepository(DistanceRepository):
         all_edges = self._get_src_edges(src_lat_e6, src_lng_e6)
         if not all_edges:
             return None
-        dst_set = set((dst_lat_e6, dst_lng_e6) for dst_lat_e6, dst_lng_e6 in dst)
+        dst_set = {(dst_lat_e6, dst_lng_e6) for dst_lat_e6, dst_lng_e6 in dst}
         result = []
         for edge in all_edges:
             if (edge[0], edge[1]) in dst_set:
@@ -84,13 +84,9 @@ class JSONDistanceRepository(DistanceRepository):
         for edge in dst:
             dst_lat_e6, dst_lng_e6, dist, time = edge
             existing_edge = unique_edges.get((dst_lat_e6, dst_lng_e6))
-            if existing_edge is None:
+            if existing_edge is None or dist != existing_edge[2] or time != existing_edge[3]:
                 unique_edges[(dst_lat_e6, dst_lng_e6)] = edge
                 is_changed = True
-            else:
-                if dist != existing_edge[2] or time != existing_edge[3]:
-                    unique_edges[(dst_lat_e6, dst_lng_e6)] = edge
-                    is_changed = True
 
         if is_changed:
             return self._save_src_edges(src_lat_e6, src_lng_e6, list(unique_edges.values()))

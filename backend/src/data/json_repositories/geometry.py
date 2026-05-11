@@ -41,7 +41,7 @@ class JSONGeometryRepository(GeometryRepository):
             data = json.loads(geometry_path.read_text(encoding="utf-8"))
             points = data["geometry"]
             return [tuple(point) for point in points]
-        except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError):
+        except (OSError, KeyError, TypeError, ValueError):
             return None
 
 

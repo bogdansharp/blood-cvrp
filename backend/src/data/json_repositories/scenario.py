@@ -49,7 +49,7 @@ class JSONScenarioRepository(ScenarioRepository):
         try:
             scenario_data = json.loads(scenario_path.read_text(encoding="utf-8"))
             return Scenario.model_validate(scenario_data)
-        except (OSError, json.JSONDecodeError, ValueError):
+        except (OSError, ValueError):
             return None
         
         
@@ -60,7 +60,7 @@ class JSONScenarioRepository(ScenarioRepository):
                 scenario_data = json.loads(file.read_text(encoding="utf-8"))
                 scenario = Scenario.model_validate(scenario_data)
                 scenarios.append(ScenarioReduced.from_scenario(scenario))
-            except (OSError, json.JSONDecodeError, ValueError):
+            except (OSError, ValueError):
                 continue
         scenarios.sort(key=lambda s: s.id)
         return scenarios
@@ -76,7 +76,7 @@ class JSONScenarioRepository(ScenarioRepository):
         try:
             with scenario_path.open("x", encoding="utf-8") as handle:
                 json.dump(scenario.model_dump(mode="json"), handle, indent=2)
-        except (FileExistsError, OSError):
+        except OSError:
             return None
         
         return scenario

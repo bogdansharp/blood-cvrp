@@ -10,34 +10,32 @@ class ORSRoutingProvider(RoutingProvider):
     Routing provider implementation using external OpenRouteService API.
     '''
 
-    _PROFILE = "driving-car"
-    _MATRIX_ENDPOINT = f"/v2/matrix/{_PROFILE}"
-    _SNAP_ENDPOINT = f"/v2/snap/{_PROFILE}"
-    _GEOMETRY_ENDPOINT = f"/v2/directions/{_PROFILE}/geojson"
-    _REQUEST_CONTENT_TYPE = "application/json"
-
     def __init__(self, 
         ors_api_key: str, 
         ors_base_url: str,
+        ors_profile: str = "driving-car",
         call_timeout_sec: int = 30, 
         max_snap_dist: int = 500,
         simplify_geometry: bool = True,
+        http_post = requests.post,
     ) -> None:
         ors_base_url = ors_base_url.rstrip("/")
 
         self._ors_api_key = ors_api_key
         self._call_timeout_sec = call_timeout_sec
-        self._matrix_url = ors_base_url + self._MATRIX_ENDPOINT
-        self._snap_url = ors_base_url + self._SNAP_ENDPOINT
-        self._geometry_url = ors_base_url + self._GEOMETRY_ENDPOINT
+        self._ors_profile = ors_profile
+        self._matrix_url = f"{ors_base_url}/v2/matrix/{self._ors_profile}"
+        self._snap_url = f"{ors_base_url}/v2/snap/{self._ors_profile}"
+        self._geometry_url = f"{ors_base_url}/v2/directions/{self._ors_profile}/geojson"
         self._max_snap_dist = max_snap_dist
         self._simplify_geometry = simplify_geometry
         self._geometry_cooldown_until = 0.0
+        self._http_post = http_post
 
     def _get_headers(self) -> dict[str, str]:
         return {
             "Authorization": self._ors_api_key,
-            "Content-Type": self._REQUEST_CONTENT_TYPE
+            "Content-Type": "application/json"
         }
 
     def get_geometry(self, 
@@ -62,7 +60,7 @@ class ORSRoutingProvider(RoutingProvider):
             "instructions":            False,
             "units":                   "m",        # distance in metres
         }
-        response = requests.post(
+        response = self._http_post(
             self._geometry_url, 
             headers=self._get_headers(), 
             json=payload, 
@@ -141,7 +139,7 @@ class ORSRoutingProvider(RoutingProvider):
             "resolve_locations":    False,
             "sources":              src_idxs,
         }
-        response = requests.post(
+        response = self._http_post(
             self._matrix_url, 
             headers=self._get_headers(), 
             json=payload, 
@@ -189,7 +187,7 @@ class ORSRoutingProvider(RoutingProvider):
             "locations":            locations,
             "radius":               self._max_snap_dist,
         }
-        response = requests.post(
+        response = self._http_post(
             self._snap_url, 
             headers=self._get_headers(), 
             json=payload, 

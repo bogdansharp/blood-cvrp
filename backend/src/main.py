@@ -55,6 +55,7 @@ async def lifespan(app: FastAPI):
         routing=ORSRoutingProvider(
             ors_api_key=settings.ors_api_key,
             ors_base_url=settings.ors_base_url,
+            ors_profile=settings.ors_profile,
         ),
     )
 

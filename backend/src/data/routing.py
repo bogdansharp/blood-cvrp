@@ -1,7 +1,10 @@
+import logging
 from math import inf
 
 from backend.src.data.interfaces import DistanceRepository, GeometryRepository, RoutingProvider
 
+
+logger = logging.getLogger(__name__)
 
 class RoutingData:
     '''
@@ -45,7 +48,7 @@ class RoutingData:
             missed_idx.append(i) # value is missing in cache
 
         if missed_idx:
-            print(f"Fetching missing routing data for {len(missed_idx)} destinations")
+            logger.info("Fetching missing routing data for %s destinations", len(missed_idx))
             missing_dst = [dst[i] for i in missed_idx]
 
             try:
@@ -77,75 +80,16 @@ class RoutingData:
                 update_items.append((dst[dst_idx][0], dst[dst_idx][1], edge_dist, edge_time))
             
             if not self._dist_repo.update(src_lat_e6, src_lng_e6, update_items):
-                print(f"Warning: failed to update distance repository with new edges for source ({src_lat_e6}, {src_lng_e6})")
+                logger.warning(
+                    "Failed to update distance repository with new edges for source (%s, %s)",
+                    src_lat_e6,
+                    src_lng_e6,
+                )
 
         if any(value == inf for value in result):
             raise RuntimeError("Some edge data is still missing after routing provider fetch")
 
         return result
-
-    # def _get_edge_data(self, 
-    #     src_lat_e6: int, src_lng_e6: int, dst: list[tuple[int, int]], data_field: str
-    # ) -> list[float]:
-    #     if data_field not in self._ALLOWED_EDGE_FIELDS:
-    #         raise ValueError(f"Field '{data_field}' is not allowed")
-
-    #     if not dst:
-    #         return []
-
-    #     missed_idx = []
-    #     result = [inf] * len(dst)
-
-    #     for i, (dst_lat_e6, dst_lng_e6) in enumerate(dst):
-    #         res = self._dist_repo.get(src_lat_e6, src_lng_e6, dst_lat_e6, dst_lng_e6)
-
-    #         if res is None:
-    #             missed_idx.append(i)
-    #         else:
-    #             result[i] = float(res[0]) if data_field == "distance" else float(res[1])
-
-    #     if missed_idx:
-    #         missing_dst = [dst[i] for i in missed_idx]
-
-    #         try:
-    #             edge_data = self._routing.get_distance_and_time(
-    #                 src_lat_e6, src_lng_e6, missing_dst
-    #             )
-    #         except Exception as e:
-    #             raise RuntimeError(f"Error occurred while fetching missing distances: {e}") from e
-
-    #         if len(edge_data) != len(missing_dst):
-    #             raise RuntimeError(
-    #                 f"Routing provider returned invalid number of edges: "
-    #                 f"expected={len(missing_dst)}, actual={len(edge_data)}"
-    #             )
-
-    #         for idx, (edge_dist, edge_time) in enumerate(edge_data):
-    #             dst_idx = missed_idx[idx]
-
-    #             if edge_dist is None or edge_time is None:
-    #                 raise RuntimeError(
-    #                     f"Routing provider returned empty edge data for destination index {dst_idx}"
-    #                 )
-
-    #             edge_dist = float(edge_dist)
-    #             edge_time = float(edge_time)
-
-    #             result[dst_idx] = edge_dist if data_field == "distance" else edge_time
-
-    #             self._dist_repo.update(
-    #                 src_lat_e6=src_lat_e6,
-    #                 src_lng_e6=src_lng_e6,
-    #                 dst_lat_e6=dst[dst_idx][0],
-    #                 dst_lng_e6=dst[dst_idx][1],
-    #                 distance=edge_dist,
-    #                 travel_time=edge_time,
-    #             )
-
-    #     if any(value == inf for value in result):
-    #         raise RuntimeError("Some edge data is still missing after routing provider fetch")
-
-    #     return result
     
 
     def get_distance(self, 
@@ -173,7 +117,13 @@ class RoutingData:
             return geometry
 
         try:
-            print(f"Fetching geometry ({src_lat_e6}, {src_lng_e6}) -> ({dst_lat_e6}, {dst_lng_e6})")
+            logger.info(
+                "Fetching geometry (%s, %s) -> (%s, %s)",
+                src_lat_e6,
+                src_lng_e6,
+                dst_lat_e6,
+                dst_lng_e6,
+            )
             geometry = self._routing.get_geometry(
                 src_lat_e6, src_lng_e6, dst_lat_e6, dst_lng_e6
             )
@@ -183,13 +133,21 @@ class RoutingData:
         if not geometry:
             raise RuntimeError("Routing provider returned empty geometry")
 
-        self._geom_repo.update(
+        is_updated = self._geom_repo.update(
             src_lat_e6=src_lat_e6,
             src_lng_e6=src_lng_e6,
             dst_lat_e6=dst_lat_e6,
             dst_lng_e6=dst_lng_e6,
             geometry=geometry,
         )
+        if not is_updated:
+            logger.warning(
+                "Failed to update geometry repository for edge (%s, %s) -> (%s, %s)",
+                src_lat_e6,
+                src_lng_e6,
+                dst_lat_e6,
+                dst_lng_e6,
+            )
 
         return geometry
     
