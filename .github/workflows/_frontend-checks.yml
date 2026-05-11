@@ -2,6 +2,11 @@ name: Frontend Checks Subworkflow
 
 on:
   workflow_call:
+    inputs:
+      upload-coverage:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   frontend:
@@ -48,9 +53,24 @@ jobs:
         if: matrix.full-checks
         run: npm run lint
 
-      # Unit tests
+      # Tests
       - name: Unit tests
+        if: ${{ !matrix.full-checks }}
         run: npm test
+
+      # Tests with coverage
+      - name: Unit tests with coverage
+        if: matrix.full-checks
+        run: npm run test:coverage
+
+      # Upload frontend coverage
+      - name: Upload frontend coverage
+        if: inputs.upload-coverage && matrix.full-checks
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-coverage-${{ github.sha }}
+          path: frontend/coverage
+          if-no-files-found: error
 
       # Build the frontend
       - name: Build

@@ -62,7 +62,7 @@ jobs:
   backend:
     uses: ./.github/workflows/_backend-checks.yml
     with:
-      upload-coverage: true
+      upload-coverage: false
     needs: changes
     # Run if backend files or workflow files changed, or if it's a push to main
     if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.workflows == 'true' || github.ref_name == 'master'
@@ -70,6 +70,8 @@ jobs:
   # Frontend checks
   frontend:
     uses: ./.github/workflows/_frontend-checks.yml
+    with:
+      upload-coverage: false
     needs: changes
     if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.workflows == 'true' || github.ref_name == 'master'
 

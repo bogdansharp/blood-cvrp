@@ -54,6 +54,12 @@ jobs:
           name: backend-coverage-${{ github.sha }}
           path: backend
 
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend-coverage-${{ github.sha }}
+          path: frontend
+
       - name: SonarQube Cloud scan
         uses: SonarSource/sonarqube-scan-action@v8
         env:
@@ -69,6 +75,8 @@ jobs:
   # Frontend checks
   frontend:
     uses: ./.github/workflows/_frontend-checks.yml
+    with:
+      upload-coverage: true
     needs: codeql
 
   # Package and publish release
