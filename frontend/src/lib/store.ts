@@ -221,7 +221,7 @@ type GeometryRequest = {
     attempts: number;
 };
 
-const makeGeometryKey = (
+export const makeGeometryKey = (
     src_lat_e6: number,
     src_lng_e6: number,
     dst_lat_e6: number,
@@ -372,8 +372,6 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
                 });
 
                 currentGeometryKey = null;
-
-                await sleep(50);
             }
         } finally {
             geometryInProgress = false;

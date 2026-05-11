@@ -7,6 +7,7 @@
     import { createInitialState, createStore, OR_FIRST_SOLUTION_STRATEGY_LABELS, OR_LOCAL_SEARCH_METAHEURISTIC_LABELS, SOLVE_METHOD_LABELS, type AppViewState, type ORFirstSolutionStrategy, type ORLocalSearchMetaheuristic, type SolveMethod } from '$lib/store';
     import JobsSection from '$lib/components/JobsSection.svelte';
     import ScenarioSection from '$lib/components/ScenarioSection.svelte';
+	import { getBearingDegrees } from '$lib/mapHelpers';
 
     const defaultCenter: [number, number] = [53.331, -8.092];
     const defaultZoom = 8;
@@ -49,19 +50,6 @@
             .addTo(map);
         mapLayers = loaded.layerGroup().addTo(map);
         updateMapLayers();
-    };
-
-    const getBearingDegrees = (from: [number, number], to: [number, number]) => {
-        const fromLat = from[0] * Math.PI / 180;
-        const toLat = to[0] * Math.PI / 180;
-        const deltaLng = (to[1] - from[1]) * Math.PI / 180;
-
-        const y = Math.sin(deltaLng) * Math.cos(toLat);
-        const x =
-            Math.cos(fromLat) * Math.sin(toLat) -
-            Math.sin(fromLat) * Math.cos(toLat) * Math.cos(deltaLng);
-
-        return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
     };
 
     const addDirectionArrows = (
