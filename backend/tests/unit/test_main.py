@@ -21,9 +21,14 @@ class DummyExecutor:
 
 
 class DummyRoutingProvider:
-    def __init__(self, ors_api_key: str, ors_base_url: str) -> None:
+    def __init__(self, 
+        ors_api_key: str, 
+        ors_base_url: str,
+        ors_profile: str,
+    ) -> None:
         self.ors_api_key = ors_api_key
         self.ors_base_url = ors_base_url
+        self.ors_profile = ors_profile
 
 
 class DummyRoutingData:
