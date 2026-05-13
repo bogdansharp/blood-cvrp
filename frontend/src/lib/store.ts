@@ -206,6 +206,17 @@ export const jobStatusLabel = (status: JobStatus): string => {
     return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
+export const cancelJob = async (
+    jobId: number, 
+    apiBase: string = 'http://localhost:8000/api/v1'
+): Promise<void> => {
+    const response = await fetch(`${apiBase}/jobs/cancel/${jobId}`, { method: 'POST' });
+    if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail);
+    }
+};
+
 export const createInitialState = (): AppViewState => ({
     scenario: null,
     scenarios: [],
@@ -431,15 +442,6 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         update((state) => ({ ...state, scenario, loading: false, solution: null }));
         return scenario;
     };
-
-    const upateGeometries = (
-        g: Map<string, [number, number][]>, 
-        key: string, 
-        value: [number, number][],
-    ): Map<string, [number, number][]> => {
-        g.set(key, value);
-        return g;
-    }
 
     const loadGeometry = async (
         src_lat_e6: number,

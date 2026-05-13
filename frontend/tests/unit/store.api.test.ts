@@ -2,6 +2,7 @@ import { get } from 'svelte/store';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+    cancelJob,
     createInitialState,
     createStore,
     type Hospital,
@@ -11,7 +12,7 @@ import {
     type SolverJobPayload
 } from '../../src/lib/store';
 
-const apiBase = 'http://test/api/v1';
+const apiBase = 'http://atu.ie/api/v1';
 
 const jsonResponse = (body: unknown, status = 200): Response => {
     return new Response(JSON.stringify(body), {
@@ -304,5 +305,28 @@ describe('store API/state logic', () => {
         expect(state.scenario).toBeNull();
         expect(state.solution).toBeNull();
         expect(state.error).toBeNull();
+    });
+
+    it('sends cancel job request', async () => {
+        fetchMock.mockResolvedValueOnce({
+            ok: true,
+            text: vi.fn()
+        } as unknown as Response);
+
+        await cancelJob(123, apiBase);
+
+        expect(fetchMock).toHaveBeenCalledWith(
+            `${apiBase}/jobs/cancel/123`,
+            { method: 'POST' }
+        );
+    });
+
+    it('throws when cancel job request fails', async () => {
+        fetchMock.mockResolvedValueOnce({
+            ok: false,
+            text: vi.fn().mockResolvedValue('Cannot cancel job')
+        } as unknown as Response);
+
+        await expect(cancelJob(123, apiBase)).rejects.toThrow('Cannot cancel job');
     });
 });

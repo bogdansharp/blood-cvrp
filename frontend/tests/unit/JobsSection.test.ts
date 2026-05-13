@@ -1,11 +1,25 @@
 // @vitest-environment jsdom
 
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/svelte';
-import { describe, expect, it } from 'vitest';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import JobsSection from '../../src/lib/components/JobsSection.svelte';
 import type { SolverJobPayload } from '../../src/lib/store';
+
+const mocks = vi.hoisted(() => ({
+    cancelJob: vi.fn()
+}));
+
+vi.mock('$lib/store', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('$lib/store')>();
+
+    return {
+        ...actual,
+        cancelJob: mocks.cancelJob
+    };
+});
+
 
 const makeJob = (overrides: Partial<SolverJobPayload> = {}): SolverJobPayload => ({
     id: 10,
@@ -26,6 +40,14 @@ const makeJob = (overrides: Partial<SolverJobPayload> = {}): SolverJobPayload =>
 });
 
 describe('JobsSection', () => {
+    beforeEach(() => {
+        mocks.cancelJob.mockReset();
+    });
+    afterEach(() => {
+        cleanup();
+        vi.restoreAllMocks();
+    });
+
     it('shows the empty state when there are no jobs', () => {
         render(JobsSection);
 
@@ -82,5 +104,83 @@ describe('JobsSection', () => {
         expect(screen.getByText('Solver failed')).toBeInTheDocument();
         expect(screen.getByText('info')).toBeInTheDocument();
         expect(screen.getByText('error')).toBeInTheDocument();
+    });
+
+    it('shows cancel button for queued and running jobs only', () => {
+        render(JobsSection, {
+            props: {
+                jobs: [
+                    makeJob({
+                        id: 1,
+                        name: 'Queued Job',
+                        status: 'queued',
+                        finished_at: null,
+                        solution_id: null
+                    }),
+                    makeJob({
+                        id: 2,
+                        name: 'Running Job',
+                        status: 'running',
+                        finished_at: null,
+                        solution_id: null
+                    }),
+                    makeJob({
+                        id: 3,
+                        name: 'Finished Job',
+                        status: 'finished'
+                    })
+                ]
+            }
+        });
+        const buttons = screen.getAllByRole('button', { name: 'Cancel' });
+
+        expect(buttons).toHaveLength(2);
+    });
+
+    it('calls cancelJob when cancel button is clicked', async () => {
+        mocks.cancelJob.mockResolvedValueOnce(undefined);
+
+        render(JobsSection, {
+            props: {
+                jobs: [
+                    makeJob({
+                        id: 123,
+                        status: 'running',
+                        finished_at: null,
+                        solution_id: null
+                    })
+                ]
+            }
+        });
+        await fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+        
+        await waitFor(() => {
+            expect(mocks.cancelJob).toHaveBeenCalledWith(123);
+        });
+    });
+
+    it('disables cancel button after cancel is requested', async () => {
+        mocks.cancelJob.mockResolvedValueOnce(undefined);
+
+        render(JobsSection, {
+            props: {
+                jobs: [
+                    makeJob({
+                        id: 123,
+                        status: 'running',
+                        finished_at: null,
+                        solution_id: null
+                    })
+                ]
+            }
+        });
+        const button = screen.getByRole('button', { name: 'Cancel' });
+        await fireEvent.click(button);
+        await waitFor(() => {
+            expect(button).toBeDisabled();
+        });
+        await fireEvent.click(button);
+
+        expect(mocks.cancelJob).toHaveBeenCalledTimes(1);
     });
 });

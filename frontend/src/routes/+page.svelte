@@ -345,7 +345,7 @@
                     Scenario
                 </label>
                 <select
-                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
+                    class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
                     id="scenario-select"
                     onchange={handleScenarioChange}
                     disabled={state.loading}
@@ -364,7 +364,7 @@
                     Method
                 </label>
                 <select
-                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
+                    class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
                     id="method-select"
                     bind:value={selectedMethod}
                 >
@@ -382,12 +382,12 @@
                     type="number"
                     min="0"
                     id="time-limit-input"
-                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
+                    class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
                     bind:value={timeLimitHours}
                 />
             </div>
 
-            <label class="flex h-[30px] items-center gap-2 rounded-md border border-neutral-300 px-2 text-xs text-neutral-700 min-[821px]:mb-0">
+            <label class="flex h-7.5 items-center gap-2 rounded-md border border-neutral-300 px-2 text-xs text-neutral-700 min-[821px]:mb-0">
                 <input
                     type="checkbox"
                     class="h-4 w-4"
@@ -402,7 +402,7 @@
                     First solution
                 </label>
                 <select
-                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 disabled:bg-neutral-100"
+                    class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 disabled:bg-neutral-100"
                     id="or-first-solution-select"
                     bind:value={orFirstSolution}
                     disabled={selectedMethod !== 'ortools'}
@@ -418,7 +418,7 @@
                     Local search
                 </label>
                 <select
-                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 disabled:bg-neutral-100"
+                    class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 disabled:bg-neutral-100"
                     id="or-local-search-select"
                     bind:value={orLocalSearch}
                     disabled={selectedMethod !== 'ortools'}
@@ -434,7 +434,7 @@
                     Local search
                 </label>
                 <select
-                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 disabled:bg-neutral-100"
+                    class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 disabled:bg-neutral-100"
                     id="clarke-local-search-select"
                     bind:value={clarkeLocalSearch}
                     disabled={selectedMethod !== 'clarke_wright_savings'}
@@ -446,7 +446,7 @@
             </div>
 
             <button
-                class="h-[30px] w-full rounded-md border border-[#0f4c81] bg-[#0f4c81] px-4 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 min-[520px]:col-span-2 min-[821px]:col-span-1 min-[821px]:w-auto"
+                class="h-7.5 w-full rounded-md border border-[#0f4c81] bg-[#0f4c81] px-4 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 min-[520px]:col-span-2 min-[821px]:col-span-1 min-[821px]:w-auto"
                 type="button"
                 onclick={() => submitAndTrack(selectedMethod, timeLimitHours)}
                 disabled={state.loading || !state.scenario}
