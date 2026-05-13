@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/svelte';
-import { describe, expect, it } from 'vitest';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/svelte';
+import { describe, expect, it, vi, afterEach } from 'vitest';
 
 import ScenarioSection from '../../src/lib/components/ScenarioSection.svelte';
 import type { Hospital, ScenarioPayload } from '../../src/lib/store';
@@ -62,24 +62,36 @@ const makeScenario = (): ScenarioPayload => ({
     ]
 });
 
+const renderScenarioSection = (props = {}) => {
+    return render(ScenarioSection, {
+        props: {
+            deleteScenario: vi.fn(),
+            ...props
+        }
+    });
+};
+
 describe('ScenarioSection', () => {
+    afterEach(() => {
+        cleanup();
+        vi.restoreAllMocks();
+    });
+
     it('shows the empty state when no scenario is provided', () => {
-        render(ScenarioSection);
+        renderScenarioSection();
 
         expect(screen.getByText('No scenario selected.')).toBeInTheDocument();
     });
 
     it('shows the loading state when loading is true', () => {
-        render(ScenarioSection, { props: { loading: true } });
+        renderScenarioSection({ loading: true });
 
         expect(screen.getByText('Loading scenario...')).toBeInTheDocument();
     });
 
     it('renders selected scenario name and counts', () => {
-        render(ScenarioSection, {
-            props: {
-                scenario: makeScenario()
-            }
+        renderScenarioSection({
+            scenario: makeScenario()
         });
 
         expect(screen.getByRole('heading', { name: 'Scenario Alpha' })).toBeInTheDocument();
@@ -90,10 +102,8 @@ describe('ScenarioSection', () => {
     });
 
     it('renders depot, customer, and vehicle details from props', () => {
-        const { container } = render(ScenarioSection, {
-            props: {
-                scenario: makeScenario()
-            }
+        const { container } = renderScenarioSection({
+            scenario: makeScenario()
         });
 
         const text = container.textContent ?? '';
@@ -119,5 +129,48 @@ describe('ScenarioSection', () => {
         expect(text).toContain('Pool 2');
         expect(text).toContain('capacity 20');
         expect(text).toContain('unlimited');
+    });
+
+    it('calls deleteScenario with selected scenario id', async () => {
+        const deleteScenario = vi.fn().mockResolvedValue(undefined);
+
+        renderScenarioSection({
+            scenario: makeScenario(),
+            deleteScenario
+        });
+
+        await fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+
+        expect(deleteScenario).toHaveBeenCalledWith(42);
+    });
+
+    it('disables delete button while delete is in progress', async () => {
+        let resolveDelete: () => void = () => undefined;
+
+        const deleteScenario = vi.fn(
+            () =>
+                new Promise<void>((resolve) => {
+                    resolveDelete = resolve;
+                })
+        );
+
+        renderScenarioSection({
+            scenario: makeScenario(),
+            deleteScenario
+        });
+
+        const button = screen.getByRole('button', { name: 'Delete' });
+
+        await fireEvent.click(button);
+
+        await waitFor(() => {
+            expect(button).toBeDisabled();
+        });
+
+        resolveDelete();
+
+        await waitFor(() => {
+            expect(button).not.toBeDisabled();
+        });
     });
 });

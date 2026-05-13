@@ -602,6 +602,22 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         update((state) => ({ ...state, loading: false, hospitals: hospitals, error: null }));
     };
 
+    const deleteScenario = async (scenarioId: number): Promise<void> => {
+        const response = await fetch(`${apiBase}/scenarios/${scenarioId}`, { method: 'DELETE' });
+        if (response.ok) {
+            update((state) => ({
+                ...state, 
+                scenario: null, 
+                solution: null, 
+                error: null, 
+                scenarios: state.scenarios.filter(s => s.id !== scenarioId) 
+            }));
+        } else {
+            const detail = await response.text();
+            console.error(`Failed to delete scenario ${scenarioId}:`, detail);
+        }
+    };
+
     return {
         subscribe,
         set,
@@ -614,5 +630,6 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         loadSolution,
         fetchHospitals,
         loadGeometry,
+        deleteScenario,
     };
 };

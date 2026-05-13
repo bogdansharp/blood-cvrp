@@ -446,7 +446,7 @@
             </div>
 
             <button
-                class="h-7.5 w-full rounded-md border border-[#0f4c81] bg-[#0f4c81] px-4 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 min-[520px]:col-span-2 min-[821px]:col-span-1 min-[821px]:w-auto"
+                class="h-7.5 w-full rounded-md border border-[#0f4c81] bg-[#0f4c81] px-4 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 min-[520px]:col-span-2 min-[821px]:col-span-1 min-[821px]:w-auto cursor-pointer"
                 type="button"
                 onclick={() => submitAndTrack(selectedMethod, timeLimitHours)}
                 disabled={state.loading || !state.scenario}
@@ -464,7 +464,7 @@
 
         <button
             type="button"
-            class={`hidden bg-white text-neutral-950 min-[821px]:absolute min-[821px]:top-1/2 min-[821px]:z-[1002] min-[821px]:grid min-[821px]:place-items-center min-[821px]:border min-[821px]:border-r-0 min-[821px]:border-neutral-400 min-[821px]:rounded-l-lg min-[821px]:cursor-pointer min-[821px]:-translate-y-1/2 ${
+            class={`hidden bg-white text-neutral-950 min-[821px]:absolute min-[821px]:top-1/2 min-[821px]:z-[1002] min-[821px]:grid min-[821px]:place-items-center min-[821px]:border min-[821px]:border-r-0 min-[821px]:border-neutral-400 min-[821px]:rounded-l-lg min-[821px]:cursor-pointer cursor-pointer min-[821px]:-translate-y-1/2 ${
                 sidebarOpen
                     ? 'min-[821px]:right-[calc(clamp(280px,26vw,380px)+5px)] min-[821px]:h-12 min-[821px]:w-[30px] min-[821px]:p-1'
                     : 'min-[821px]:right-[5px] min-[821px]:min-h-[104px] min-[821px]:w-[38px] min-[821px]:gap-1 min-[821px]:px-1 min-[821px]:py-2'
@@ -495,7 +495,7 @@
         >
             <div class="grid min-w-0 gap-2 overflow-x-auto p-2 min-[821px]:flex min-[821px]:min-h-full min-[821px]:min-w-[320px] min-[821px]:flex-col">
                 <section class="min-h-[160px] overflow-auto border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
-                    <ScenarioSection scenario={state.scenario} loading={state.loading} />
+                    <ScenarioSection scenario={state.scenario} loading={state.loading} deleteScenario={store.deleteScenario} />
                 </section>
 
                 <section class="min-h-[160px] overflow-auto border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">

@@ -55,7 +55,7 @@
                         </span>
 
                         <button
-                            class="h-7.5 rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55"
+                            class="h-7.5 rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 cursor-pointer"
                             type="button"
                             onclick={() => requestCancelJob(job)}
                             hidden={job.status !== 'running' && job.status !== 'queued'}

@@ -1,12 +1,25 @@
 <script lang="ts">
-    import type { ScenarioPayload } from '$lib/store';
+    import { type ScenarioPayload } from '$lib/store';
 
     type Props = {
         scenario?: ScenarioPayload | null;
         loading?: boolean;
+        deleteScenario: (scenarioId: number) => void | Promise<void>;
     };
 
-    let { scenario = null, loading = false }: Props = $props();
+    let { scenario = null, loading = false, deleteScenario }: Props = $props();
+    let deleteInProgress: boolean = $state(false);
+
+    const requestDeleteScenario = async (scenarioId: number): Promise<void> => {
+        try {
+            deleteInProgress = true;
+            await deleteScenario(scenarioId);
+        } catch (error) {
+            console.error(`Failed to delete scenario ${scenarioId}:`, error);
+        } finally {
+            deleteInProgress = false;
+        }
+    };
 </script>
 
 <div class="scenario">
@@ -29,6 +42,24 @@
         <div class="scenario-summary">
             <span class="summary-item">Depots: {scenario.depots.length}</span>
             <span class="summary-item">Vehicles: {scenario.vehicles.length}</span>
+        </div>
+
+        <div class="scenario-actions">
+            <button
+                class="h-7.5 rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 cursor-pointer"
+                type="button"
+                onclick={() => requestDeleteScenario(scenario.id)}
+                disabled={deleteInProgress}
+            >
+                Delete
+            </button>
+            <button
+                class="h-7.5 rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 cursor-pointer"
+                type="button"
+                disabled={true}
+            >
+                Edit
+            </button>
         </div>
 
         <div class="section-block">
