@@ -37,9 +37,18 @@ def make_test_app() -> FastAPI:
 
 
 class FakeScenarioService:
-    def __init__(self, scenario: Any | None = None, deleted: bool = True) -> None:
+    def __init__(
+        self,
+        scenario: Any | None = None,
+        deleted: bool = True,
+        create_error: Exception | None = None,
+        create_result: Any | None = None,
+    ) -> None:
         self.scenario = scenario
         self.deleted = deleted
+        self.create_error = create_error
+        self.create_result = create_result
+        self.created_payload = None
 
     def get_scenario(self, scenario_id: int) -> Any | None:
         return self.scenario
@@ -49,6 +58,44 @@ class FakeScenarioService:
 
     def delete_scenario(self, scenario_id: int) -> bool:
         return self.deleted
+
+    def create_scenario(self, payload: Any) -> Any | None:
+        if self.create_error is not None:
+            raise self.create_error
+        self.created_payload = payload
+        return self.create_result
+    
+
+def scenario_payload(id: int = 0) -> dict:
+    return {
+        "id": id,
+        "name": "Created Scenario",
+        "description": "Test scenario",
+        "vehicles": [
+            {
+                "capacity": 10,
+                "quantity": 2,
+            }
+        ],
+        "depots": [
+            {
+                "id": 1,
+                "name": "Depot",
+                "lat_e6": 53100000,
+                "lng_e6": -8200000,
+                "demand": 0,
+            }
+        ],
+        "customers": [
+            {
+                "id": 2,
+                "name": "Customer",
+                "lat_e6": 53200000,
+                "lng_e6": -8300000,
+                "demand": 4,
+            }
+        ],
+    }
 
 
 class FakeJobService:
@@ -269,3 +316,51 @@ def test_routing_runtime_error_returns_502(app: FastAPI) -> None:
         )
 
     assert response.status_code == 502
+
+
+def test_create_scenario_returns_created_id(app: FastAPI) -> None:
+    created = SimpleNamespace(id=123)
+    fake_service = FakeScenarioService(create_result=created)
+
+    app.dependency_overrides[get_scenario_service] = lambda: fake_service
+
+    with TestClient(app) as client:
+        response = client.post("/scenarios/create", json=scenario_payload())
+
+    assert response.status_code == 200
+    assert response.json() == 123
+    assert fake_service.created_payload is not None
+    assert fake_service.created_payload.name == "Created Scenario"
+
+
+def test_create_scenario_maps_value_error_to_400(app: FastAPI) -> None:
+    app.dependency_overrides[get_scenario_service] = lambda: FakeScenarioService(
+        create_error=ValueError("invalid scenario")
+    )
+
+    with TestClient(app) as client:
+        response = client.post("/scenarios/create", json=scenario_payload())
+
+    assert response.status_code == 400
+
+
+def test_create_scenario_maps_runtime_error_to_500(app: FastAPI) -> None:
+    app.dependency_overrides[get_scenario_service] = lambda: FakeScenarioService(
+        create_error=RuntimeError("storage failed")
+    )
+
+    with TestClient(app) as client:
+        response = client.post("/scenarios/create", json=scenario_payload())
+
+    assert response.status_code == 500
+
+
+def test_create_scenario_returns_500_when_service_returns_none(app: FastAPI) -> None:
+    app.dependency_overrides[get_scenario_service] = lambda: FakeScenarioService(
+        create_result=None
+    )
+
+    with TestClient(app) as client:
+        response = client.post("/scenarios/create", json=scenario_payload())
+
+    assert response.status_code == 500

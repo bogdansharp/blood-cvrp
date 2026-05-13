@@ -36,3 +36,22 @@ async def delete_scenario(
     is_deleted = scenario_service.delete_scenario(scenario_id)
     if not is_deleted:
         raise HTTPException(status_code=404)
+    
+
+@router.post("/create", responses={
+    400: {"description": "Invalid request"},
+    500: {"description": "Internal server error"},
+})
+async def create_scenario(
+    payload: Scenario,
+    scenario_service: Annotated[ScenarioService, Depends(get_scenario_service)],
+) -> int:
+    try:
+        scenario = scenario_service.create_scenario(payload)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except RuntimeError as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
+    if scenario is None:
+        raise HTTPException(status_code=500, detail="Failed to create scenario")
+    return scenario.id

@@ -14,6 +14,9 @@ class ScenarioService:
     
     def get_scenario(self, id: int) -> Scenario | None:
         return self._repo.get(id)
+    
+    def create_scenario(self, scenario: Scenario) -> Scenario | None:
+        return self._repo.create(scenario)
 
     def delete_scenario(self, id: int) -> bool:
         return self._repo.delete(id)
