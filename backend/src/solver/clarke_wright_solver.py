@@ -2,9 +2,9 @@
 from time import perf_counter
 from typing import Any
 
-from backend.src.solver.options import SolveMethodOptions
 from backend.src.solver.errors import CancelledError, SolverFailedError
 from backend.src.solver.models import Route, Solver, SolverInput
+from backend.src.solver_options import ClarkeWrightLocalSearch, SolveMethodOptions
 
 
 class ClarkeWrightSolver(Solver):
@@ -59,11 +59,14 @@ class ClarkeWrightSolver(Solver):
         self._started = perf_counter()
         self._time_limit_ms = None
         self._cost_limit = float('inf')
+        self._two_opt_local_search = False
         if options:
             if options.time_limit_sec is not None:
                 self._time_limit_ms = options.time_limit_sec * 1000
             if options.cost_limit is not None:
                 self._cost_limit = options.cost_limit
+            if options.clarke_local_search == ClarkeWrightLocalSearch.TWO_OPT:
+                self._two_opt_local_search = True
         self._cancel_event = cancel_event
         self._periodic_check()
         try:
@@ -142,4 +145,42 @@ class ClarkeWrightSolver(Solver):
         self._solution.extend(list(unique_routes))
         for route in self._solution:
             route.nodes = [0] + route.nodes + [0]
+
+        if self._two_opt_local_search:
+            self._local_search()
         return self._solution
+
+
+    def _local_search(self) -> None:
+        if self._solution is None:
+            return
+        cost = self._matrix
+        for route in self._solution:
+            self._periodic_check()
+            m = len(route.nodes)
+            if m <= 3:
+                continue
+            improved = True
+            nodes = route.nodes.copy()
+            best_cost = route.cost
+            while improved:
+                improved = False
+                for i in range(1, m - 2):
+                    ith, iminus1th = nodes[i], nodes[i - 1]
+                    i_to_j_cost, j_to_i_cost = 0, 0
+                    for j in range(i + 1, m - 1):
+                        jth, jplus1th, jminus1th = nodes[j], nodes[j + 1], nodes[j - 1]
+                        i_to_j_cost += cost[jminus1th][jth]
+                        j_to_i_cost += cost[jth][jminus1th]
+                        old_cost = cost[iminus1th][ith] + i_to_j_cost + cost[jth][jplus1th]
+                        new_cost = cost[iminus1th][jth] + j_to_i_cost + cost[ith][jplus1th]
+                        if new_cost < old_cost:
+                            nodes[i:j + 1] = reversed(nodes[i:j + 1])
+                            best_cost += new_cost - old_cost
+                            improved = True
+                            break
+                    if improved:
+                        break
+            if best_cost < route.cost:
+                route.nodes = nodes
+                route.cost = best_cost

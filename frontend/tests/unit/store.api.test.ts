@@ -185,7 +185,7 @@ describe('store API/state logic', () => {
         });
 
         const result = await store.submitSolveRequest(
-            'clarke_wright_savings', 2, 'AUTOMATIC', 'NONE', false
+            'clarke_wright_savings', 2, 'AUTOMATIC', 'NONE', 'TWO_OPT', false
         );
 
         const calledUrl = fetchMock.mock.calls[0][0] as string;
@@ -200,6 +200,7 @@ describe('store API/state logic', () => {
         expect(url.searchParams.has('or_first_solution')).toBe(false);
         expect(url.searchParams.has('or_local_search')).toBe(false);
         expect(url.searchParams.has('or_balance_routes')).toBe(false);
+        expect(url.searchParams.get('clarke_local_search')).toBe('TWO_OPT');
         expect(get(store).jobs).toEqual([job]);
     });
 
@@ -215,7 +216,7 @@ describe('store API/state logic', () => {
         });
 
         await store.submitSolveRequest(
-            'ortools', 1.5, 'PATH_CHEAPEST_ARC', 'GUIDED_LOCAL_SEARCH', true
+            'ortools', 1.5, 'PATH_CHEAPEST_ARC', 'GUIDED_LOCAL_SEARCH', 'NONE', true
         );
 
         const calledUrl = fetchMock.mock.calls[0][0] as string;
@@ -234,7 +235,7 @@ describe('store API/state logic', () => {
 
         await expect(
             store.submitSolveRequest(
-                'clarke_wright_savings', 1, 'AUTOMATIC', 'NONE', false
+                'clarke_wright_savings', 1, 'AUTOMATIC', 'NONE', 'NONE', false
             )
         ).rejects.toThrow('No scenario loaded.');
 

@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from backend.src.api.models import SolveMethod
+from backend.src.models import SolveMethod
 from backend.src.solver.models import Solver, SolverInput, SolverRegistry
 
 

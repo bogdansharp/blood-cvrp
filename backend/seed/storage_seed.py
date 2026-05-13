@@ -14,7 +14,7 @@ if REPO_ROOT not in sys.path:
 
 load_dotenv(os.path.join(REPO_ROOT, ".env"))
 
-from backend.src.api.models import Hospital, Scenario, VehiclePool, Depot
+from backend.src.models import Hospital, Scenario, VehiclePool, Depot
 
 # =========================================
 #   CONFIG

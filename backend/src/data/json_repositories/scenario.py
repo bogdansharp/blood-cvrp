@@ -2,7 +2,7 @@ import json
 import threading
 from pathlib import Path
 
-from backend.src.api.models import Scenario, ScenarioReduced
+from backend.src.models import Scenario, ScenarioReduced
 from backend.src.data.interfaces import ScenarioRepository
 
 

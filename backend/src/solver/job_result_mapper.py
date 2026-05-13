@@ -1,12 +1,12 @@
 import datetime
 
-from backend.src.api.models import Hospital, RoutePath, Scenario, Solution, SolveMethod
+from backend.src.models import Hospital, RoutePath, Scenario, Solution, SolveMethod
 from backend.src.data.interfaces import SolutionRepository
 from backend.src.solver.models import Route
-from backend.src.solver.options import SolveMethodOptions
+from backend.src.solver_options import SolveMethodOptions
 
 
-class JobResults:
+class JobResultMapper:
   
     def __init__(self,
         solution_repo: SolutionRepository,

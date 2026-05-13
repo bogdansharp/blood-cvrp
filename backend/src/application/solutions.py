@@ -1,4 +1,4 @@
-from backend.src.api.models import Solution
+from backend.src.models import Solution
 from fastapi import Depends
 
 from backend.src.application.dependencies import get_solution_repository

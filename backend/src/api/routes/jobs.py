@@ -1,11 +1,12 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
-from backend.src.api.models import SolveMethod, SolverJob
+from backend.src.models import SolveMethod, SolverJob
 from backend.src.application.dependencies import get_settings
 from backend.src.application.jobs import JobService, SolveJobRequest, get_job_service
 from backend.src.settings import Settings
-from backend.src.solver.options import (
+from backend.src.solver_options import (
+    ClarkeWrightLocalSearch,
     ORFirstSolutionStrategy,
     ORLocalSearchMetaheuristic,
     SolveMethodOptions,
@@ -48,6 +49,7 @@ async def run_job(
     or_balance_routes: bool = False,
     or_first_solution: ORFirstSolutionStrategy = ORFirstSolutionStrategy.AUTOMATIC,
     or_local_search: ORLocalSearchMetaheuristic = ORLocalSearchMetaheuristic.NONE,
+    clarke_local_search: ClarkeWrightLocalSearch = ClarkeWrightLocalSearch.NONE,
     objective: SolverObjective = SolverObjective.MINIMIZE_TRAVEL_TIME,
 ) -> SolverJob:
     time_limit_sec = settings.solver_hard_time_limit_sec
@@ -58,6 +60,7 @@ async def run_job(
         or_balance_routes=or_balance_routes,
         or_first_solution_strategy=or_first_solution,
         or_local_search_metaheuristic=or_local_search,
+        clarke_local_search=clarke_local_search,
     )
     request = SolveJobRequest(scenario_id=scenario_id, method=method, options=options)
     try:

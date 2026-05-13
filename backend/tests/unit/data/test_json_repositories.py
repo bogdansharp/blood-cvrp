@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from backend.src.api.models import Depot, Hospital, Scenario, VehiclePool
+from backend.src.models import Depot, Hospital, Scenario, VehiclePool
 from backend.src.data.json_repositories.scenario import JSONScenarioRepository
 
 

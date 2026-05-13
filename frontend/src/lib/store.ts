@@ -2,12 +2,10 @@ import { get, writable } from 'svelte/store';
 
 export type SolveMethod =
     | 'clarke_wright_savings'
-    | 'clarke_wright_savings_with_2_opt'
     | 'ortools';
 
 export const SOLVE_METHOD_LABELS: Record<SolveMethod, string> = {
     'clarke_wright_savings': 'Clarke-Wright Savings',
-    'clarke_wright_savings_with_2_opt': 'Clarke-Wright Savings with 2-opt',
     'ortools': 'OR-Tools',
 };
 
@@ -47,6 +45,13 @@ export const OR_LOCAL_SEARCH_METAHEURISTIC_LABELS: Record<ORLocalSearchMetaheuri
     TABU_SEARCH: 'Tabu search',
 };
 
+export type ClarkeWrightLocalSearch = 'NONE' | 'TWO_OPT';
+
+export const CLARKE_WRIGHT_LOCAL_SEARCH_LABELS: Record<ClarkeWrightLocalSearch, string> = {
+    NONE: 'None',
+    TWO_OPT: '2-opt',
+};
+
 export type SolveMethodOptions = {
     random_seed?: number | null;
     time_limit_sec?: number | null;
@@ -56,6 +61,7 @@ export type SolveMethodOptions = {
     or_target_time_sec?: number;
     or_first_solution_strategy?: ORFirstSolutionStrategy | null;
     or_local_search_metaheuristic?: ORLocalSearchMetaheuristic | null;
+    clarke_wright_local_search?: ClarkeWrightLocalSearch | null;
 };
 
 
@@ -483,6 +489,7 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         timeLimitHours: number,
         orFirstSolution: ORFirstSolutionStrategy,
         orLocalSearch: ORLocalSearchMetaheuristic,
+        clarkeLocalSearch: ClarkeWrightLocalSearch,
         orBalanceRoutes: boolean = false,
     ): Promise<SolverJobPayload> => {
         let scenarioId: number | null = null;
@@ -503,14 +510,16 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
             throw new Error('Time limit must be non-negative.');
         }
 
-        let orParams: string = "";
+        let params: string = "";
         if (method === 'ortools') {
-            orParams += `&or_first_solution=${encodeURIComponent(orFirstSolution)}`;
-            orParams += `&or_local_search=${encodeURIComponent(orLocalSearch)}`;
-            orParams += `&or_balance_routes=${orBalanceRoutes}`;
+            params += `&or_first_solution=${encodeURIComponent(orFirstSolution)}`;
+            params += `&or_local_search=${encodeURIComponent(orLocalSearch)}`;
+            params += `&or_balance_routes=${orBalanceRoutes}`;
+        } else if (method === 'clarke_wright_savings') {
+            params += `&clarke_local_search=${encodeURIComponent(clarkeLocalSearch)}`;
         }
         const response = await fetch(
-            `${apiBase}/jobs/run/${scenarioId}?method=${encodeURIComponent(method)}&cost_limit=${timeLimitSeconds}${orParams}`,
+            `${apiBase}/jobs/run/${scenarioId}?method=${encodeURIComponent(method)}&cost_limit=${timeLimitSeconds}${params}`,
             { method: 'POST' }
         );
 

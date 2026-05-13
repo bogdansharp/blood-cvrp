@@ -1,4 +1,4 @@
-from backend.src.api.models import Scenario, ScenarioReduced
+from backend.src.models import Scenario, ScenarioReduced
 from fastapi import Depends
 
 from backend.src.application.dependencies import get_scenario_repository

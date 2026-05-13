@@ -1,4 +1,4 @@
-from backend.src.api.models import Hospital
+from backend.src.models import Hospital
 from fastapi import Depends
 
 from backend.src.application.dependencies import get_hospital_repository

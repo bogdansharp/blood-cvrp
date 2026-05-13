@@ -4,7 +4,7 @@ from enum import Enum
 
 from pydantic import BaseModel, Field, computed_field, model_validator
 
-from backend.src.solver.options import SolveMethodOptions
+from backend.src.solver_options import SolveMethodOptions
 
 
 ###############################################################################
@@ -13,7 +13,6 @@ from backend.src.solver.options import SolveMethodOptions
 
 class SolveMethod(str, Enum):
     CLARKE_WRIGHT_SAVINIGS = "clarke_wright_savings"
-    CLARKE_WRIGHT_SAVINIGS_WITH_2_OPT = "clarke_wright_savings_with_2_opt"
     ORTOOLS = "ortools"
 
 class SolverJobStatus(str, Enum):

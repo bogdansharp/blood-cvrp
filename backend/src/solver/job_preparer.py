@@ -1,11 +1,11 @@
 from typing import Any
 
-from backend.src.api.models import Scenario
+from backend.src.models import Scenario
 from backend.src.data.interfaces import ScenarioRepository
 from backend.src.data.routing import RoutingData
 from backend.src.solver.errors import CancelledError
 from backend.src.solver.models import INF_VEHICLES, SolverInput
-from backend.src.solver.options import SolverObjective
+from backend.src.solver_options import SolverObjective
 
 
 class JobPreparer:

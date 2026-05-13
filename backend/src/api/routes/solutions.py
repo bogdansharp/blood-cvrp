@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from backend.src.api.models import Solution
+from backend.src.models import Solution
 from backend.src.application.solutions import SolutionService, get_solution_service
 
 

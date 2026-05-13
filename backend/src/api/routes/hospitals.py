@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from backend.src.api.models import Hospital
+from backend.src.models import Hospital
 from backend.src.application.hospitals import HospitalService, get_hospital_service
 
 router = APIRouter(prefix="/hospitals", tags=["hospitals"])

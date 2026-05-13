@@ -1,8 +1,7 @@
 import pytest
 
 from backend.src.solver.errors import CancelledError, SolverFailedError
-from backend.src.solver.models import SolverInput
-from backend.src.solver.options import SolveMethodOptions
+from backend.src.solver.models import SolverInput, SolveMethodOptions
 from backend.src.solver.ortools import OrToolsSolver
 
 

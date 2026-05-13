@@ -1,11 +1,10 @@
 from typing import Any
 
-from backend.src.api.models import Depot, Hospital, Scenario, Solution, SolveMethod, VehiclePool
+from backend.src.models import Depot, Hospital, Scenario, Solution, SolveMethod, VehiclePool
 from backend.src.application.models import SolveJobRequest
 from backend.src.solver.errors import CancelledError, SolverFailedError
 from backend.src.solver.job_pipeline import JobPipeline
-from backend.src.solver.models import Route, Solver, SolverInput
-from backend.src.solver.options import SolveMethodOptions
+from backend.src.solver.models import Route, Solver, SolverInput, SolveMethodOptions
 
 
 class CancelEvent:

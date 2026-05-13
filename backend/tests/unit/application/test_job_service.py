@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from backend.src.api.models import (
+from backend.src.models import (
     Hospital,
     LogEntry,
     LogLevel,
@@ -16,8 +16,7 @@ from backend.src.api.models import (
 )
 from backend.src.application.jobs import JobService
 from backend.src.application.models import SolveJobRequest
-from backend.src.solver.models import JobResult
-from backend.src.solver.options import SolveMethodOptions
+from backend.src.solver.models import JobResult, SolveMethodOptions
 
 
 class FakeCancelEvent:

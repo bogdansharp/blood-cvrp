@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from backend.src.api.models import Scenario, ScenarioReduced
+from backend.src.models import Scenario, ScenarioReduced
 from backend.src.application.scenarios import ScenarioService, get_scenario_service
 
 

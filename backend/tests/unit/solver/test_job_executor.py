@@ -1,10 +1,9 @@
 import pytest
 
-from backend.src.api.models import SolverJobStatus
+from backend.src.models import SolverJobStatus
 from backend.src.solver.errors import CancelledError
 from backend.src.solver.job_executor import JobExecutor, solve_in_process
-from backend.src.solver.models import Route, Solver, SolverInput
-from backend.src.solver.options import SolveMethodOptions
+from backend.src.solver.models import Route, Solver, SolverInput, SolveMethodOptions
 
 
 class CancelEvent:

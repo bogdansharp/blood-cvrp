@@ -5,14 +5,12 @@ from typing import Any
 
 from pydantic import BaseModel, model_validator
 
-from backend.src.api.models import LogEntry, SolveMethod
-from backend.src.solver.options import SolveMethodOptions
-
+from backend.src.models import LogEntry, SolveMethod
+from backend.src.solver_options import SolveMethodOptions
 
 INF_VEHICLES = 10**9
 
 
- 
 class SolverInput(BaseModel):
     n: int                  # numberof customers
     cost: list[list[float]] # directed cost matrix n+1 x n+1 (including depot at index 0)
@@ -80,7 +78,7 @@ class SolverRegistry:
             raise ValueError(f"Solver method already registered: {method}")
         self._methods[method] = solver
 
-    def get(self, method: SolveMethod) -> Any:
+    def get(self, method: SolveMethod) -> SolverClass:
         if method not in self._methods:
             raise KeyError(f"Unknown solver method: {method}")
         return self._methods[method]

@@ -2,7 +2,7 @@ import json
 import threading
 from pathlib import Path
 
-from backend.src.api.models import LogEntry, SolverJob
+from backend.src.models import LogEntry, SolverJob
 from backend.src.data.interfaces import JobRepository
 
 

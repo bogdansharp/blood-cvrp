@@ -1,10 +1,10 @@
 import pytest
 
-from backend.src.api.models import Depot, Hospital, Scenario, VehiclePool
+from backend.src.models import Depot, Hospital, Scenario, VehiclePool
 from backend.src.solver.errors import CancelledError
 from backend.src.solver.job_preparer import JobPreparer
 from backend.src.solver.models import INF_VEHICLES
-from backend.src.solver.options import SolverObjective
+from backend.src.solver_options import SolverObjective
 
 
 def dummy_hospital_data(**overrides) -> dict:

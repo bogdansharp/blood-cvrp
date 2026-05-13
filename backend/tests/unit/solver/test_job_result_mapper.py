@@ -1,9 +1,8 @@
 import pytest
 
-from backend.src.api.models import Depot, Hospital, Scenario, Solution, SolveMethod, VehiclePool
-from backend.src.solver.job_results import JobResults
-from backend.src.solver.models import Route
-from backend.src.solver.options import SolveMethodOptions
+from backend.src.models import Depot, Hospital, Scenario, Solution, SolveMethod, VehiclePool
+from backend.src.solver.job_result_mapper import JobResultMapper
+from backend.src.solver.models import Route, SolveMethodOptions
 
 
 def dummy_hospital_data(**overrides) -> dict:
@@ -55,7 +54,7 @@ class FakeSolutionRepo:
 
 def test_maps_raw_routes_to_persisted_solution() -> None:
     repo = FakeSolutionRepo()
-    mapper = JobResults(repo)  # type: ignore[arg-type]
+    mapper = JobResultMapper(repo)  # type: ignore[arg-type]
 
     solution = mapper.map_result(
         raw_result=[Route(nodes=[0, 1, 2, 0], demand=5, cost=60, vehicle_capacity=10)],
@@ -85,7 +84,7 @@ def test_maps_raw_routes_to_persisted_solution() -> None:
 
 
 def test_invalid_node_index_raises() -> None:
-    mapper = JobResults(FakeSolutionRepo())  # type: ignore[arg-type]
+    mapper = JobResultMapper(FakeSolutionRepo())  # type: ignore[arg-type]
 
     with pytest.raises(ValueError):
         mapper.map_result(
@@ -101,7 +100,7 @@ def test_invalid_node_index_raises() -> None:
 
 
 def test_returns_none_when_repository_create_fails() -> None:
-    mapper = JobResults(FakeSolutionRepo(should_create=False))  # type: ignore[arg-type]
+    mapper = JobResultMapper(FakeSolutionRepo(should_create=False))  # type: ignore[arg-type]
 
     solution = mapper.map_result(
         raw_result=[Route(nodes=[0, 1, 0], demand=2, cost=20, vehicle_capacity=10)],

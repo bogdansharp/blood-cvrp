@@ -26,6 +26,11 @@ class ORLocalSearchMetaheuristic(str, Enum):
     TABU_SEARCH = "TABU_SEARCH"
 
 
+class ClarkeWrightLocalSearch(str, Enum):
+    NONE = "NONE"
+    TWO_OPT = "TWO_OPT"
+
+
 class SolveMethodOptions(BaseModel):
     random_seed: int | None = Field(default=None, ge=0)
     time_limit_sec: int | None = Field(default=None, gt=0)
@@ -35,3 +40,4 @@ class SolveMethodOptions(BaseModel):
     or_target_time_sec: int = Field(default=10, gt=0) # OR-Tools
     or_first_solution_strategy: ORFirstSolutionStrategy | None = Field(default=None) # OR-Tools
     or_local_search_metaheuristic: ORLocalSearchMetaheuristic | None = Field(default=None) # OR-Tools
+    clarke_local_search: ClarkeWrightLocalSearch = Field(default=ClarkeWrightLocalSearch.NONE) # Clarke-Wright

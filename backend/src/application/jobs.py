@@ -2,7 +2,7 @@ from typing import Any
 
 from fastapi import Depends
 
-from backend.src.api.models import Solution, SolveMethod, SolverJob, SolverJobStatus
+from backend.src.models import Solution, SolveMethod, SolverJob, SolverJobStatus
 from backend.src.application.dependencies import (
     get_cancel_manager,
     get_cancel_tokens,
@@ -22,7 +22,7 @@ from backend.src.solver.job_pipeline import JobPipeline
 from backend.src.solver.models import JobResult, SolverRegistry
 from backend.src.solver.ortools import OrToolsSolver
 from backend.src.solver.job_preparer import JobPreparer
-from backend.src.solver.job_results import JobResults
+from backend.src.solver.job_result_mapper import JobResultMapper
 
     
 
@@ -52,7 +52,7 @@ class JobService:
         solution_repo: SolutionRepository,
         executor: JobExecutor,
         job_preparer: JobPreparer,
-        job_results: JobResults,
+        job_results: JobResultMapper,
         cancel_manager: Any,
         cancel_tokens: dict[int, Any],
         method_registry: SolverRegistry,
@@ -196,7 +196,7 @@ def get_job_service(
         scenario_repo=scenario_repo,
         routing=routing,
     )
-    job_results = JobResults(
+    job_results = JobResultMapper(
         solution_repo=solution_repo,
     )
     registry = SolverRegistry()

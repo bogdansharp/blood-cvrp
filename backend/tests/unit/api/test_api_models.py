@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import pytest
 from pydantic import ValidationError
 
-from backend.src.api.models import (
+from backend.src.models import (
     Depot,
     Hospital,
     LogLevel,

@@ -2,8 +2,7 @@ import pytest
 
 from backend.src.solver.clarke_wright_solver import ClarkeWrightSolver
 from backend.src.solver.errors import CancelledError, SolverFailedError
-from backend.src.solver.models import SolverInput
-from backend.src.solver.options import SolveMethodOptions
+from backend.src.solver.models import Route, SolverInput, SolveMethodOptions
 
 
 class CancelEvent:
@@ -103,3 +102,26 @@ def test_raises_when_cost_limit_blocks_single_customer_route() -> None:
 def test_raises_when_cancelled_before_solving() -> None:
     with pytest.raises(CancelledError):
         ClarkeWrightSolver().solve(make_input(), SolveMethodOptions(), CancelEvent(is_set=True))
+
+
+def test_two_opt_local_search(monkeypatch) -> None:
+    solver = ClarkeWrightSolver()
+    m = [
+        [0.0, 10.0, 20.0, 33.0],
+        [13.0, 0.0, 9.0, 18.0],
+        [22.0, 11.0, 0.0, 8.0],
+        [30.0, 21.0, 12.0, 0.0]
+    ]
+    solver._matrix = m
+    monkeypatch.setattr(solver, "_periodic_check", lambda: None)
+    unoptimized_cost = m[0][3] + m[3][2] + m[2][1] + m[1][0]
+    solver._solution = [Route(nodes=[0, 3, 2, 1, 0], demand=10, cost=unoptimized_cost, vehicle_capacity=10)]
+    solver._two_opt_local_search = True
+    solver._local_search()
+
+    optimal_route = [0, 2, 3, 1, 0]
+    optimized_cost = m[0][2] + m[2][3] + m[3][1] + m[1][0]
+    
+    assert solver._solution is not None
+    assert solver._solution[0].nodes == optimal_route
+    assert abs(solver._solution[0].cost - optimized_cost) < 1e-9

@@ -5,8 +5,8 @@ from typing import Any
 from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 from backend.src.solver.errors import CancelledError, SolverFailedError
-from backend.src.solver.models import INF_VEHICLES, Route, Solver, SolverInput
-from backend.src.solver.options import ORFirstSolutionStrategy, ORLocalSearchMetaheuristic, SolveMethodOptions
+from backend.src.solver.models import INF_VEHICLES, Route, Solver, SolverInput, SolveMethodOptions
+from backend.src.solver_options import ORFirstSolutionStrategy, ORLocalSearchMetaheuristic
 
 
 FIRST_SOLUTION_MAP = {

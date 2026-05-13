@@ -2,10 +2,10 @@ from concurrent.futures import CancelledError as FutureCancelledError, Future, P
 from threading import Lock
 from typing import Any, Callable
 
-from backend.src.api.models import SolverJobStatus
+from backend.src.models import SolverJobStatus
 from backend.src.solver.errors import CancelledError
 from backend.src.solver.models import JobResult, Route, SolverInput
-from backend.src.solver.options import SolveMethodOptions
+from backend.src.solver_options import SolveMethodOptions
 
 
 def solve_in_process(

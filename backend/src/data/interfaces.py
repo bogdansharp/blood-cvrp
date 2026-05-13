@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from backend.src.api.models import Hospital, LogEntry, Scenario, ScenarioReduced, Solution, SolverJob
+from backend.src.models import Hospital, LogEntry, Scenario, ScenarioReduced, Solution, SolverJob
 
 
 class ScenarioRepository(Protocol):

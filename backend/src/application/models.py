@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
-from backend.src.api.models import SolveMethod
-from backend.src.solver.options import SolveMethodOptions
+from backend.src.models import SolveMethod
+from backend.src.solver_options import SolveMethodOptions
 
 
 class SolveJobRequest(BaseModel):

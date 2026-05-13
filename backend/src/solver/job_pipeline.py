@@ -2,21 +2,21 @@ import datetime
 from time import perf_counter
 from typing import Any
 
-from backend.src.api.models import LogEntry, LogLevel, Solution
+from backend.src.models import LogEntry, LogLevel, Solution
 from backend.src.application.jobs import SolveJobRequest
 from backend.src.solver.errors import CancelledError, SolverFailedError
 from backend.src.solver.job_executor import JobExecutor
 from backend.src.solver.job_preparer import JobPreparer
 from backend.src.solver.models import JobResult
-from backend.src.solver.job_results import JobResults
-from backend.src.solver.options import SolverObjective
+from backend.src.solver.job_result_mapper import JobResultMapper
+from backend.src.solver_options import SolverObjective
 
 
 class JobPipeline:
     def __init__(self, 
         request: SolveJobRequest, 
         job_preparer: JobPreparer,
-        job_results: JobResults,
+        job_results: JobResultMapper,
         solver_cls: Any,
         cancel_event: Any,
         executor: JobExecutor,

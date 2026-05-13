@@ -4,7 +4,7 @@
     import type { LayerGroup, Map as LeafletMap } from 'leaflet';
     import { onDestroy, onMount } from 'svelte';
     import 'leaflet/dist/leaflet.css';
-    import { createInitialState, createStore, OR_FIRST_SOLUTION_STRATEGY_LABELS, OR_LOCAL_SEARCH_METAHEURISTIC_LABELS, SOLVE_METHOD_LABELS, type AppViewState, type ORFirstSolutionStrategy, type ORLocalSearchMetaheuristic, type SolveMethod } from '$lib/store';
+    import { CLARKE_WRIGHT_LOCAL_SEARCH_LABELS, createInitialState, createStore, OR_FIRST_SOLUTION_STRATEGY_LABELS, OR_LOCAL_SEARCH_METAHEURISTIC_LABELS, SOLVE_METHOD_LABELS, type AppViewState, type ClarkeWrightLocalSearch, type ORFirstSolutionStrategy, type ORLocalSearchMetaheuristic, type SolveMethod } from '$lib/store';
     import JobsSection from '$lib/components/JobsSection.svelte';
     import ScenarioSection from '$lib/components/ScenarioSection.svelte';
 	import { getBearingDegrees } from '$lib/mapHelpers';
@@ -26,6 +26,7 @@
     let orLocalSearch: ORLocalSearchMetaheuristic = 'NONE';
     let orFirstSolution: ORFirstSolutionStrategy = 'AUTOMATIC';
     let orBalanceRoutes: boolean = false;
+    let clarkeLocalSearch: ClarkeWrightLocalSearch = 'NONE';
     let timeLimitHours: number = 9;
     let lastMapKey = '';
     let lastFitBoundsKey = '';
@@ -262,7 +263,7 @@
     });
 
     const submitAndTrack = async (method: SolveMethod, timeLimitHours: number) => {
-        const job = await store.submitSolveRequest(method, timeLimitHours, orFirstSolution, orLocalSearch, orBalanceRoutes);
+        const job = await store.submitSolveRequest(method, timeLimitHours, orFirstSolution, orLocalSearch, clarkeLocalSearch, orBalanceRoutes);
         const terminalJob = await store.pollJobUntilTerminal(job.id, 100, 1000);
         if (terminalJob.status === 'finished' && terminalJob.solution_id) {
             await store.loadSolution(terminalJob.solution_id);
@@ -423,6 +424,22 @@
                     disabled={selectedMethod !== 'ortools'}
                 >
                     {#each Object.entries(OR_LOCAL_SEARCH_METAHEURISTIC_LABELS) as [key, label]}
+                        <option value={key}>{label}</option>
+                    {/each}
+                </select>
+            </div>
+
+            <div class="grid min-w-0 gap-1 min-[821px]:w-[160px]">
+                <label class="text-[11px] leading-none text-neutral-600" for="clarke-local-search-select">
+                    Local search
+                </label>
+                <select
+                    class="h-[30px] w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 disabled:bg-neutral-100"
+                    id="clarke-local-search-select"
+                    bind:value={clarkeLocalSearch}
+                    disabled={selectedMethod !== 'clarke_wright_savings'}
+                >
+                    {#each Object.entries(CLARKE_WRIGHT_LOCAL_SEARCH_LABELS) as [key, label]}
                         <option value={key}>{label}</option>
                     {/each}
                 </select>

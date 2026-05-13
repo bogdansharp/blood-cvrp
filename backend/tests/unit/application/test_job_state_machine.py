@@ -1,6 +1,6 @@
 import pytest
 
-from backend.src.api.models import SolverJobStatus
+from backend.src.models import SolverJobStatus
 from backend.src.application.jobs import JobStateMachine
 
 
