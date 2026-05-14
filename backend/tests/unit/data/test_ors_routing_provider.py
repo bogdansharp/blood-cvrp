@@ -174,7 +174,7 @@ def test_snap_request_parses_location() -> None:
     call = fake_post.calls[0]
     assert call["url"] == "https://atu.ie/v2/snap/driving-car"
     assert call["json"]["locations"] == [[-8.2, 53.1]]
-    assert call["json"]["radius"] == 500
+    assert call["json"]["radius"] == 350
 
 
 def test_snap_malformed_response_raises() -> None:

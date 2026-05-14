@@ -25,10 +25,13 @@ class DummyRoutingProvider:
         ors_api_key: str, 
         ors_base_url: str,
         ors_profile: str,
+        max_snap_dist: int,
     ) -> None:
         self.ors_api_key = ors_api_key
         self.ors_base_url = ors_base_url
         self.ors_profile = ors_profile
+        self.max_snap_dist = max_snap_dist
+
 
 
 class DummyRoutingData:
