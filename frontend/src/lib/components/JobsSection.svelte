@@ -24,22 +24,23 @@
         }
     };
 </script>
+
 <div class="grid gap-3">
     {#if jobs.length === 0}
         <p class="text-sm text-slate-600">No jobs yet.</p>
     {:else}
         <ul class="m-0 grid list-none gap-3 p-0">
             {#each jobs as job (job.id)}
-                <li class="rounded-2xl border border-slate-200 bg-white p-4 shadow-lg shadow-slate-900/10">
-                    <div class="mb-2 flex items-start justify-between gap-3">
-                        <strong class="min-w-0 wrap-break-words text-sm font-semibold text-slate-900">
-                            {job.name ?? `Job #${job.id}`}
+                <li class="rounded-2xl border border-slate-200 bg-white p-3 shadow-lg shadow-slate-900/10">
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
+                        <strong class="wrap-break-words text-sm text-slate-900">
+                            Job #{job.id}
                         </strong>
-                    </div>
 
-                    <div class="mb-2 flex flex-wrap items-center gap-2">
+                        <span>Scenario: {job.scenario_id}</span>
+
                         <span
-                            class={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold capitalize ${
+                            class={`inline-block rounded-full px-2 py-0.5 text-[11px] font-bold capitalize ${
                                 job.status === 'finished'
                                     ? 'bg-green-100 text-green-800'
                                     : job.status === 'running'
@@ -54,8 +55,22 @@
                             {jobStatusLabel(job.status)}
                         </span>
 
+                        <span>Created: {job.created_at}</span>
+
+                        {#if job.started_at}
+                            <span>Started: {job.started_at}</span>
+                        {/if}
+
+                        {#if job.finished_at}
+                            <span>Finished: {job.finished_at}</span>
+                        {/if}
+
+                        <span>
+                            prep {job.preparation_ms}ms / solve {job.solver_ms}ms / results {job.results_ms}ms
+                        </span>
+
                         <button
-                            class="h-7.5 rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 cursor-pointer"
+                            class="ml-auto h-7.5 cursor-pointer rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55"
                             type="button"
                             onclick={() => requestCancelJob(job)}
                             hidden={job.status !== 'running' && job.status !== 'queued'}
@@ -65,35 +80,34 @@
                         </button>
                     </div>
 
-                    <div class="grid gap-1 text-sm leading-6 text-slate-600">
-                        <div>Method: {job.method} | Scenario: {job.scenario_id}</div>
-                        <div>Created: {job.created_at}</div>
+                    <details class="mt-3 border-t border-slate-200 pt-2">
+                        <summary class="cursor-pointer text-sm font-bold text-slate-900">
+                            Details
+                        </summary>
 
-                        {#if job.started_at}
-                            <div>Started: {job.started_at}</div>
-                        {/if}
+                        <div class="grid gap-1 pt-2 text-xs leading-5 text-slate-600">
+                            <div>Name: {job.name ?? `Job #${job.id}`}</div>
+                            <div>Method: {job.method}</div>
 
-                        {#if job.finished_at}
-                            <div>Finished: {job.finished_at}</div>
-                        {/if}
+                            {#if job.solution_id !== undefined && job.solution_id !== null}
+                                <div>Solution: {job.solution_id}</div>
+                            {/if}
 
-                        {#if job.solution_id !== undefined && job.solution_id !== null}
-                            <div>Solution: {job.solution_id}</div>
-                        {/if}
-
-                        <div>
-                            Timing: prep {job.preparation_ms}ms, solve {job.solver_ms}ms,
-                            results {job.results_ms}ms
+                            {#if job.options}
+                                <pre class="m-0 max-w-full overflow-x-auto rounded-md bg-slate-50 p-2 text-[11px] leading-4 text-slate-700">{JSON.stringify(job.options, null, 2)}</pre>
+                            {:else}
+                                <div>Options: none</div>
+                            {/if}
                         </div>
-                    </div>
+                    </details>
 
-                    {#if job.log.length > 0}
-                        <details class="mt-3 border-t border-slate-200 pt-3">
-                            <summary class="cursor-pointer text-sm font-bold text-slate-900">
-                                Log ({job.log.length})
-                            </summary>
+                    <details class="mt-2 border-t border-slate-200 pt-2">
+                        <summary class="cursor-pointer text-sm font-bold text-slate-900">
+                            Log ({job.log.length})
+                        </summary>
 
-                            <ul class="m-0 grid list-none gap-2 pt-3 pl-0">
+                        {#if job.log.length > 0}
+                            <ul class="m-0 grid list-none gap-2 pt-2 pl-0">
                                 {#each job.log as entry (entry.timestamp + entry.message)}
                                     <li class="grid gap-1 rounded-md bg-slate-50 p-2 text-xs text-slate-600">
                                         <div class="flex flex-wrap items-center gap-2">
@@ -119,10 +133,10 @@
                                     </li>
                                 {/each}
                             </ul>
-                        </details>
-                    {:else}
-                        <div class="mt-2 text-sm leading-6 text-slate-600">Log: none</div>
-                    {/if}
+                        {:else}
+                            <div class="pt-2 text-xs text-slate-600">No log entries.</div>
+                        {/if}
+                    </details>
                 </li>
             {/each}
         </ul>

@@ -22,9 +22,10 @@ async def get_solution(
 
 @router.get("/", response_model=list[Solution])
 async def list_solutions(
-    solution_service: Annotated[SolutionService, Depends(get_solution_service)]
+    solution_service: Annotated[SolutionService, Depends(get_solution_service)],
+    scenario_id: int | None = None,
 ):
-    solutions = solution_service.list_solutions()
+    solutions = solution_service.list_solutions(scenario_id=scenario_id)
     return solutions
 
 

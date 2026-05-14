@@ -244,7 +244,12 @@
             {#each draft.depots as depot, index}
                 <li class="grid gap-2 rounded-xl border border-slate-200 bg-white p-2">
                     <div class="flex items-center justify-between gap-2">
-                        <strong class="text-sm text-slate-900">Depot {index + 1}</strong>
+                        <input
+                            class="min-w-0 flex-1 bg-transparent p-0 text-sm font-bold text-slate-900 outline-none"
+                            value={depot.name || `Depot ${index + 1}`}
+                            oninput={(event) => updateDepotName(index, event.currentTarget.value)}
+                        />
+
                         <button
                             class="h-7 cursor-pointer rounded-md border border-red-700 px-2 text-xs text-red-700"
                             type="button"
@@ -253,13 +258,6 @@
                             Remove
                         </button>
                     </div>
-
-                    <input
-                        class="h-8 rounded-md border border-slate-300 px-2 text-sm"
-                        placeholder="Depot name"
-                        value={depot.name}
-                        oninput={(event) => updateDepotName(index, event.currentTarget.value)}
-                    />
 
                     <span class="wrap-break-words text-xs text-slate-600">
                         {depot.address}{depot.eircode ? ` ${depot.eircode}` : ''}
@@ -303,7 +301,12 @@
             {#each draft.customers as customer, index}
                 <li class="grid gap-2 rounded-xl border border-slate-200 bg-white p-2">
                     <div class="flex items-center justify-between gap-2">
-                        <strong class="text-sm text-slate-900">Customer {index + 1}</strong>
+                        <input
+                            class="min-w-0 flex-1 bg-transparent p-0 text-sm font-bold text-slate-900 outline-none"
+                            value={customer.name || `Customer ${index + 1}`}
+                            oninput={(event) => updateCustomer(index, { name: event.currentTarget.value })}
+                        />
+
                         <button
                             class="h-7 cursor-pointer rounded-md border border-red-700 px-2 text-xs text-red-700"
                             type="button"
@@ -312,13 +315,6 @@
                             Remove
                         </button>
                     </div>
-
-                    <input
-                        class="h-8 rounded-md border border-slate-300 px-2 text-sm"
-                        placeholder="Customer name"
-                        value={customer.name}
-                        oninput={(event) => updateCustomer(index, { name: event.currentTarget.value })}
-                    />
 
                     <input
                         class="h-8 rounded-md border border-slate-300 px-2 text-sm"

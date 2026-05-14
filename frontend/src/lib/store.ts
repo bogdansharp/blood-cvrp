@@ -61,7 +61,7 @@ export type SolveMethodOptions = {
     or_target_time_sec?: number;
     or_first_solution_strategy?: ORFirstSolutionStrategy | null;
     or_local_search_metaheuristic?: ORLocalSearchMetaheuristic | null;
-    clarke_wright_local_search?: ClarkeWrightLocalSearch | null;
+    clarke_local_search?: ClarkeWrightLocalSearch | null;
 };
 
 
@@ -202,6 +202,7 @@ export type AppViewState = {
     scenario: ScenarioPayload | null;   // Active scenario
     scenarios: ScenarioReduced[];       // List of available scenarios
     jobs: SolverJobPayload[];
+    solutions: SolutionPayload[];
     solution: SolutionPayload | null;
     loading: boolean;
     hospitals: HospitalLocation[];
@@ -229,6 +230,7 @@ export const createInitialState = (): AppViewState => ({
     scenario: null,
     scenarios: [],
     jobs: [],
+    solutions: [],
     solution: null,
     loading: false,
     hospitals: [],
@@ -586,7 +588,7 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         }
 
         const solution = (await response.json()) as SolutionPayload;
-        update((state) => ({ ...state, solution }));
+        update((state) => ({ ...state, solution, solutions: upsertSolution(state.solutions, solution), }));
         enqueueGeometriesForSolution(solution);
 
         return solution;
@@ -688,6 +690,37 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         return (await response.json()) as [number, number, number];
     };
 
+    const upsertSolution = (
+        solutions: SolutionPayload[],
+        solution: SolutionPayload
+    ): SolutionPayload[] => {
+        const exists = solutions.some((item) => item.id === solution.id);
+
+        if (exists) {
+            return solutions.map((item) => (item.id === solution.id ? solution : item));
+        }
+
+        return [...solutions, solution];
+    };
+
+    const loadSolutionList = async (): Promise<void> => {
+        const response = await fetch(`${apiBase}/solutions/`);
+
+        if (!response.ok) {
+            const detail = await response.text();
+            update((state) => ({ ...state, error: detail }));
+            return;
+        }
+
+        const solutions = (await response.json()) as SolutionPayload[];
+
+        update((state) => ({
+            ...state,
+            solutions,
+            error: null
+        }));
+    };
+
     return {
         subscribe,
         set,
@@ -703,5 +736,7 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         deleteScenario,
         saveScenario,
         snapLocation,
+        loadSolutionList,
+        upsertSolution
     };
 };

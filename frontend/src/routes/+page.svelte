@@ -27,6 +27,7 @@
         type ScenarioPayload,
         type SolveMethod
     } from '$lib/store';
+	import SolutionsSection from '$lib/components/SolutionsSection.svelte';
 
     const defaultSolveMethod: SolveMethod = 'clarke_wright_savings';
 
@@ -56,6 +57,7 @@
     onMount(() => {
         void store.loadScenarioList();
         void store.fetchHospitals();
+        void store.loadSolutionList();
     });
 
     onDestroy(() => {
@@ -266,9 +268,9 @@
                     : 'min-[821px]:translate-x-[calc(100%+12px)]'
             }`}
         >
-            <div class="grid min-w-0 gap-2 overflow-x-auto p-2 min-[821px]:flex min-[821px]:min-h-full min-[821px]:min-w-80 min-[821px]:flex-col">
+            <div class="grid min-w-0 gap-2 overflow-x-hidden p-2 min-[821px]:flex min-[821px]:h-full min-[821px]:min-h-0 min-[821px]:flex-col min-[821px]:overflow-hidden">
                 {#if editorMode && editorDraft}
-                    <section class="min-h-40 overflow-auto border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
+                    <section class="min-h-40 overflow-y-auto overflow-x-hidden border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
                         <ScenarioEditor
                             draft={editorDraft}
                             addingDepot={addDepotMode}
@@ -279,7 +281,7 @@
                         />
                     </section>
                 {:else}
-                    <section class="min-h-40 overflow-auto border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
+                    <section class="min-h-40 overflow-y-auto overflow-x-hidden border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
                         <ScenarioSection
                             scenario={state.scenario}
                             loading={state.loading}
@@ -288,7 +290,16 @@
                         />
                     </section>
 
-                    <section class="min-h-40 overflow-auto border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
+                    <section class="min-h-40 overflow-y-auto overflow-x-hidden border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
+                        <SolutionsSection
+                            solutions={state.solutions}
+                            scenarioId={state.scenario?.id ?? null}
+                            selectedSolutionId={state.solution?.id ?? null}
+                            loadSolution={store.loadSolution}
+                        />
+                    </section>
+
+                    <section class="min-h-40 overflow-y-auto overflow-x-hidden border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
                         <JobsSection jobs={state.jobs} />
                     </section>
                 {/if}

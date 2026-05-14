@@ -4,6 +4,7 @@ from multiprocessing import Manager
 import os
 from pathlib import Path
 import threading
+import logging
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
@@ -28,12 +29,16 @@ from backend.src.settings import Settings, load_settings
 # Load environment variables
 load_dotenv()
 
+
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # RUNS_DIR.mkdir(parents=True, exist_ok=True)
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s:%(name)s:%(message)s",
+    )
     
     settings: Settings = load_settings(
         project_root=Path(__file__).resolve().parents[2]
