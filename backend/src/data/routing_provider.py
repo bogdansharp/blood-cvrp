@@ -14,7 +14,7 @@ class ORSRoutingProvider(RoutingProvider):
         ors_api_key: str, 
         ors_base_url: str,
         ors_profile: str = "driving-car",
-        call_timeout_sec: int = 30, 
+        call_timeout_sec: int = 20, 
         max_snap_dist: int = 350,
         simplify_geometry: bool = True,
         http_post = requests.post,
@@ -31,6 +31,9 @@ class ORSRoutingProvider(RoutingProvider):
         self._simplify_geometry = simplify_geometry
         self._geometry_cooldown_until = 0.0
         self._http_post = http_post
+        self._geometry_cooldown_sec = 60
+        self._matrix_cooldown_sec = 60
+        self._matrix_cooldown_until = 0.0
 
     def _get_headers(self) -> dict[str, str]:
         return {
@@ -67,7 +70,7 @@ class ORSRoutingProvider(RoutingProvider):
             timeout=self._call_timeout_sec
         )
         if response.status_code == 429:
-            self._geometry_cooldown_until = time.time() + 60
+            self._geometry_cooldown_until = time.time() + self._geometry_cooldown_sec
             raise RuntimeError(
                 f"Geometry request failed: {response.status_code} {response.text}"
             )
@@ -125,6 +128,13 @@ class ORSRoutingProvider(RoutingProvider):
     ) -> list[tuple[float, float]]:
         if not dst:
             return []
+        
+        now = time.time()
+        if now < self._matrix_cooldown_until:
+            remaining = int(self._matrix_cooldown_until - now)
+            raise RuntimeError(
+                f"Matrix requests are paused for {remaining}s due to rate limiting"
+            )
 
         locations = [[src_lng_e6 / 1e6, src_lat_e6 / 1e6]]
         for dst_lat_e6, dst_lng_e6 in dst:
@@ -145,6 +155,9 @@ class ORSRoutingProvider(RoutingProvider):
             json=payload, 
             timeout=self._call_timeout_sec
         )
+        
+        if response.status_code == 429:
+            self._matrix_cooldown_until = time.time() + self._matrix_cooldown_sec
         if response.status_code != 200:
             raise RuntimeError(
                 f"Matrix request failed: "
