@@ -56,7 +56,7 @@ export const makeHospitalFromSnappedPoint = (
     subcategory: '',
     address: '',
     eircode: '',
-    demand: 0,
+    demand: 2,
     lat,
     lng,
     display_lat: snappedLatE6 / 1e6,

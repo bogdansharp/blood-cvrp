@@ -48,8 +48,6 @@
     let addDepotMode = false;
     let editorVersion = 0;
 
-    let sidebarOpen = false;
-
     type SidebarTab = 'scenario' | 'solutions' | 'jobs';
     let activeSidebarTab: SidebarTab = 'scenario';
 
@@ -109,7 +107,6 @@
         editorDraft = cloneScenario(scenario);
         addDepotMode = false;
         editorMode = true;
-        sidebarOpen = true;
         store.resetScenario();
         refreshEditorMap();
     };
@@ -241,36 +238,9 @@
             {makeHospitalFromMapPoint}
         />
 
-        <button
-            type="button"
-            class={`hidden cursor-pointer bg-white text-neutral-950 min-[821px]:absolute min-[821px]:top-1/2 min-[821px]:z-1002 min-[821px]:grid min-[821px]:place-items-center min-[821px]:border min-[821px]:border-r-0 min-[821px]:border-neutral-400 min-[821px]:rounded-l-lg min-[821px]:-translate-y-1/2 ${
-                sidebarOpen
-                    ? 'min-[821px]:right-[calc(clamp(280px,26vw,380px)+5px)] min-[821px]:h-12 min-[821px]:w-7.5 min-[821px]:p-1'
-                    : 'min-[821px]:right-1.25 min-[821px]:min-h-26 min-[821px]:w-9.5 min-[821px]:gap-1 min-[821px]:px-1 min-[821px]:py-2'
-            }`}
-            onclick={() => (sidebarOpen = !sidebarOpen)}
-            aria-expanded={sidebarOpen}
-            aria-controls="map-sidebar"
-            aria-label={sidebarOpen ? 'Hide details panel' : 'Show details panel'}
-        >
-            <span class={sidebarOpen ? 'text-2xl leading-none' : 'text-[28px] leading-none'}>
-                {sidebarOpen ? '›' : '‹'}
-            </span>
-
-            {#if !sidebarOpen}
-                <span class="[writing-mode:vertical-rl] rotate-180 text-xs uppercase tracking-wide">
-                    Details
-                </span>
-            {/if}
-        </button>
-
         <aside
             id="map-sidebar"
-            class={`m-2 block border border-neutral-300 bg-white min-[821px]:absolute min-[821px]:bottom-1.25 min-[821px]:right-1.25 min-[821px]:top-1.25 min-[821px]:z-1000 min-[821px]:m-0 min-[821px]:w-[clamp(280px,26vw,380px)] min-[821px]:overflow-auto min-[821px]:transition-transform min-[821px]:duration-150 ${
-                sidebarOpen
-                    ? 'min-[821px]:translate-x-0'
-                    : 'min-[821px]:translate-x-[calc(100%+12px)]'
-            }`}
+            class="m-2 block border border-neutral-300 bg-white min-[821px]:absolute min-[821px]:bottom-5 min-[821px]:right-1.25 min-[821px]:top-1.25 min-[821px]:z-1000 min-[821px]:m-0 min-[821px]:w-[clamp(280px,26vw,380px)] min-[821px]:overflow-auto"
         >
             <div class="grid min-w-0 gap-2 overflow-x-hidden p-2 min-[821px]:flex min-[821px]:h-full min-[821px]:min-h-0 min-[821px]:flex-col min-[821px]:overflow-hidden">
                 {#if editorMode && editorDraft}

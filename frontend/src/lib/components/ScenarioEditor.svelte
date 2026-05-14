@@ -108,14 +108,36 @@
         return true;
     };
 
+    const getDefaultCustomerName = (customer: { name: string; category: string }, index: number): string => {
+        if (customer.name.trim()) {
+            return customer.name.trim();
+        }
+
+        return customer.category === 'Custom' ? `Custom #${index + 1}` : `Customer ${index + 1}`;
+    };
+
+    const prepareScenarioForSave = (scenario: ScenarioPayload): ScenarioPayload => ({
+        ...scenario,
+        customers: scenario.customers.map((customer, index) => ({
+            ...customer,
+            name: getDefaultCustomerName(customer, index)
+        })),
+        depots: scenario.depots.map((depot, index) => ({
+            ...depot,
+            name: depot.name.trim() || `Depot ${index + 1}`
+        }))
+    });
+
     const requestSave = async () => {
-        if (!verifyScenario(draft)) {
+        const scenarioToSave = prepareScenarioForSave(draft);
+
+        if (!verifyScenario(scenarioToSave)) {
             return;
         }
 
         try {
             saving = true;
-            await endEditing(draft);
+            await endEditing(scenarioToSave);
         } finally {
             saving = false;
         }
@@ -303,7 +325,7 @@
                     <div class="flex items-center justify-between gap-2">
                         <input
                             class="min-w-0 flex-1 bg-transparent p-0 text-sm font-bold text-slate-900 outline-none"
-                            value={customer.name || `Customer ${index + 1}`}
+                            value={getDefaultCustomerName(customer, index)}
                             oninput={(event) => updateCustomer(index, { name: event.currentTarget.value })}
                         />
 
