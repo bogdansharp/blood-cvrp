@@ -15,7 +15,7 @@ class ORSRoutingProvider(RoutingProvider):
         ors_base_url: str,
         ors_profile: str = "driving-car",
         call_timeout_sec: int = 30, 
-        max_snap_dist: int = 500,
+        max_snap_dist: int = 350,
         simplify_geometry: bool = True,
         http_post = requests.post,
     ) -> None:
@@ -172,7 +172,7 @@ class ORSRoutingProvider(RoutingProvider):
         result: list[tuple[float, float]] = []
         for distance, duration in zip(distances[0], durations[0]):
             if distance is None or duration is None:
-                raise RuntimeError(f"Route is unreachable according to ORS matrix response: {data}")
+                raise ValueError(f"Route is unreachable according to ORS matrix response: {data}")
 
             result.append((float(distance), float(duration)))
 
@@ -200,25 +200,28 @@ class ORSRoutingProvider(RoutingProvider):
             )
 
         data = response.json()
-
-        if "locations" not in data:
-            raise RuntimeError(f"Unexpected API response: {data}")
-
-        locations = data["locations"]
-        if not locations or len(locations) != 1:
+        locations = data.get("locations")
+        if not isinstance(locations, list) or len(locations) != 1:
             raise RuntimeError(f"Unexpected API response format: {data}")
 
         snap_location = locations[0]
-        if (
-            not snap_location
-            or "location" not in snap_location
-            or len(snap_location["location"]) != 2
-            or "snapped_distance" not in snap_location
-        ):  
+        if snap_location is None:
+            raise ValueError("Selected point is too far from any road")
+
+        if not isinstance(snap_location, dict):
             raise RuntimeError(f"Unexpected API response format: {data}")
 
-        snap_lng = int(round(snap_location["location"][0] * 1e6))
-        snap_lat = int(round(snap_location["location"][1] * 1e6))
-        snap_dist = float(snap_location["snapped_distance"])
+        location = snap_location.get("location")
+        snap_distance = snap_location.get("snapped_distance")
+        if (
+            not isinstance(location, list)
+            or len(location) != 2
+            or snap_distance is None
+        ):
+            raise RuntimeError(f"Unexpected API response format: {data}")
+
+        snap_lng = int(round(float(location[0]) * 1e6))
+        snap_lat = int(round(float(location[1]) * 1e6))
+        snap_dist = float(snap_distance)
 
         return (snap_lat, snap_lng, snap_dist)

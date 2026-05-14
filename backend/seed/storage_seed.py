@@ -31,7 +31,6 @@ INPUT_CSV_ROWS = 132
 BATCH_SIZE = 27
 
 PROFILE = "driving-car"
-# MATRIX_URL = f"https://api.openrouteservice.org/v2/matrix/{PROFILE}"
 ORS_BASE_URL = os.getenv("ORS_BASE_URL", "https://api.heigit.org/openrouteservice")
 MATRIX_URL = f"{ORS_BASE_URL}/v2/matrix/{PROFILE}"
 

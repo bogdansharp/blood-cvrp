@@ -628,24 +628,64 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
     };
 
     const saveScenario = async (scenario: ScenarioPayload): Promise<number | null> => {
-        const response = await fetch(`${apiBase}/scenarios/create`, { 
+        const response = await fetch(`${apiBase}/scenarios/create`, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(scenario)
         });
-        if (response.ok) {
-            scenario.id = await response.json();
-            update((state) => ({
-                ...state,
-                scenarios: [...state.scenarios, reduceScenario(scenario)] 
-            }));
-            return scenario.id;
-        } else {
+
+        if (!response.ok) {
             const detail = await response.text();
-            const error_msg = `Failed to save scenario ${scenario.id}: ${detail}`;
-            console.error(`Failed to save scenario ${scenario.id}:`, detail);
-            update((state) => ({ ...state, error: error_msg }));
+            const error = `Failed to save scenario ${scenario.id}: ${detail}`;
+            console.error(error);
+            update((state) => ({ ...state, error }));
+            return null;
         }
-        return null;
+
+        scenario.id = await response.json();
+
+        update((state) => ({
+            ...state,
+            scenarios: [...state.scenarios, reduceScenario(scenario)],
+            error: null
+        }));
+
+        return scenario.id;
+    };
+
+    const readErrorDetail = async (response: Response): Promise<string> => {
+        const text = await response.text();
+
+        try {
+            const parsed = JSON.parse(text) as { detail?: unknown };
+            return typeof parsed.detail === 'string' ? parsed.detail : text;
+        } catch {
+            return text;
+        }
+    };
+
+    const snapLocation = async (
+        lat_e6: number,
+        lng_e6: number
+    ): Promise<[number, number, number]> => {
+        const response = await fetch(
+            `${apiBase}/routing/snap?lat_e6=${lat_e6}&lng_e6=${lng_e6}`
+        );
+
+        if (!response.ok) {
+            const detail = await response.text();
+
+            const message =
+                response.status === 422
+                    ? 'Selected point could not be snapped to a road. Please click closer to a road.'
+                    : `Snap request failed: ${detail}`;
+
+            update((state) => ({ ...state, error: message }));
+            throw new Error(message);
+        }
+
+        update((state) => ({ ...state, error: null }));
+        return (await response.json()) as [number, number, number];
     };
 
     return {
@@ -662,5 +702,6 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         loadGeometry,
         deleteScenario,
         saveScenario,
+        snapLocation,
     };
 };

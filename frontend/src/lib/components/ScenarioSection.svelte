@@ -43,6 +43,15 @@
             </div>
         </div>
 
+        <div class="grid gap-2 mt-2">
+            <div class="grid gap-1 text-[11px] text-slate-700 ">
+                <span>Description</span>
+                <p class="px-2 py-1 text-sm text-slate-900">
+                    {scenario.description ?? ''}
+                </p>
+            </div>
+        </div>
+
         <div class="flex flex-wrap gap-2">
             <button
                 class="h-7.5 cursor-pointer rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55"

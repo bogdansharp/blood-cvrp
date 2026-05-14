@@ -30,7 +30,7 @@ async def get_geometry(
 
 
 @router.get("/snap", responses={
-    400: {"description": "Invalid request"},
+    422: {"description": "Snap location is too far from any road"},
     502: {"description": "Error fetching snap location"},
 })
 async def get_snap_location(
@@ -43,7 +43,7 @@ async def get_snap_location(
             lng_e6=lng_e6
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e)) from e
+        raise HTTPException(status_code=422, detail=str(e)) from e
     except RuntimeError as e:
         raise HTTPException(status_code=502, detail=str(e)) from e
     return snap_location

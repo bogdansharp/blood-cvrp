@@ -4,7 +4,7 @@
     import type { LayerGroup, Map as LeafletMap } from 'leaflet';
     import { onDestroy, onMount } from 'svelte';
     import 'leaflet/dist/leaflet.css';
-    import { CLARKE_WRIGHT_LOCAL_SEARCH_LABELS, createInitialState, createStore, OR_FIRST_SOLUTION_STRATEGY_LABELS, OR_LOCAL_SEARCH_METAHEURISTIC_LABELS, SOLVE_METHOD_LABELS, type AppViewState, type ClarkeWrightLocalSearch, type ORFirstSolutionStrategy, type ORLocalSearchMetaheuristic, type ScenarioPayload, type SolveMethod } from '$lib/store';
+    import { CLARKE_WRIGHT_LOCAL_SEARCH_LABELS, createInitialState, createStore, OR_FIRST_SOLUTION_STRATEGY_LABELS, OR_LOCAL_SEARCH_METAHEURISTIC_LABELS, SOLVE_METHOD_LABELS, type AppViewState, type ClarkeWrightLocalSearch, type Hospital, type HospitalLocation, type ORFirstSolutionStrategy, type ORLocalSearchMetaheuristic, type ScenarioPayload, type SolveMethod } from '$lib/store';
     import JobsSection from '$lib/components/JobsSection.svelte';
     import ScenarioSection from '$lib/components/ScenarioSection.svelte';
     import ScenarioEditor from '$lib/components/ScenarioEditor.svelte';
@@ -33,16 +33,256 @@
     let lastFitBoundsKey = '';
     let editorMode = false;
     let scenarioToEdit: ScenarioPayload | null = null;
+    let editorDraft: ScenarioPayload | null = null;
+    let addDepotMode = false;
+    let editorVersion = 0;
+    let nextPendingSnapId = 1;
+    let pendingSnapPoints: { id: number; point: [number, number] }[] = [];
 
     const enterEditorMode = (scenario: ScenarioPayload | null = null): void => {
         editorMode = true;
         scenarioToEdit = scenario;
+        editorDraft = cloneScenario(scenario);
+        addDepotMode = false;
+        editorVersion += 1;
         store.resetScenario();
     };
 
-    const exitEditorMode = (scenario: ScenarioPayload | null = null): void => {
+    const exitEditorMode = async (scenario: ScenarioPayload | null = null): Promise<void> => {
+        const editedScenarioId = scenarioToEdit?.id ?? null;
+        const newScenarioId = scenario ? await store.saveScenario(scenario) : null;
+        if (newScenarioId) {
+            await store.loadScenario(newScenarioId);
+        } else if (editedScenarioId && !scenario) {
+            await store.loadScenario(editedScenarioId);
+        } else {
+            store.resetScenario();
+        }
+
         editorMode = false;
         scenarioToEdit = null;
+        editorDraft = null;
+        addDepotMode = false;
+        editorVersion += 1;
+    };
+
+    const makeEmptyScenario = (): ScenarioPayload => ({
+        id: 0,
+        name: 'Custom scenario',
+        description: '',
+        vehicles: [],
+        depots: [],
+        customers: []
+    });
+
+    const cloneScenario = (scenario: ScenarioPayload | null): ScenarioPayload => {
+        if (!scenario) {
+            return makeEmptyScenario();
+        }
+
+        return {
+            ...scenario,
+            id: 0,
+            name: `${scenario.name} copy`,
+            vehicles: scenario.vehicles.map((vehicle) => ({ ...vehicle })),
+            depots: scenario.depots.map((depot) => ({ ...depot })),
+            customers: scenario.customers.map((customer) => ({ ...customer }))
+        };
+    };
+
+    const setEditorDraft = (draft: ScenarioPayload): void => {
+        editorDraft = draft;
+        editorVersion += 1;
+        updateMapLayers(false);
+    };
+
+    const locationKey = (item: { lat_e6: number; lng_e6: number }): string =>
+        `${item.lat_e6}_${item.lng_e6}`;
+
+    const isInsideIreland = (lat: number, lng: number): boolean => {
+        return lat >= 51.3 && lat <= 55.6 && lng >= -10.8 && lng <= -5.4;
+    };
+
+    const makeHospitalFromMapPoint = async (lat: number, lng: number): Promise<Hospital | null> => {
+        const clickedLatE6 = Math.round(lat * 1e6);
+        const clickedLngE6 = Math.round(lng * 1e6);
+
+        try {
+            const [snappedLatE6, snappedLngE6, snapDistanceM] = await store.snapLocation(
+                clickedLatE6,
+                clickedLngE6
+            );
+
+            return {
+                id: 0,
+                name: '',
+                lat_e6: clickedLatE6,
+                lng_e6: clickedLngE6,
+                display_lat_e6: snappedLatE6,
+                display_lng_e6: snappedLngE6,
+                snap_distance_m: snapDistanceM,
+                category: 'Custom',
+                subcategory: '',
+                address: '',
+                eircode: '',
+                demand: 0,
+                lat,
+                lng,
+                display_lat: snappedLatE6 / 1e6,
+                display_lng: snappedLngE6 / 1e6
+            };
+        } catch {
+            return null;
+        }
+    };
+
+    const makeHospitalFromLocation = (location: HospitalLocation): Hospital => ({
+        ...location,
+        lat_e6: Math.round(location.lat * 1e6),
+        lng_e6: Math.round(location.lng * 1e6),
+        display_lat_e6: Math.round(location.display_lat * 1e6),
+        display_lng_e6: Math.round(location.display_lng * 1e6),
+        snap_distance_m: 0
+    });
+
+    const addEditorLocation = (location: Hospital): void => {
+        if (!editorDraft) {
+            return;
+        }
+
+        const key = locationKey(location);
+
+        if (addDepotMode) {
+            setEditorDraft({
+                ...editorDraft,
+                depots: [{ ...location, demand: 0 }],
+                customers: editorDraft.customers.filter((customer) => locationKey(customer) !== key)
+            });
+            addDepotMode = false;
+            editorVersion += 1;
+            return;
+        }
+
+        const alreadySelected =
+            editorDraft.customers.some((customer) => locationKey(customer) === key) ||
+            editorDraft.depots.some((depot) => locationKey(depot) === key);
+
+        if (alreadySelected) {
+            return;
+        }
+
+        setEditorDraft({
+            ...editorDraft,
+            customers: [...editorDraft.customers, { ...location }]
+        });
+    };
+
+    const startDepotSelection = (): void => {
+        addDepotMode = true;
+        editorVersion += 1;
+    };
+
+    type MarkerKind = 'hospital' | 'customer' | 'depot';
+    type MarkerAction = 'add' | 'delete' | 'none';
+
+    const markerColors: Record<MarkerKind, string> = {
+        hospital: '#555',
+        customer: '#b23b00',
+        depot: '#0f4c81'
+    };
+
+    const drawMarker = (
+        hospital: Hospital,
+        kind: MarkerKind,
+        label: string,
+        action: MarkerAction = 'none',
+        onClick?: () => void
+    ) => {
+        if (!leaflet || !mapLayers || !map) {
+            return;
+        }
+
+        const color = markerColors[kind];
+        const radius = kind === 'depot' ? 7 : 5;
+
+        const marker = leaflet
+            .circleMarker([hospital.lat, hospital.lng], {
+                radius,
+                color,
+                fillColor: color,
+                fillOpacity: 0.85,
+                interactive: true,
+                bubblingMouseEvents: false
+            })
+            .bindPopup(`<strong>${label}:</strong> ${hospital.name || 'Custom location'}`)
+            .addTo(mapLayers);
+
+        const element = marker.getElement() as HTMLElement | null;
+
+        const deleteCursor =
+    `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cline x1='6' y1='6' x2='18' y2='18' stroke='%23dc2626' stroke-width='3' stroke-linecap='round'/%3E%3Cline x1='18' y1='6' x2='6' y2='18' stroke='%23dc2626' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") 12 12, pointer`;
+
+        if (element && action !== 'none') {
+            element.style.cursor = action === 'delete' ? deleteCursor : 'pointer';
+        }
+
+        if (!onClick || action === 'none') {
+            return;
+        }
+
+        const hoverColor =
+            action === 'delete'
+                ? '#991b1b'
+                : addDepotMode
+                ? markerColors.depot
+                : markerColors.customer;
+
+        marker.on('click', onClick);
+
+        marker.on('mouseover', () => {
+            marker.setStyle({
+                color: hoverColor,
+                fillColor: hoverColor,
+                radius: radius + 2,
+                fillOpacity: 0.95
+            });
+
+            map?.getContainer().style.setProperty(
+                'cursor',
+                action === 'delete' ? deleteCursor : 'pointer'
+            );
+        });
+
+        marker.on('mouseout', () => {
+            marker.setStyle({
+                color,
+                fillColor: color,
+                radius,
+                fillOpacity: 0.85
+            });
+
+            map?.getContainer().style.setProperty('cursor', editorMode ? 'pointer' : '');
+        });
+    };
+
+    const removeEditorLocation = (location: Hospital): void => {
+        if (!editorDraft) {
+            return;
+        }
+
+        const key = locationKey(location);
+
+        setEditorDraft({
+            ...editorDraft,
+            depots: editorDraft.depots.filter((depot) => locationKey(depot) !== key),
+            customers: editorDraft.customers.filter((customer) => locationKey(customer) !== key)
+        });
+    };
+
+    const cancelDepotSelection = (): void => {
+        addDepotMode = false;
+        editorVersion += 1;
+        updateMapLayers(false);
     };
 
     const unsubscribe = store.subscribe((value) => {
@@ -65,6 +305,37 @@
             .addTo(map);
         mapLayers = loaded.layerGroup().addTo(map);
         updateMapLayers();
+        map.on('click', handleEditorMapClick);
+    };
+
+    const handleEditorMapClick = async (event: { latlng: { lat: number; lng: number } }) => {
+        if (!editorMode || !editorDraft) {
+            return;
+        }
+
+        if (!isInsideIreland(event.latlng.lat, event.latlng.lng)) {
+            console.warn('Clicked point is outside Ireland');
+            return;
+        }
+
+        const pendingId = nextPendingSnapId++;
+        const point: [number, number] = [event.latlng.lat, event.latlng.lng];
+
+        pendingSnapPoints = [...pendingSnapPoints, { id: pendingId, point }];
+        editorVersion += 1;
+        updateMapLayers(false);
+
+        const hospital = await makeHospitalFromMapPoint(event.latlng.lat, event.latlng.lng);
+
+        pendingSnapPoints = pendingSnapPoints.filter((item) => item.id !== pendingId);
+        editorVersion += 1;
+        updateMapLayers(false);
+
+        if (!hospital) {
+            return;
+        }
+
+        addEditorLocation(hospital);
     };
 
     const addDirectionArrows = (
@@ -117,11 +388,73 @@
 
         const layers = mapLayers;
         const l = leaflet;
+        const bounds: Array<[number, number]> = [];
 
         layers.clearLayers();
 
         const scenario = state.scenario;
         const hospitals = state.hospitals;
+
+        map.getContainer().style.cursor = '';
+
+        if (editorMode && editorDraft) {
+            map.getContainer().style.cursor = 'pointer';
+
+            const selectedCustomerKeys = new Set(editorDraft.customers.map(locationKey));
+            const depotKeys = new Set(editorDraft.depots.map(locationKey));
+            const predefinedKeys = new Set<string>();
+
+            for (const location of hospitals) {
+                const hospital = makeHospitalFromLocation(location);
+                const key = locationKey(hospital);
+
+                predefinedKeys.add(key);
+                bounds.push([hospital.lat, hospital.lng]);
+
+                if (depotKeys.has(key)) {
+                    drawMarker(hospital, 'depot', 'Depot', 'delete', () => removeEditorLocation(hospital));
+                } else if (selectedCustomerKeys.has(key)) {
+                    drawMarker(hospital, 'customer', 'Customer', 'delete', () => removeEditorLocation(hospital));
+                } else {
+                    drawMarker(hospital, 'hospital', 'Available', 'add', () => addEditorLocation(hospital));
+                }
+            }
+
+            for (const customer of editorDraft.customers) {
+                if (!predefinedKeys.has(locationKey(customer))) {
+                    bounds.push([customer.lat, customer.lng]);
+                    drawMarker(customer, 'customer', 'Customer', 'delete', () => removeEditorLocation(customer));
+                }
+            }
+
+            for (const { point } of pendingSnapPoints) {
+                leaflet
+                    .circleMarker(point, {
+                        radius: 6,
+                        color: markerColors.customer,
+                        fillColor: markerColors.customer,
+                        fillOpacity: 0,
+                        weight: 2,
+                        interactive: false
+                    })
+                    .addTo(layers);
+
+                bounds.push(point);
+            }
+
+            for (const depot of editorDraft.depots) {
+                if (!predefinedKeys.has(locationKey(depot))) {
+                    bounds.push([depot.lat, depot.lng]);
+                    drawMarker(depot, 'depot', 'Depot', 'delete', () => removeEditorLocation(depot));
+                }
+            }
+
+            if (shouldFitBounds && bounds.length > 0) {
+                map.fitBounds(bounds, { padding: [24, 24] });
+            }
+
+            return;
+        }
 
         if (!scenario && hospitals.length === 0) {
             if (shouldFitBounds) {
@@ -130,22 +463,11 @@
             return;
         }
 
-        const bounds: Array<[number, number]> = [];
-
         if (!scenario) {
-            hospitals.forEach((hospital) => {
-                const position: [number, number] = [hospital.lat, hospital.lng];
-                bounds.push(position);
-
-                l
-                    .circleMarker(position, {
-                        radius: 5,
-                        color: '#555',
-                        fillColor: '#555',
-                        fillOpacity: 0.7
-                    })
-                    .bindPopup(`<strong>Hospital:</strong> ${hospital.name}`)
-                    .addTo(layers);
+            hospitals.forEach((location) => {
+                const hospital = makeHospitalFromLocation(location);
+                bounds.push([hospital.lat, hospital.lng]);
+                drawMarker(hospital, 'hospital', 'Hospital');
             });
 
             if (bounds.length > 0 && shouldFitBounds) {
@@ -158,18 +480,7 @@
         scenario.customers.forEach((customer) => {
             const position: [number, number] = [customer.lat, customer.lng];
             bounds.push(position);
-
-            l
-                .circleMarker(position, {
-                    radius: 5,
-                    color: '#b23b00',
-                    fillColor: '#b23b00',
-                    fillOpacity: 0.7
-                })
-                .bindPopup(
-                    `<strong>Customer:</strong> ${customer.name}<br />Demand: ${customer.demand}`
-                )
-                .addTo(layers);
+            drawMarker(customer, 'customer', 'Customer');
         });
 
         if (state.solution) {
@@ -240,16 +551,7 @@
         scenario.depots.forEach((depot) => {
             const position: [number, number] = [depot.lat, depot.lng];
             bounds.push(position);
-
-            l
-                .circleMarker(position, {
-                    radius: 7,
-                    color: '#0f4c81',
-                    fillColor: '#0f4c81',
-                    fillOpacity: 0.9
-                })
-                .bindPopup(`<strong>Depot:</strong> ${depot.name}`)
-                .addTo(layers);
+            drawMarker(depot, 'depot', 'Depot');
         });
 
         if (shouldFitBounds) {
@@ -305,7 +607,8 @@
         const hospCount = value.hospitals.length;
         const routesCount = value.solution?.routes.length ?? 0;
         const geomVer = value.geometryVersion;
-        return `${scnId}|${solId}|${hospCount}|${routesCount}|${geomVer}`;
+        const editorState = `${editorMode}|${editorVersion}|${addDepotMode}`;
+        return `${scnId}|${solId}|${hospCount}|${routesCount}|${geomVer}|${editorState}`;
     };
 
     const getFitBoundsKey = (value: AppViewState) => {
@@ -531,7 +834,16 @@
                     <section 
                         class="min-h-40 overflow-auto border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1"
                     >
-                        <ScenarioEditor scenario={scenarioToEdit} endEditing={exitEditorMode}/>
+                        {#if editorDraft}
+                            <ScenarioEditor
+                                draft={editorDraft}
+                                addingDepot={addDepotMode}
+                                setDraft={setEditorDraft}
+                                startDepotSelection={startDepotSelection}
+                                cancelDepotSelection={cancelDepotSelection}
+                                endEditing={exitEditorMode}
+                            />
+                        {/if}
                     </section>
                 {/if}
 

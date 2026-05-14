@@ -36,6 +36,9 @@ class Settings(BaseSettings):
     or_tools_target_time_sec: int = Field(
         default=10, validation_alias="OR_TOOLS_TARGET_TIME_SEC", gt=0, le=3600
     )
+    ors_max_snap_dist: int = Field(
+        default=250, validation_alias="ORS_MAX_SNAP_DIST", gt=0, le=1000
+    )
 
     @field_validator("storage_root", mode="before")
     def resolve_storage_root(cls, value: str | Path, info) -> Path:
