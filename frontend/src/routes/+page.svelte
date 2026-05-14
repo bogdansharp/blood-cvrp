@@ -50,6 +50,9 @@
 
     let sidebarOpen = false;
 
+    type SidebarTab = 'scenario' | 'solutions' | 'jobs';
+    let activeSidebarTab: SidebarTab = 'scenario';
+
     const unsubscribe = store.subscribe((value) => {
         state = value;
     });
@@ -79,6 +82,7 @@
             return;
         }
 
+        activeSidebarTab = 'scenario';
         selectedMethod = defaultSolveMethod;
         void store.loadScenario(scenarioId);
     };
@@ -281,27 +285,65 @@
                         />
                     </section>
                 {:else}
-                    <section class="min-h-40 overflow-y-auto overflow-x-hidden border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
-                        <ScenarioSection
-                            scenario={state.scenario}
-                            loading={state.loading}
-                            deleteScenario={store.deleteScenario}
-                            editScenario={enterEditorMode}
-                        />
-                    </section>
+                    <div class="grid min-h-0 gap-2 min-[821px]:flex min-[821px]:min-h-0 min-[821px]:flex-1 min-[821px]:flex-col">
+                        <div class="flex gap-1 border-b border-neutral-200">
+                            <button
+                                class={`h-7.5 cursor-pointer rounded-t-md px-3 text-xs ${
+                                    activeSidebarTab === 'scenario'
+                                        ? 'bg-[#0f4c81] text-white'
+                                        : 'bg-slate-100 text-slate-700'
+                                }`}
+                                type="button"
+                                onclick={() => (activeSidebarTab = 'scenario')}
+                            >
+                                Scenario
+                            </button>
 
-                    <section class="min-h-40 overflow-y-auto overflow-x-hidden border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
-                        <SolutionsSection
-                            solutions={state.solutions}
-                            scenarioId={state.scenario?.id ?? null}
-                            selectedSolutionId={state.solution?.id ?? null}
-                            loadSolution={store.loadSolution}
-                        />
-                    </section>
+                            <button
+                                class={`h-7.5 cursor-pointer rounded-t-md px-3 text-xs ${
+                                    activeSidebarTab === 'solutions'
+                                        ? 'bg-[#0f4c81] text-white'
+                                        : 'bg-slate-100 text-slate-700'
+                                }`}
+                                type="button"
+                                onclick={() => (activeSidebarTab = 'solutions')}
+                            >
+                                Solutions
+                            </button>
 
-                    <section class="min-h-40 overflow-y-auto overflow-x-hidden border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
-                        <JobsSection jobs={state.jobs} />
-                    </section>
+                            <button
+                                class={`h-7.5 cursor-pointer rounded-t-md px-3 text-xs ${
+                                    activeSidebarTab === 'jobs'
+                                        ? 'bg-[#0f4c81] text-white'
+                                        : 'bg-slate-100 text-slate-700'
+                                }`}
+                                type="button"
+                                onclick={() => (activeSidebarTab = 'jobs')}
+                            >
+                                Jobs
+                            </button>
+                        </div>
+
+                        <section class="min-h-40 overflow-y-auto overflow-x-hidden border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
+                            {#if activeSidebarTab === 'scenario'}
+                                <ScenarioSection
+                                    scenario={state.scenario}
+                                    loading={state.loading}
+                                    deleteScenario={store.deleteScenario}
+                                    editScenario={enterEditorMode}
+                                />
+                            {:else if activeSidebarTab === 'solutions'}
+                                <SolutionsSection
+                                    solutions={state.solutions}
+                                    scenarioId={state.scenario?.id ?? null}
+                                    selectedSolutionId={state.solution?.id ?? null}
+                                    loadSolution={store.loadSolution}
+                                />
+                            {:else}
+                                <JobsSection jobs={state.jobs} />
+                            {/if}
+                        </section>
+                    </div>
                 {/if}
             </div>
         </aside>
