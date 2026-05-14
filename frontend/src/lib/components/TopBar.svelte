@@ -62,29 +62,29 @@
         {/if}
     </div>
 
-    <div class="grid min-w-0 grid-cols-1 gap-2 min-[520px]:grid-cols-2 min-[821px]:flex min-[821px]:flex-wrap min-[821px]:items-end min-[821px]:justify-end">
-        <div class="grid min-w-0 gap-1 min-[821px]:w-42.5">
-            <label class="text-[11px] leading-none text-neutral-600" for="scenario-select">
-                Scenario
-            </label>
+    <div class="grid min-w-0 gap-2 min-[821px]:flex min-[821px]:flex-row-reverse min-[821px]:flex-wrap min-[821px]:items-end min-[821px]:gap-2">
+        <div class="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-end gap-2 min-[520px]:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)_auto] min-[821px]:flex min-[821px]:min-w-0 min-[821px]:flex-wrap min-[821px]:items-end min-[821px]:justify-end min-[821px]:gap-2">
+            <div class="grid min-w-0 gap-1 min-[821px]:w-55">
+                <label class="text-[11px] leading-none text-neutral-600" for="scenario-select">
+                    Scenario
+                </label>
 
-            <select
-                class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
-                id="scenario-select"
-                onchange={handleScenarioChange}
-                disabled={state.loading || editorMode}
-            >
-                <option value="">Select Scenario</option>
+                <select
+                    class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
+                    id="scenario-select"
+                    onchange={handleScenarioChange}
+                    disabled={state.loading || editorMode}
+                >
+                    <option value="">Select Scenario</option>
 
-                {#each state.scenarios as scenario}
-                    <option value={scenario.id} selected={state.scenario?.id === scenario.id}>
-                        {scenario.name}
-                    </option>
-                {/each}
-            </select>
-        </div>
+                    {#each state.scenarios as scenario}
+                        <option value={scenario.id} selected={state.scenario?.id === scenario.id}>
+                            {scenario.name}
+                        </option>
+                    {/each}
+                </select>
+            </div>
 
-        <div>
             <button
                 class="h-7.5 cursor-pointer rounded-md border border-[#0f812a] bg-[#0f812a] px-2.5 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55"
                 type="button"
@@ -93,106 +93,123 @@
             >
                 +
             </button>
-        </div>
 
-        <div class="grid min-w-0 gap-1 min-[821px]:w-45">
-            <label class="text-[11px] leading-none text-neutral-600" for="method-select">
-                Method
-            </label>
+            <div class="col-span-2 grid min-w-0 gap-1 min-[520px]:col-span-1 min-[821px]:w-45">
+                <label class="text-[11px] leading-none text-neutral-600" for="method-select">
+                    Method
+                </label>
 
-            <select
-                class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
-                id="method-select"
-                bind:value={selectedMethod}
+                <select
+                    class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
+                    id="method-select"
+                    bind:value={selectedMethod}
+                    disabled={editorMode}
+                >
+                    {#each Object.entries(SOLVE_METHOD_LABELS) as [key, label]}
+                        <option value={key}>{label}</option>
+                    {/each}
+                </select>
+            </div>
+
+            <button
+                class="col-span-2 h-7.5 w-full cursor-pointer rounded-md border border-[#0f4c81] bg-[#0f4c81] px-4 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 min-[520px]:col-span-1 min-[821px]:w-auto"
+                type="button"
+                onclick={onSolve}
+                disabled={state.loading || !state.scenario || editorMode}
             >
-                {#each Object.entries(SOLVE_METHOD_LABELS) as [key, label]}
-                    <option value={key}>{label}</option>
-                {/each}
-            </select>
+                Solve
+            </button>
         </div>
 
-        <div class="grid min-w-0 gap-1 min-[821px]:w-23.75">
-            <label class="text-[11px] leading-none text-neutral-600" for="time-limit-input">
-                Limit, hours
-            </label>
+        <div class="grid min-w-0 grid-cols-1 gap-2 min-[520px]:grid-cols-2 min-[821px]:flex min-[821px]:min-w-0 min-[821px]:flex-wrap min-[821px]:items-end min-[821px]:justify-end min-[821px]:gap-2">
+            <div class="grid min-w-0 gap-1 min-[821px]:w-23.75">
+                <label class="text-[11px] leading-none text-neutral-600" for="time-limit-input">
+                    Limit, hours
+                </label>
 
-            <input
-                type="number"
-                min="0"
-                id="time-limit-input"
-                class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
-                bind:value={timeLimitHours}
-            />
+                <input
+                    type="number"
+                    min="0"
+                    id="time-limit-input"
+                    class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
+                    bind:value={timeLimitHours}
+                    disabled={editorMode}
+                />
+            </div>
+
+            {#if selectedMethod === 'ortools'}
+                <label class="flex h-7.5 items-center gap-2 rounded-md border border-neutral-300 px-2 text-xs text-neutral-700 min-[821px]:self-end">
+                    <input
+                        type="checkbox"
+                        class="h-4 w-4"
+                        bind:checked={orBalanceRoutes}
+                        disabled={editorMode}
+                    />
+                    Balance
+                </label>
+
+                <div class="grid min-w-0 gap-1 min-[821px]:w-42.5">
+                    <label
+                        class="text-[11px] leading-none text-neutral-600"
+                        for="or-first-solution-select"
+                    >
+                        First solution
+                    </label>
+
+                    <select
+                        class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
+                        id="or-first-solution-select"
+                        bind:value={orFirstSolution}
+                        disabled={editorMode}
+                    >
+                        {#each Object.entries(OR_FIRST_SOLUTION_STRATEGY_LABELS) as [key, label]}
+                            <option value={key}>{label}</option>
+                        {/each}
+                    </select>
+                </div>
+
+                <div class="grid min-w-0 gap-1 min-[821px]:w-40">
+                    <label
+                        class="text-[11px] leading-none text-neutral-600"
+                        for="or-local-search-select"
+                    >
+                        Local search
+                    </label>
+
+                    <select
+                        class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
+                        id="or-local-search-select"
+                        bind:value={orLocalSearch}
+                        disabled={editorMode}
+                    >
+                        {#each Object.entries(OR_LOCAL_SEARCH_METAHEURISTIC_LABELS) as [key, label]}
+                            <option value={key}>{label}</option>
+                        {/each}
+                    </select>
+                </div>
+            {/if}
+
+            {#if selectedMethod === 'clarke_wright_savings'}
+                <div class="grid min-w-0 gap-1 min-[821px]:w-40">
+                    <label
+                        class="text-[11px] leading-none text-neutral-600"
+                        for="clarke-local-search-select"
+                    >
+                        Clarke local search
+                    </label>
+
+                    <select
+                        class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
+                        id="clarke-local-search-select"
+                        bind:value={clarkeLocalSearch}
+                        disabled={editorMode}
+                    >
+                        {#each Object.entries(CLARKE_WRIGHT_LOCAL_SEARCH_LABELS) as [key, label]}
+                            <option value={key}>{label}</option>
+                        {/each}
+                    </select>
+                </div>
+            {/if}
         </div>
-
-        <label class="flex h-7.5 items-center gap-2 rounded-md border border-neutral-300 px-2 text-xs text-neutral-700 min-[821px]:mb-0">
-            <input
-                type="checkbox"
-                class="h-4 w-4"
-                bind:checked={orBalanceRoutes}
-                disabled={selectedMethod !== 'ortools'}
-            />
-            Balance
-        </label>
-
-        <div class="grid min-w-0 gap-1 min-[821px]:w-42.5">
-            <label class="text-[11px] leading-none text-neutral-600" for="or-first-solution-select">
-                First solution
-            </label>
-
-            <select
-                class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 disabled:bg-neutral-100"
-                id="or-first-solution-select"
-                bind:value={orFirstSolution}
-                disabled={selectedMethod !== 'ortools'}
-            >
-                {#each Object.entries(OR_FIRST_SOLUTION_STRATEGY_LABELS) as [key, label]}
-                    <option value={key}>{label}</option>
-                {/each}
-            </select>
-        </div>
-
-        <div class="grid min-w-0 gap-1 min-[821px]:w-40">
-            <label class="text-[11px] leading-none text-neutral-600" for="or-local-search-select">
-                Local search
-            </label>
-
-            <select
-                class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 disabled:bg-neutral-100"
-                id="or-local-search-select"
-                bind:value={orLocalSearch}
-                disabled={selectedMethod !== 'ortools'}
-            >
-                {#each Object.entries(OR_LOCAL_SEARCH_METAHEURISTIC_LABELS) as [key, label]}
-                    <option value={key}>{label}</option>
-                {/each}
-            </select>
-        </div>
-
-        <div class="grid min-w-0 gap-1 min-[821px]:w-40">
-            <label class="text-[11px] leading-none text-neutral-600" for="clarke-local-search-select">
-                Clarke local search
-            </label>
-
-            <select
-                class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950 disabled:bg-neutral-100"
-                id="clarke-local-search-select"
-                bind:value={clarkeLocalSearch}
-                disabled={selectedMethod !== 'clarke_wright_savings'}
-            >
-                {#each Object.entries(CLARKE_WRIGHT_LOCAL_SEARCH_LABELS) as [key, label]}
-                    <option value={key}>{label}</option>
-                {/each}
-            </select>
-        </div>
-
-        <button
-            class="h-7.5 w-full cursor-pointer rounded-md border border-[#0f4c81] bg-[#0f4c81] px-4 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 min-[520px]:col-span-2 min-[821px]:col-span-1 min-[821px]:w-auto"
-            type="button"
-            onclick={onSolve}
-            disabled={state.loading || !state.scenario || editorMode}
-        >
-            Solve
-        </button>
     </div>
 </header>
