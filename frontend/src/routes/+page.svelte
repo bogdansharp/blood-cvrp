@@ -4,9 +4,10 @@
     import type { LayerGroup, Map as LeafletMap } from 'leaflet';
     import { onDestroy, onMount } from 'svelte';
     import 'leaflet/dist/leaflet.css';
-    import { CLARKE_WRIGHT_LOCAL_SEARCH_LABELS, createInitialState, createStore, OR_FIRST_SOLUTION_STRATEGY_LABELS, OR_LOCAL_SEARCH_METAHEURISTIC_LABELS, SOLVE_METHOD_LABELS, type AppViewState, type ClarkeWrightLocalSearch, type ORFirstSolutionStrategy, type ORLocalSearchMetaheuristic, type SolveMethod } from '$lib/store';
+    import { CLARKE_WRIGHT_LOCAL_SEARCH_LABELS, createInitialState, createStore, OR_FIRST_SOLUTION_STRATEGY_LABELS, OR_LOCAL_SEARCH_METAHEURISTIC_LABELS, SOLVE_METHOD_LABELS, type AppViewState, type ClarkeWrightLocalSearch, type ORFirstSolutionStrategy, type ORLocalSearchMetaheuristic, type ScenarioPayload, type SolveMethod } from '$lib/store';
     import JobsSection from '$lib/components/JobsSection.svelte';
     import ScenarioSection from '$lib/components/ScenarioSection.svelte';
+    import ScenarioEditor from '$lib/components/ScenarioEditor.svelte';
 	import { getBearingDegrees } from '$lib/mapHelpers';
 
     const defaultCenter: [number, number] = [53.331, -8.092];
@@ -30,6 +31,19 @@
     let timeLimitHours: number = 9;
     let lastMapKey = '';
     let lastFitBoundsKey = '';
+    let editorMode = false;
+    let scenarioToEdit: ScenarioPayload | null = null;
+
+    const enterEditorMode = (scenario: ScenarioPayload | null = null): void => {
+        editorMode = true;
+        scenarioToEdit = scenario;
+        store.resetScenario();
+    };
+
+    const exitEditorMode = (scenario: ScenarioPayload | null = null): void => {
+        editorMode = false;
+        scenarioToEdit = null;
+    };
 
     const unsubscribe = store.subscribe((value) => {
         state = value;
@@ -339,7 +353,9 @@
             {/if}
         </div>
 
-        <div class="grid min-w-0 grid-cols-1 gap-2 min-[520px]:grid-cols-2 min-[821px]:flex min-[821px]:flex-wrap min-[821px]:items-end min-[821px]:justify-end">
+        <div 
+            class="grid min-w-0 grid-cols-1 gap-2 min-[520px]:grid-cols-2 min-[821px]:flex min-[821px]:flex-wrap min-[821px]:items-end min-[821px]:justify-end"
+        >
             <div class="grid min-w-0 gap-1 min-[821px]:w-42.5">
                 <label class="text-[11px] leading-none text-neutral-600" for="scenario-select">
                     Scenario
@@ -348,7 +364,7 @@
                     class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
                     id="scenario-select"
                     onchange={handleScenarioChange}
-                    disabled={state.loading}
+                    disabled={state.loading || editorMode}
                 >
                     <option value="">Select Scenario</option>
                     {#each state.scenarios as scenario}
@@ -357,6 +373,17 @@
                         </option>
                     {/each}
                 </select>
+            </div>
+
+            <div class="">
+                <button 
+                    class="h-7.5 cursor-pointer rounded-md border border-[#0f812a] bg-[#0f812a] px-2.5 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55"
+                    type="button"
+                    onclick={() => enterEditorMode()}
+                    disabled={state.loading || editorMode}
+                >
+                    +
+                </button>
             </div>
 
             <div class="grid min-w-0 gap-1 min-[821px]:w-45">
@@ -449,7 +476,7 @@
                 class="h-7.5 w-full rounded-md border border-[#0f4c81] bg-[#0f4c81] px-4 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55 min-[520px]:col-span-2 min-[821px]:col-span-1 min-[821px]:w-auto cursor-pointer"
                 type="button"
                 onclick={() => submitAndTrack(selectedMethod, timeLimitHours)}
-                disabled={state.loading || !state.scenario}
+                disabled={state.loading || !state.scenario || editorMode}
             >
                 Solve
             </button>
@@ -494,11 +521,24 @@
             }`}
         >
             <div class="grid min-w-0 gap-2 overflow-x-auto p-2 min-[821px]:flex min-[821px]:min-h-full min-[821px]:min-w-[320px] min-[821px]:flex-col">
-                <section class="min-h-40 overflow-auto border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
-                    <ScenarioSection scenario={state.scenario} loading={state.loading} deleteScenario={store.deleteScenario} />
-                </section>
+                {#if !editorMode}
+                    <section 
+                        class="min-h-40 overflow-auto border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1"
+                    >
+                        <ScenarioSection scenario={state.scenario} loading={state.loading} deleteScenario={store.deleteScenario} editScenario={enterEditorMode}/>
+                    </section>
+                {:else}
+                    <section 
+                        class="min-h-40 overflow-auto border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1"
+                    >
+                        <ScenarioEditor scenario={scenarioToEdit} endEditing={exitEditorMode}/>
+                    </section>
+                {/if}
 
-                <section class="min-h-40 overflow-auto border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1">
+                <section 
+                    class="min-h-40 overflow-auto border border-neutral-200 bg-white p-2 min-[821px]:min-h-0 min-[821px]:flex-1"
+                    hidden={editorMode}
+                >
                     <JobsSection jobs={state.jobs} />
                 </section>
             </div>

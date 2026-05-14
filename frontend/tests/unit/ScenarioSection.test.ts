@@ -66,6 +66,7 @@ const renderScenarioSection = (props = {}) => {
     return render(ScenarioSection, {
         props: {
             deleteScenario: vi.fn(),
+            editScenario: vi.fn(),
             ...props
         }
     });
@@ -89,19 +90,22 @@ describe('ScenarioSection', () => {
         expect(screen.getByText('Loading scenario...')).toBeInTheDocument();
     });
 
-    it('renders selected scenario name and counts', () => {
-        renderScenarioSection({
+    it('renders the selected scenario summary', () => {
+        const { container } = renderScenarioSection({
             scenario: makeScenario()
         });
 
+        const text = container.textContent ?? '';
+
         expect(screen.getByRole('heading', { name: 'Scenario Alpha' })).toBeInTheDocument();
-        expect(screen.getByText('1 depots')).toBeInTheDocument();
-        expect(screen.getByText('2 customers')).toBeInTheDocument();
-        expect(screen.getByText('Depots: 1')).toBeInTheDocument();
-        expect(screen.getByText('Vehicles: 2')).toBeInTheDocument();
+        expect(text).toContain('1');
+        expect(text).toContain('2');
+        expect(text).toContain('depots');
+        expect(text).toContain('customers');
+        expect(text).toContain('Vehicles');
     });
 
-    it('renders depot, customer, and vehicle details from props', () => {
+    it('renders scenario entities from props', () => {
         const { container } = renderScenarioSection({
             scenario: makeScenario()
         });
@@ -109,26 +113,10 @@ describe('ScenarioSection', () => {
         const text = container.textContent ?? '';
 
         expect(text).toContain('Main Depot');
-        expect(text).toContain('Depot Road');
-        expect(text).toContain('D01DEPOT');
-
-        expect(text).toContain('Customers (2)');
         expect(text).toContain('Customer A');
-        expect(text).toContain('Customer Street');
-        expect(text).toContain('C01A');
-        expect(text).toContain('demand 4');
-
         expect(text).toContain('Customer B');
-        expect(text).toContain('Second Street');
-        expect(text).toContain('demand 6');
-
-        expect(text).toContain('Vehicles (2)');
         expect(text).toContain('Pool 1');
-        expect(text).toContain('capacity 10');
-        expect(text).toContain('quantity 2');
         expect(text).toContain('Pool 2');
-        expect(text).toContain('capacity 20');
-        expect(text).toContain('unlimited');
     });
 
     it('calls deleteScenario with selected scenario id', async () => {

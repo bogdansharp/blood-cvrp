@@ -78,7 +78,6 @@ export type LogEntry = {
 export type VehiclePool = {
     capacity: number;
     quantity: number; // -1 if unlimited
-    // time_limit: number; // in seconds, -1 if unlimited
 };
 
 export type Hospital = {
@@ -117,6 +116,15 @@ export type ScenarioPayload = {
     depots: Hospital[];
     customers: Hospital[];
 };
+
+const reduceScenario = (scenario: ScenarioPayload): ScenarioReduced => ({
+    id: scenario.id,
+    name: scenario.name,
+    vehicles_count: scenario.vehicles.length,
+    depots_count: scenario.depots.length,
+    customers_count: scenario.customers.length,
+    description: scenario.description
+});
 
 export type SolverJobPayload = {
     id: number;
@@ -351,10 +359,9 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
                         geometryCooldownUntil = Date.now() + 60_000;
                         currentGeometryKey = null;
 
-                        update((state) => ({
-                            ...state,
-                            error: detail || 'Route geometry request failed. Retrying in 60 seconds.',
-                        }));
+                        const error_msg = detail || 'Route geometry request failed. Retrying in 60 seconds.';
+                        console.error(error_msg);
+                        update((state) => ({...state, error: error_msg,}));
 
                         await sleep(60_000);
                         continue;
@@ -362,10 +369,9 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
 
                     currentGeometryKey = null;
 
-                    update((state) => ({
-                        ...state,
-                        error: detail || 'Route geometry request failed. Using straight-line fallback.',
-                    }));
+                    const error_msg = detail || 'Route geometry request failed. Using straight-line fallback.';
+                    console.error(error_msg);
+                    update((state) => ({...state, error: error_msg,}));
 
                     continue;
                 }
@@ -498,7 +504,8 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         update((state) => {
             scenarioId = state.scenario?.id ?? null;
             if (!scenarioId) {
-                return { ...state, loading: false, error: 'No scenario loaded.', solution: null };
+                const error_msg = 'No scenario loaded.';
+                return { ...state, loading: false, error: error_msg, solution: null };
             }
             return { ...state, loading: true, error: null, solution: null };
         });
@@ -614,8 +621,31 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
             }));
         } else {
             const detail = await response.text();
+            const error_msg = `Failed to delete scenario ${scenarioId}: ${detail}`;
             console.error(`Failed to delete scenario ${scenarioId}:`, detail);
+            update((state) => ({ ...state, error: error_msg }));
         }
+    };
+
+    const saveScenario = async (scenario: ScenarioPayload): Promise<number | null> => {
+        const response = await fetch(`${apiBase}/scenarios/create`, { 
+            method: 'POST',
+            body: JSON.stringify(scenario)
+        });
+        if (response.ok) {
+            scenario.id = await response.json();
+            update((state) => ({
+                ...state,
+                scenarios: [...state.scenarios, reduceScenario(scenario)] 
+            }));
+            return scenario.id;
+        } else {
+            const detail = await response.text();
+            const error_msg = `Failed to save scenario ${scenario.id}: ${detail}`;
+            console.error(`Failed to save scenario ${scenario.id}:`, detail);
+            update((state) => ({ ...state, error: error_msg }));
+        }
+        return null;
     };
 
     return {
@@ -631,5 +661,6 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
         fetchHospitals,
         loadGeometry,
         deleteScenario,
+        saveScenario,
     };
 };

@@ -5,9 +5,10 @@
         scenario?: ScenarioPayload | null;
         loading?: boolean;
         deleteScenario: (scenarioId: number) => void | Promise<void>;
+        editScenario: (scenario: ScenarioPayload | null) => void;
     };
 
-    let { scenario = null, loading = false, deleteScenario }: Props = $props();
+    let { scenario = null, loading = false, deleteScenario, editScenario }: Props = $props();
     let deleteInProgress: boolean = $state(false);
 
     const requestDeleteScenario = async (scenarioId: number): Promise<void> => {
@@ -42,15 +43,6 @@
             </div>
         </div>
 
-        <div class="flex flex-wrap gap-2 text-sm text-slate-700">
-            <span class="rounded-full bg-indigo-50 px-3 py-1 text-indigo-800">
-                Depots: {scenario.depots.length}
-            </span>
-            <span class="rounded-full bg-indigo-50 px-3 py-1 text-indigo-800">
-                Vehicles: {scenario.vehicles.length}
-            </span>
-        </div>
-
         <div class="flex flex-wrap gap-2">
             <button
                 class="h-7.5 cursor-pointer rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55"
@@ -64,16 +56,18 @@
             <button
                 class="h-7.5 cursor-pointer rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55"
                 type="button"
-                disabled={true}
+                onclick={() => editScenario(scenario)}
             >
                 Edit
             </button>
         </div>
 
-        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
-            <p class="mb-2 font-bold text-slate-900">Depots</p>
+        <details class="border-t border-slate-200 pt-3" open>
+            <summary class="cursor-pointer list-none text-sm font-bold text-slate-900 outline-none">
+                Depots ({scenario.depots.length})
+            </summary>
 
-            <ul class="m-0 grid list-none gap-2 p-0">
+            <ul class="m-0 grid list-none gap-2 pt-3 pl-0">
                 {#each scenario.depots as depot}
                     <li class="grid gap-0.5 rounded-xl border border-slate-200 bg-white p-2">
                         <strong class="wrap-break-words text-sm text-slate-900">{depot.name}</strong>
@@ -83,27 +77,9 @@
                     </li>
                 {/each}
             </ul>
-        </div>
-
-        <details class="border-t border-slate-200 pt-3">
-            <summary class="cursor-pointer list-none text-sm font-bold text-slate-900 outline-none">
-                Customers ({scenario.customers.length})
-            </summary>
-
-            <ul class="m-0 grid list-none gap-2 pt-3 pl-0">
-                {#each scenario.customers as customer}
-                    <li class="grid gap-0.5 rounded-xl border border-slate-200 bg-white p-2">
-                        <strong class="wrap-break-words text-sm text-slate-900">{customer.name}</strong>
-                        <span class="wrap-break-words text-sm text-slate-600">
-                            {customer.address}{customer.eircode ? ` (${customer.eircode})` : ''} ·
-                            demand {customer.demand}
-                        </span>
-                    </li>
-                {/each}
-            </ul>
         </details>
 
-        <details class="border-t border-slate-200 pt-3">
+        <details class="border-t border-slate-200 pt-3" open>
             <summary class="cursor-pointer list-none text-sm font-bold text-slate-900 outline-none">
                 Vehicles ({scenario.vehicles.length})
             </summary>
@@ -119,6 +95,32 @@
                         </span>
                     </li>
                 {/each}
+            </ul>
+        </details>
+        
+        <details class="border-t border-slate-200 pt-3">
+            <summary class="cursor-pointer list-none text-sm font-bold text-slate-900 outline-none">
+                Customers ({scenario.customers.length})
+            </summary>
+
+            <ul class="m-0 grid list-none gap-2 pt-3 pl-0">
+                {#each scenario.customers as customer}
+                <li class="grid gap-1 rounded-xl border border-slate-200 bg-white p-2">
+                    <div class="flex flex-wrap items-start gap-2">
+                        <strong class="min-w-0 flex-1 wrap-break-words text-sm text-slate-900">
+                            {customer.name}
+                        </strong>
+
+                        <span class="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-bold text-blue-800">
+                            demand: {customer.demand}
+                        </span>
+                    </div>
+
+                    <span class="wrap-break-words text-sm text-slate-600">
+                        {customer.address}{customer.eircode ? ` ${customer.eircode}` : ''}
+                    </span>
+                </li>
+            {/each}
             </ul>
         </details>
     {/if}
