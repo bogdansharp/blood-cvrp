@@ -190,6 +190,7 @@ jobs:
       - name: Create release failure issue
         run: |
           gh issue create \
+            --repo "${{ github.repository }}" \
             --title "Release validation failed for ${{ github.event.release.tag_name }}" \
             --body "Release validation failed. Check workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --label "release,ci-failure"
