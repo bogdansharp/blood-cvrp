@@ -77,7 +77,7 @@
 			</summary>
 
 			<ul class="m-0 grid list-none gap-2 pt-3 pl-0">
-				{#each scenario.depots as depot (`${depot.lat}-${depot.lng}`)}
+				{#each scenario.depots as depot, index (index)}
 					<li class="grid gap-0.5 rounded-xl border border-slate-200 bg-white p-2">
 						<strong class="wrap-break-words text-sm text-slate-900">{depot.name}</strong>
 						<span class="wrap-break-words text-sm text-slate-600">
@@ -113,7 +113,7 @@
 			</summary>
 
 			<ul class="m-0 grid list-none gap-2 pt-3 pl-0">
-				{#each scenario.customers as customer (`${customer.lat}-${customer.lng}`)}
+				{#each scenario.customers as customer, index (index)}
 					<li class="grid gap-1 rounded-xl border border-slate-200 bg-white p-2">
 						<div class="flex flex-wrap items-start gap-2">
 							<strong class="wrap-break-words min-w-0 flex-1 text-sm text-slate-900">

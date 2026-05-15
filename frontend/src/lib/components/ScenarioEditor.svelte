@@ -267,7 +267,7 @@
 		</summary>
 
 		<ul class="m-0 grid list-none gap-2 pt-3 pl-0">
-			{#each draft.depots as depot, index (`${depot.lat}-${depot.lng}`)}
+			{#each draft.depots as depot, index (`${depot.lat}-${depot.lng}-${index}`)}
 				<li class="grid gap-2 rounded-xl border border-slate-200 bg-white p-2">
 					<div class="flex items-center justify-between gap-2">
 						<input
@@ -322,7 +322,7 @@
 		</summary>
 
 		<ul class="m-0 grid list-none gap-2 pt-3 pl-0">
-			{#each draft.customers as customer, index (`${customer.lat}-${customer.lng}`)}
+			{#each draft.customers as customer, index (`${customer.lat}-${customer.lng}-${index}`)}
 				<li class="grid gap-2 rounded-xl border border-slate-200 bg-white p-2">
 					<div class="flex items-center justify-between gap-2">
 						<input

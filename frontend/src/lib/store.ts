@@ -710,7 +710,7 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
 
 	const safeFetch = async (url: string, init?: RequestInit): Promise<Response> => {
 		try {
-			return await fetch(url, init);
+			return init === undefined ? await fetch(url) : await fetch(url, init);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Request failed';
 			update((state) => ({ ...state, loading: false, error: message }));
@@ -718,27 +718,42 @@ export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
 		}
 	};
 
+	const errorMessage = (value: unknown): string => {
+		if (typeof value === 'string') return value;
+		if (typeof value === 'number' || typeof value === 'boolean' || typeof value === 'bigint') {
+			return String(value);
+		}
+
+		try {
+			return JSON.stringify(value) || 'Request failed';
+		} catch {
+			return 'Request failed';
+		}
+	};
+
 	const cleanError = async (response: Response): Promise<string> => {
 		const text = await response.text();
 
 		try {
-			const parsed = JSON.parse(text) as { detail?: unknown };
+			const detail = (JSON.parse(text) as { detail?: unknown }).detail;
 
-			if (typeof parsed.detail === 'string') {
-				return parsed.detail;
+			if (Array.isArray(detail)) {
+				return (
+					detail
+						.map((item) =>
+							typeof item === 'object' && item !== null && 'msg' in item
+								? errorMessage(item.msg)
+								: errorMessage(item)
+						)
+						.join('; ') || 'Request failed'
+				);
 			}
 
-			if (Array.isArray(parsed.detail)) {
-				return parsed.detail
-					.map((item) =>
-						typeof item === 'object' && item !== null && 'msg' in item
-							? String((item as { msg: unknown }).msg)
-							: String(item)
-					)
-					.join('; ');
+			if (detail !== undefined) {
+				return errorMessage(detail);
 			}
 		} catch {
-			// use raw text
+			// not JSON
 		}
 
 		return text || 'Request failed';
