@@ -6,6 +6,7 @@ import sys
 import time
 import requests
 from dotenv import load_dotenv
+from backend.src.models import Hospital, Scenario, VehiclePool, Depot
 
 # Allow running this file directly from the repo root.
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -13,8 +14,6 @@ if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
 load_dotenv(os.path.join(REPO_ROOT, ".env"))
-
-from backend.src.models import Hospital, Scenario, VehiclePool, Depot
 
 # =========================================
 #   CONFIG

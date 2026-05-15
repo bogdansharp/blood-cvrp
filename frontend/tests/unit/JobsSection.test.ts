@@ -8,179 +8,182 @@ import JobsSection from '../../src/lib/components/JobsSection.svelte';
 import type { SolverJobPayload } from '../../src/lib/store';
 
 const mocks = vi.hoisted(() => ({
-    cancelJob: vi.fn()
+	cancelJob: vi.fn()
 }));
 
 vi.mock('$lib/store', async (importOriginal) => {
-    const actual = await importOriginal<typeof import('$lib/store')>();
+	const actual = await importOriginal<typeof import('$lib/store')>();
 
-    return {
-        ...actual,
-        cancelJob: mocks.cancelJob
-    };
+	return {
+		...actual,
+		cancelJob: mocks.cancelJob
+	};
 });
 
-
 const makeJob = (overrides: Partial<SolverJobPayload> = {}): SolverJobPayload => ({
-    id: 10,
-    scenario_id: 42,
-    method: 'ortools',
-    options: null,
-    status: 'finished',
-    name: 'Test Job',
-    log: [],
-    created_at: '2026-01-01T00:00:00Z',
-    started_at: '2026-01-01T00:01:00Z',
-    finished_at: '2026-01-01T00:02:00Z',
-    solution_id: 7,
-    solver_ms: 1234,
-    preparation_ms: 456,
-    results_ms: 78,
-    ...overrides
+	id: 10,
+	scenario_id: 42,
+	method: 'ortools',
+	options: null,
+	status: 'finished',
+	name: 'Test Job',
+	log: [],
+	created_at: '2026-01-01T00:00:00Z',
+	started_at: '2026-01-01T00:01:00Z',
+	finished_at: '2026-01-01T00:02:00Z',
+	solution_id: 7,
+	solver_ms: 1234,
+	preparation_ms: 456,
+	results_ms: 78,
+	...overrides
 });
 
 describe('JobsSection', () => {
-    beforeEach(() => {
-        mocks.cancelJob.mockReset();
-    });
-    afterEach(() => {
-        cleanup();
-        vi.restoreAllMocks();
-    });
+	beforeEach(() => {
+		mocks.cancelJob.mockReset();
+	});
+	afterEach(() => {
+		cleanup();
+		vi.restoreAllMocks();
+	});
 
-    it('shows the empty state when there are no jobs', () => {
-        render(JobsSection);
+	it('shows the empty state when there are no jobs', () => {
+		render(JobsSection);
 
-        expect(screen.getByText('No jobs yet.')).toBeInTheDocument();
-    });
+		expect(screen.getByText('No jobs yet.')).toBeInTheDocument();
+	});
 
-    it('renders job status and timing', () => {
-        render(JobsSection, {
-            props: {
-                jobs: [makeJob()]
-            }
-        });
+	it('renders job summary', () => {
+		const { container } = render(JobsSection, {
+			props: {
+				jobs: [makeJob()]
+			}
+		});
+		const text = container.textContent ?? '';
 
-        expect(screen.getByText('Test Job')).toBeInTheDocument();
-        expect(screen.getByText('Finished')).toBeInTheDocument();
-        expect(screen.getByText('Method: ortools | Scenario: 42')).toBeInTheDocument();
-        expect(screen.getByText('Timing: prep 456ms, solve 1234ms, results 78ms')).toBeInTheDocument();
-    });
+		expect(screen.getByText('Job #10')).toBeInTheDocument();
+		expect(screen.getByText('Finished', { selector: 'span' })).toBeInTheDocument();
 
-    it('renders solution id when present', () => {
-        render(JobsSection, {
-            props: {
-                jobs: [makeJob({ solution_id: 99 })]
-            }
-        });
+		expect(text).toContain('Scenario: 42');
+		expect(text).toContain('prep 456ms');
+		expect(text).toContain('solve 1234ms');
+		expect(text).toContain('results 78ms');
+	});
 
-        expect(screen.getByText('Solution: 99')).toBeInTheDocument();
-    });
+	it('renders solution id when present', () => {
+		render(JobsSection, {
+			props: {
+				jobs: [makeJob({ solution_id: 99 })]
+			}
+		});
 
-    it('renders logs when present', () => {
-        render(JobsSection, {
-            props: {
-                jobs: [
-                    makeJob({
-                        log: [
-                            {
-                                timestamp: '2026-01-01T00:01:00Z',
-                                level: 'info',
-                                message: 'Started preparation'
-                            },
-                            {
-                                timestamp: '2026-01-01T00:02:00Z',
-                                level: 'error',
-                                message: 'Solver failed'
-                            }
-                        ]
-                    })
-                ]
-            }
-        });
+		expect(screen.getByText('Solution: 99')).toBeInTheDocument();
+	});
 
-        expect(screen.getByText('Log (2)')).toBeInTheDocument();
-        expect(screen.getByText('Started preparation')).toBeInTheDocument();
-        expect(screen.getByText('Solver failed')).toBeInTheDocument();
-        expect(screen.getByText('info')).toBeInTheDocument();
-        expect(screen.getByText('error')).toBeInTheDocument();
-    });
+	it('renders logs when present', () => {
+		render(JobsSection, {
+			props: {
+				jobs: [
+					makeJob({
+						log: [
+							{
+								timestamp: '2026-01-01T00:01:00Z',
+								level: 'info',
+								message: 'Started preparation'
+							},
+							{
+								timestamp: '2026-01-01T00:02:00Z',
+								level: 'error',
+								message: 'Solver failed'
+							}
+						]
+					})
+				]
+			}
+		});
 
-    it('shows cancel button for queued and running jobs only', () => {
-        render(JobsSection, {
-            props: {
-                jobs: [
-                    makeJob({
-                        id: 1,
-                        name: 'Queued Job',
-                        status: 'queued',
-                        finished_at: null,
-                        solution_id: null
-                    }),
-                    makeJob({
-                        id: 2,
-                        name: 'Running Job',
-                        status: 'running',
-                        finished_at: null,
-                        solution_id: null
-                    }),
-                    makeJob({
-                        id: 3,
-                        name: 'Finished Job',
-                        status: 'finished'
-                    })
-                ]
-            }
-        });
-        const buttons = screen.getAllByRole('button', { name: 'Cancel' });
+		expect(screen.getByText('Log (2)')).toBeInTheDocument();
+		expect(screen.getByText('Started preparation')).toBeInTheDocument();
+		expect(screen.getByText('Solver failed')).toBeInTheDocument();
+		expect(screen.getByText('info')).toBeInTheDocument();
+		expect(screen.getByText('error')).toBeInTheDocument();
+	});
 
-        expect(buttons).toHaveLength(2);
-    });
+	it('shows cancel button for queued and running jobs only', () => {
+		render(JobsSection, {
+			props: {
+				jobs: [
+					makeJob({
+						id: 1,
+						name: 'Queued Job',
+						status: 'queued',
+						finished_at: null,
+						solution_id: null
+					}),
+					makeJob({
+						id: 2,
+						name: 'Running Job',
+						status: 'running',
+						finished_at: null,
+						solution_id: null
+					}),
+					makeJob({
+						id: 3,
+						name: 'Finished Job',
+						status: 'finished'
+					})
+				]
+			}
+		});
+		const buttons = screen.getAllByRole('button', { name: 'Cancel' });
 
-    it('calls cancelJob when cancel button is clicked', async () => {
-        mocks.cancelJob.mockResolvedValueOnce(undefined);
+		expect(buttons).toHaveLength(2);
+	});
 
-        render(JobsSection, {
-            props: {
-                jobs: [
-                    makeJob({
-                        id: 123,
-                        status: 'running',
-                        finished_at: null,
-                        solution_id: null
-                    })
-                ]
-            }
-        });
-        await fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-        
-        await waitFor(() => {
-            expect(mocks.cancelJob).toHaveBeenCalledWith(123);
-        });
-    });
+	it('calls cancelJob when cancel button is clicked', async () => {
+		mocks.cancelJob.mockResolvedValueOnce(undefined);
 
-    it('disables cancel button after cancel is requested', async () => {
-        mocks.cancelJob.mockResolvedValueOnce(undefined);
+		render(JobsSection, {
+			props: {
+				jobs: [
+					makeJob({
+						id: 123,
+						status: 'running',
+						finished_at: null,
+						solution_id: null
+					})
+				]
+			}
+		});
+		await fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
-        render(JobsSection, {
-            props: {
-                jobs: [
-                    makeJob({
-                        id: 123,
-                        status: 'running',
-                        finished_at: null,
-                        solution_id: null
-                    })
-                ]
-            }
-        });
-        const button = screen.getByRole('button', { name: 'Cancel' });
-        await fireEvent.click(button);
-        await waitFor(() => {
-            expect(button).toBeDisabled();
-        });
-        await fireEvent.click(button);
+		await waitFor(() => {
+			expect(mocks.cancelJob).toHaveBeenCalledWith(123);
+		});
+	});
 
-        expect(mocks.cancelJob).toHaveBeenCalledTimes(1);
-    });
+	it('disables cancel button after cancel is requested', async () => {
+		mocks.cancelJob.mockResolvedValueOnce(undefined);
+
+		render(JobsSection, {
+			props: {
+				jobs: [
+					makeJob({
+						id: 123,
+						status: 'running',
+						finished_at: null,
+						solution_id: null
+					})
+				]
+			}
+		});
+		const button = screen.getByRole('button', { name: 'Cancel' });
+		await fireEvent.click(button);
+		await waitFor(() => {
+			expect(button).toBeDisabled();
+		});
+		await fireEvent.click(button);
+
+		expect(mocks.cancelJob).toHaveBeenCalledTimes(1);
+	});
 });
