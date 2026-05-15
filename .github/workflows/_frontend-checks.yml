@@ -1,0 +1,89 @@
+name: Frontend Checks Subworkflow
+
+on:
+  workflow_call:
+    inputs:
+      upload-coverage:
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  frontend:
+    name: Frontend checks Node ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Run full checks on target Node version only
+        # and use other Node versions only for compatibility test/build
+        include:
+          - node-version: "22"
+            full-checks: false
+          - node-version: "24"
+            full-checks: true
+          - node-version: "26"
+            full-checks: false
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Svelte type checking
+      - name: Svelte check
+        if: matrix.full-checks
+        run: npm run check
+
+      # Linting
+      - name: Lint
+        if: matrix.full-checks
+        run: npm run lint
+
+      # Tests
+      - name: Unit tests
+        if: ${{ !matrix.full-checks }}
+        run: npm test
+
+      # Tests with coverage
+      - name: Unit tests with coverage
+        if: matrix.full-checks
+        run: npm run test:coverage
+
+      # Upload frontend coverage
+      - name: Upload frontend coverage
+        if: inputs.upload-coverage && matrix.full-checks
+        uses: actions/upload-artifact@v7
+        with:
+          name: frontend-coverage-${{ github.sha }}
+          path: frontend/coverage
+          if-no-files-found: error
+
+      # Build the frontend
+      - name: Build
+        run: npm run build
+
+      # End-to-end tests
+      - name: Run Playwright E2E tests
+        if: matrix.full-checks
+        run: |
+          npx playwright install --with-deps
+          npm run test:e2e
+
+      # Dependency vulnerability audit
+      - name: Node audit
+        if: matrix.full-checks
+        run: npm audit --audit-level=high

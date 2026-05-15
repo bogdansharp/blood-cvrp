@@ -1,0 +1,11 @@
+{
+  "release-type": "simple",
+  "bootstrap-sha": "48243305bcd005f978dec7f5ca999e78ff69f260",
+  "packages": {
+    ".": {
+      "package-name": "blood-cvrp",
+      "include-component-in-tag": false,
+      "always-link-local": false
+    }
+  }
+}

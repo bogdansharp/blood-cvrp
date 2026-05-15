@@ -1,0 +1,120 @@
+# Fast developer feedback on PRs and pushes to main
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+# Cancel in-progress runs for branch when new commits are pushed
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  # Detect which areas of the codebase were changed 
+  changes:
+    name: Detect changed areas
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      workflows: ${{ steps.filter.outputs.workflows }}
+      dependencies: ${{ steps.filter.outputs.dependencies }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Detect changes
+        id: filter
+        uses: dorny/paths-filter@v4
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            workflows:
+              - '.github/**'
+            dependencies:
+              - 'backend/requirements*.txt'
+              - 'frontend/package.json'
+              - 'frontend/package-lock.json'
+              - '.github/dependabot.yml'
+
+  # Backend checks
+  backend:
+    uses: ./.github/workflows/_backend-checks.yml
+    with:
+      upload-coverage: false
+    needs: changes
+    # Run if backend files or workflow files changed, or if it's a push to main
+    if: needs.changes.outputs.backend == 'true' || needs.changes.outputs.workflows == 'true' || github.ref_name == 'master'
+
+  # Frontend checks
+  frontend:
+    uses: ./.github/workflows/_frontend-checks.yml
+    with:
+      upload-coverage: false
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true' || needs.changes.outputs.workflows == 'true' || github.ref_name == 'master'
+
+  # Dependency review for PRs
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    needs: changes
+    if: github.event_name == 'pull_request' && needs.changes.outputs.dependencies == 'true'
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: high
+
+  # Merge Gate: Ensure all relevant checks have passed
+  required-checks:
+    name: Required checks
+    runs-on: ubuntu-latest
+    needs:
+      - changes
+      - backend
+      - frontend
+      - dependency-review
+    if: always()
+
+    steps:
+      - name: Verify required CI jobs
+        run: |
+          backend_needed="${{ needs.changes.outputs.backend == 'true' || needs.changes.outputs.workflows == 'true' || github.ref_name == 'master' }}"
+          frontend_needed="${{ needs.changes.outputs.frontend == 'true' || needs.changes.outputs.workflows == 'true' || github.ref_name == 'master' }}"
+          dependency_review_needed="${{ github.event_name == 'pull_request' && needs.changes.outputs.dependencies == 'true' }}"
+
+          backend_result="${{ needs.backend.result }}"
+          frontend_result="${{ needs.frontend.result }}"
+          dependency_review_result="${{ needs.dependency-review.result }}"
+
+          echo "backend_needed=$backend_needed result=$backend_result"
+          echo "frontend_needed=$frontend_needed result=$frontend_result"
+          echo "dependency_review_needed=$dependency_review_needed result=$dependency_review_result"
+
+          if [ "$backend_needed" = "true" ] && [ "$backend_result" != "success" ]; then
+            exit 1
+          fi
+
+          if [ "$frontend_needed" = "true" ] && [ "$frontend_result" != "success" ]; then
+            exit 1
+          fi
+
+          if [ "$dependency_review_needed" = "true" ] && [ "$dependency_review_result" != "success" ]; then
+            exit 1
+          fi
