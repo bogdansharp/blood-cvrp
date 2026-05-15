@@ -1,4 +1,4 @@
 fastapi[standard]==0.136.1
 ortools==9.15.6755
-requests==2.33.1
+requests==2.34.2
 pydantic==2.13.3
