@@ -27,8 +27,36 @@ jobs:
     steps:
       - name: Send Teams notification
         run: |
-            curl -H "Content-Type: application/json" \
-                -d "{
-                \"text\": \"${{ inputs.title }}: ${{ inputs.status }}\nEnvironment: ${{ inputs.environment }}\nRelease: ${{ inputs.release_tag }}\nRepository: ${{ github.repository }}\nRun: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
-                }" \
-                "${{ secrets.MS_TEAMS_WEBHOOK_URI }}"
+          jq -n \
+            --arg title "${{ inputs.title }}: ${{ inputs.status }}" \
+            --arg environment "${{ inputs.environment }}" \
+            --arg release "${{ inputs.release_tag }}" \
+            --arg repository "${{ github.repository }}" \
+            --arg run_url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            '{
+              type: "AdaptiveCard",
+              version: "1.4",
+              body: [
+                {
+                  type: "TextBlock",
+                  text: $title,
+                  weight: "Bolder",
+                  size: "Medium",
+                  wrap: true
+                },
+                {
+                  type: "FactSet",
+                  facts: [
+                    { title: "Environment", value: $environment },
+                    { title: "Release", value: $release },
+                    { title: "Repository", value: $repository },
+                    { title: "Run", value: $run_url }
+                  ]
+                }
+              ]
+            }' > payload.json
+
+          curl --fail-with-body --silent --show-error \
+            -H "Content-Type: application/json" \
+            -d @payload.json \
+            "${{ secrets.MS_TEAMS_WEBHOOK_URI }}"
