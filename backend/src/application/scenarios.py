@@ -11,10 +11,10 @@ class ScenarioService:
 
     def list_scenarios(self) -> list[ScenarioReduced]:
         return self._repo.get_all()
-    
+
     def get_scenario(self, id: int) -> Scenario | None:
         return self._repo.get(id)
-    
+
     def create_scenario(self, scenario: Scenario) -> Scenario | None:
         return self._repo.create(scenario)
 

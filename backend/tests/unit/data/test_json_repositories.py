@@ -4,7 +4,6 @@ from backend.src.models import Depot, Hospital, Scenario, VehiclePool
 from backend.src.data.json_repositories.scenario import JSONScenarioRepository
 
 
-
 def dummy_hospital_data(**overrides) -> dict:
     data = {
         "id": 1,
@@ -33,16 +32,14 @@ def make_scenario(id: int = 0, name: str = "Scenario") -> Scenario:
         name=name,
         description="Test scenario",
         vehicles=[VehiclePool(capacity=10, quantity=2)],
-        depots=[
-            make_depot(id=1, name="Depot", lat_e6=53200000, lng_e6=-8300000)
-        ],
-        customers=[
-            make_hospital(id=2, name="Customer", demand=4)
-        ],
+        depots=[make_depot(id=1, name="Depot", lat_e6=53200000, lng_e6=-8300000)],
+        customers=[make_hospital(id=2, name="Customer", demand=4)],
     )
 
 
-def test_scenario_repository_create_assigns_id_and_persists_file(tmp_path: Path) -> None:
+def test_scenario_repository_create_assigns_id_and_persists_file(
+    tmp_path: Path,
+) -> None:
     repo = JSONScenarioRepository(tmp_path)
 
     created = repo.create(make_scenario())
@@ -150,7 +147,9 @@ def test_delete_missing_returns_false(tmp_path: Path) -> None:
     assert repo.delete(-1) is False
 
 
-def test_scenario_repository_initializes_next_id_from_existing_files(tmp_path: Path) -> None:
+def test_scenario_repository_initializes_next_id_from_existing_files(
+    tmp_path: Path,
+) -> None:
     first_repo = JSONScenarioRepository(tmp_path)
     created = first_repo.create(make_scenario())
 

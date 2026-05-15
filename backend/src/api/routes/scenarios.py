@@ -22,13 +22,17 @@ async def get_scenario(
 
 @router.get("/", response_model=list[ScenarioReduced])
 async def list_scenarios(
-    scenario_service: Annotated[ScenarioService, Depends(get_scenario_service)]
+    scenario_service: Annotated[ScenarioService, Depends(get_scenario_service)],
 ):
     scenarios = scenario_service.list_scenarios()
     return scenarios
 
 
-@router.delete("/{scenario_id}", status_code=204, responses={404: {"description": "Scenario not found"}})
+@router.delete(
+    "/{scenario_id}",
+    status_code=204,
+    responses={404: {"description": "Scenario not found"}},
+)
 async def delete_scenario(
     scenario_id: int,
     scenario_service: Annotated[ScenarioService, Depends(get_scenario_service)],
@@ -36,12 +40,15 @@ async def delete_scenario(
     is_deleted = scenario_service.delete_scenario(scenario_id)
     if not is_deleted:
         raise HTTPException(status_code=404)
-    
 
-@router.post("/create", responses={
-    400: {"description": "Invalid request"},
-    500: {"description": "Internal server error"},
-})
+
+@router.post(
+    "/create",
+    responses={
+        400: {"description": "Invalid request"},
+        500: {"description": "Internal server error"},
+    },
+)
 async def create_scenario(
     payload: Scenario,
     scenario_service: Annotated[ScenarioService, Depends(get_scenario_service)],

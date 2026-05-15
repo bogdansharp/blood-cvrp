@@ -62,7 +62,7 @@ class JSONSolutionRepository(SolutionRepository):
             return Solution.model_validate(solution_data)
         except (OSError, ValueError):
             return None
-        
+
     def get_all(self, scenario_id: int | None) -> list[Solution]:
         solutions: list[Solution] = []
         for file in self._dir.glob(f"{self._FILE_PREFIX}*.json"):

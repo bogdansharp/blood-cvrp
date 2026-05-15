@@ -9,10 +9,10 @@ export default defineConfig(({ mode }) => {
 		plugins: [tailwindcss(), sveltekit()],
 		...(isTest
 			? {
-				resolve: {
-					conditions: ['browser', 'development']
+					resolve: {
+						conditions: ['browser', 'development']
+					}
 				}
-			}
 			: {}),
 		test: {
 			expect: { requireAssertions: true },
@@ -20,11 +20,7 @@ export default defineConfig(({ mode }) => {
 				provider: 'v8',
 				reporter: ['text', 'html', 'lcov'],
 				include: ['src/**/*.{ts,svelte}'],
-				exclude: [
-					'src/**/*.d.ts',
-					'src/app.d.ts',
-					'src/app.html'
-				]
+				exclude: ['src/**/*.d.ts', 'src/app.d.ts', 'src/app.html']
 			},
 			projects: [
 				{
@@ -32,14 +28,8 @@ export default defineConfig(({ mode }) => {
 					test: {
 						name: 'server',
 						environment: 'jsdom',
-						include: [
-							'src/**/*.{test,spec}.{js,ts}',
-							'tests/unit/**/*.{test,spec}.{js,ts}'
-						],
-						exclude: [
-							'src/**/*.svelte.{test,spec}.{js,ts}',
-							'tests/e2e/**'
-						]
+						include: ['src/**/*.{test,spec}.{js,ts}', 'tests/unit/**/*.{test,spec}.{js,ts}'],
+						exclude: ['src/**/*.svelte.{test,spec}.{js,ts}', 'tests/e2e/**']
 					}
 				}
 			]

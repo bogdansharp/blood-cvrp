@@ -13,7 +13,11 @@ from backend.src.application.dependencies import (
     get_solution_repository,
 )
 from backend.src.application.models import SolveJobRequest
-from backend.src.data.interfaces import JobRepository, ScenarioRepository, SolutionRepository
+from backend.src.data.interfaces import (
+    JobRepository,
+    ScenarioRepository,
+    SolutionRepository,
+)
 from backend.src.data.routing import RoutingData
 from backend.src.solver.clarke_wright_solver import ClarkeWrightSolver
 from backend.src.solver.errors import CancelledError
@@ -24,30 +28,36 @@ from backend.src.solver.ortools import OrToolsSolver
 from backend.src.solver.job_preparer import JobPreparer
 from backend.src.solver.job_result_mapper import JobResultMapper
 
-    
 
 class JobStateMachine:
-
     _ALLOWED: dict[SolverJobStatus, set[SolverJobStatus]] = {
         SolverJobStatus.QUEUED: {SolverJobStatus.RUNNING, SolverJobStatus.CANCELLED},
-        SolverJobStatus.RUNNING: {SolverJobStatus.FINISHED, SolverJobStatus.FAILED, SolverJobStatus.CANCELLED},
+        SolverJobStatus.RUNNING: {
+            SolverJobStatus.FINISHED,
+            SolverJobStatus.FAILED,
+            SolverJobStatus.CANCELLED,
+        },
         SolverJobStatus.CANCELLED: set(),
         SolverJobStatus.FINISHED: set(),
         SolverJobStatus.FAILED: set(),
     }
 
-    def can_transition(self, from_status: SolverJobStatus, to_status: SolverJobStatus) -> bool:
+    def can_transition(
+        self, from_status: SolverJobStatus, to_status: SolverJobStatus
+    ) -> bool:
         return to_status in self._ALLOWED[from_status]
 
-    def transition(self, from_status: SolverJobStatus, to_status: SolverJobStatus) -> SolverJobStatus:
+    def transition(
+        self, from_status: SolverJobStatus, to_status: SolverJobStatus
+    ) -> SolverJobStatus:
         if self.can_transition(from_status, to_status):
             return to_status
         raise ValueError(f"Invalid state transition from {from_status} to {to_status}")
 
 
-
 class JobService:
-    def __init__(self, 
+    def __init__(
+        self,
         job_repo: JobRepository,
         solution_repo: SolutionRepository,
         executor: JobExecutor,
@@ -67,7 +77,6 @@ class JobService:
         self._job_preparer = job_preparer
         self._job_results = job_results
         self._method_registry = method_registry
-
 
     def submit(self, payload: SolveJobRequest) -> SolverJob:
         created_job = SolverJob(
@@ -94,7 +103,6 @@ class JobService:
         )
         self._executor.submit(persisted_job.id, task)
         return persisted_job
-
 
     def get_job(self, job_id: int) -> SolverJob | None:
         job = self._job_repo.get(job_id)
@@ -138,10 +146,8 @@ class JobService:
         saved_job = self._job_repo.update(job)
         return saved_job
 
-
     def get_jobs(self) -> list[SolverJob]:
         return self._job_repo.get_all()
-
 
     def cancel(self, job_id: int) -> bool:
         job = self.get_job(job_id)
@@ -166,7 +172,6 @@ class JobService:
         cancel_token.set()
         return True
 
-
     def get_result(self, job_id: int) -> Solution:
         job = self.get_job(job_id)
         if job is None:
@@ -177,7 +182,6 @@ class JobService:
         if solution is None:
             raise KeyError(f"Solution not found for job: {job_id}")
         return solution
-
 
     def shutdown(self) -> None:
         self._executor.shutdown()

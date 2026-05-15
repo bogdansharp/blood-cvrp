@@ -7,11 +7,26 @@ from backend.src.application.jobs import JobStateMachine
 def test_allows_expected_transitions() -> None:
     sm = JobStateMachine()
 
-    assert sm.transition(SolverJobStatus.QUEUED, SolverJobStatus.RUNNING) == SolverJobStatus.RUNNING
-    assert sm.transition(SolverJobStatus.QUEUED, SolverJobStatus.CANCELLED) == SolverJobStatus.CANCELLED
-    assert sm.transition(SolverJobStatus.RUNNING, SolverJobStatus.FINISHED) == SolverJobStatus.FINISHED
-    assert sm.transition(SolverJobStatus.RUNNING, SolverJobStatus.FAILED) == SolverJobStatus.FAILED
-    assert sm.transition(SolverJobStatus.RUNNING, SolverJobStatus.CANCELLED) == SolverJobStatus.CANCELLED
+    assert (
+        sm.transition(SolverJobStatus.QUEUED, SolverJobStatus.RUNNING)
+        == SolverJobStatus.RUNNING
+    )
+    assert (
+        sm.transition(SolverJobStatus.QUEUED, SolverJobStatus.CANCELLED)
+        == SolverJobStatus.CANCELLED
+    )
+    assert (
+        sm.transition(SolverJobStatus.RUNNING, SolverJobStatus.FINISHED)
+        == SolverJobStatus.FINISHED
+    )
+    assert (
+        sm.transition(SolverJobStatus.RUNNING, SolverJobStatus.FAILED)
+        == SolverJobStatus.FAILED
+    )
+    assert (
+        sm.transition(SolverJobStatus.RUNNING, SolverJobStatus.CANCELLED)
+        == SolverJobStatus.CANCELLED
+    )
 
 
 def test_rejects_invalid_transition() -> None:

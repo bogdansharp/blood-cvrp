@@ -15,7 +15,12 @@ class CancelEvent:
 
 
 class DummySolver(Solver):
-    def solve(self, solver_input: SolverInput, options: SolveMethodOptions | None, cancel_event):
+    def solve(
+        self,
+        solver_input: SolverInput,
+        options: SolveMethodOptions | None,
+        cancel_event,
+    ):
         return [Route(nodes=[0, 1, 0], demand=1, cost=2, vehicle_capacity=10)]
 
 

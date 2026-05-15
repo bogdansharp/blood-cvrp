@@ -98,7 +98,9 @@ class FakeRegistry:
         return DummySolver
 
 
-def make_request(method: SolveMethod = SolveMethod.CLARKE_WRIGHT_SAVINIGS) -> SolveJobRequest:
+def make_request(
+    method: SolveMethod = SolveMethod.CLARKE_WRIGHT_SAVINIGS,
+) -> SolveJobRequest:
     return SolveJobRequest(
         scenario_id=42,
         method=method,
@@ -179,11 +181,21 @@ def job_service_context():
         method_registry=FakeRegistry(),  # type: ignore[arg-type]
     )
 
-    return service, job_repo, solution_repo, executor, cancel_manager, cancel_event, cancel_tokens
+    return (
+        service,
+        job_repo,
+        solution_repo,
+        executor,
+        cancel_manager,
+        cancel_event,
+        cancel_tokens,
+    )
 
 
 def test_submit_creates_job_cancel_token_and_executor_task(job_service_context) -> None:
-    service, job_repo, _, executor, cancel_manager, cancel_event, cancel_tokens = job_service_context
+    service, job_repo, _, executor, cancel_manager, cancel_event, cancel_tokens = (
+        job_service_context
+    )
 
     job = service.submit(make_request())
 
@@ -244,7 +256,9 @@ def test_get_job_maps_cancelled_result_to_cancelled_status(job_service_context) 
     assert updated.status == SolverJobStatus.CANCELLED
 
 
-def test_cancel_queued_job_updates_status_when_executor_cancels(job_service_context) -> None:
+def test_cancel_queued_job_updates_status_when_executor_cancels(
+    job_service_context,
+) -> None:
     service, job_repo, _, executor, *_ = job_service_context
 
     job = service.submit(make_request())

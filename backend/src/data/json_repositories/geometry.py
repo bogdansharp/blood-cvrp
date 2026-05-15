@@ -9,12 +9,10 @@ class JSONGeometryRepository(GeometryRepository):
 
     _SUB_DIR_NAME = "geometries"
 
-
     def __init__(self, storage_root: str | Path) -> None:
         storage_root_path = Path(storage_root)
         self._dir = storage_root_path / self._SUB_DIR_NAME
         self._dir.mkdir(parents=True, exist_ok=True)
-
 
     def _path_for(
         self,
@@ -25,7 +23,6 @@ class JSONGeometryRepository(GeometryRepository):
     ) -> Path:
         name = f"{src_lat_e6}_{src_lng_e6}_{dst_lat_e6}_{dst_lng_e6}.json"
         return self._dir / name
-
 
     def get(
         self,
@@ -43,7 +40,6 @@ class JSONGeometryRepository(GeometryRepository):
             return [tuple(point) for point in points]
         except (OSError, KeyError, TypeError, ValueError):
             return None
-
 
     def update(
         self,
@@ -63,7 +59,6 @@ class JSONGeometryRepository(GeometryRepository):
             return True
         except OSError:
             return False
-
 
     def delete(
         self,

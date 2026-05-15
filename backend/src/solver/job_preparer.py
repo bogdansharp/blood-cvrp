@@ -9,22 +9,21 @@ from backend.src.solver_options import SolverObjective
 
 
 class JobPreparer:
-  
-    def __init__(self,
+    def __init__(
+        self,
         scenario_repo: ScenarioRepository,
         routing: RoutingData,
     ) -> None:
         self._scenario_repo = scenario_repo
         self._routing = routing
 
-
     def _check_cancelled(self, cancel_event: Any | None) -> None:
         if cancel_event and cancel_event.is_set():
             raise CancelledError("Job was cancelled")
 
-
-    def prepare(self, 
-        scenario_id: int, 
+    def prepare(
+        self,
+        scenario_id: int,
         objective: SolverObjective = SolverObjective.MINIMIZE_TRAVEL_TIME,
         cancel_event: Any | None = None,
     ) -> tuple[SolverInput, Scenario, list[list[tuple[float, float]]]]:

@@ -7,33 +7,29 @@ from backend.src.solver_options import SolveMethodOptions
 
 
 class JobResultMapper:
-  
-    def __init__(self,
+    def __init__(
+        self,
         solution_repo: SolutionRepository,
     ) -> None:
         self._solution_repo = solution_repo
 
-
-    def _get_hospital(self, 
-        idx: int, 
-        scenario: Scenario
-    ) -> Hospital:
+    def _get_hospital(self, idx: int, scenario: Scenario) -> Hospital:
         if idx == 0:
             return scenario.depots[0]
         if idx < 0 or idx > len(scenario.customers):
             raise ValueError(f"Invalid node index: {idx}")
         return scenario.customers[idx - 1]
-    
 
-    def _get_edge(self, 
-        src_idx: int, 
+    def _get_edge(
+        self,
+        src_idx: int,
         dst_idx: int,
         cost_matrix: list[list[tuple[float, float]]],
     ) -> tuple[float, float]:
         return cost_matrix[src_idx][dst_idx]
-    
 
-    def map_result(self, 
+    def map_result(
+        self,
         raw_result: list[Route],
         scenario: Scenario,
         cost_matrix: list[list[tuple[float, float]]],
@@ -68,7 +64,7 @@ class JobResultMapper:
         created_at = datetime.datetime.now(datetime.timezone.utc)
         name = f"{method.value} Solution {created_at.isoformat()}"
         new_solution = Solution(
-            id=0, # to be set by repository
+            id=0,  # to be set by repository
             name=name,
             scenario_id=scenario.id,
             method=method,

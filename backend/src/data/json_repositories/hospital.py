@@ -62,7 +62,7 @@ class JSONHospitalRepository(HospitalRepository):
             return Hospital.model_validate(hospital_data)
         except (OSError, ValueError):
             return None
-        
+
     def get_all(self) -> list[Hospital]:
         hospitals = []
         for file in self._dir.glob(f"{self._FILE_PREFIX}*.json"):

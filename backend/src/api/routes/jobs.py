@@ -36,10 +36,13 @@ async def get_job(
     return job
 
 
-@router.post("/run/{scenario_id}", responses={
-    400: {"description": "Invalid request"},
-    500: {"description": "Internal server error"},
-})
+@router.post(
+    "/run/{scenario_id}",
+    responses={
+        400: {"description": "Invalid request"},
+        500: {"description": "Internal server error"},
+    },
+)
 async def run_job(
     scenario_id: int,
     method: SolveMethod,
@@ -54,8 +57,8 @@ async def run_job(
 ) -> SolverJob:
     time_limit_sec = settings.solver_hard_time_limit_sec
     options = SolveMethodOptions(
-        cost_limit=cost_limit, 
-        objective=objective, 
+        cost_limit=cost_limit,
+        objective=objective,
         time_limit_sec=time_limit_sec,
         or_balance_routes=or_balance_routes,
         or_first_solution_strategy=or_first_solution,
@@ -72,7 +75,11 @@ async def run_job(
     return job
 
 
-@router.post("/cancel/{job_id}", status_code=204, responses={404: {"description": "Job cannot be cancelled"}})
+@router.post(
+    "/cancel/{job_id}",
+    status_code=204,
+    responses={404: {"description": "Job cannot be cancelled"}},
+)
 async def cancel_job(
     job_id: int,
     job_service: Annotated[JobService, Depends(get_job_service)],
@@ -80,4 +87,3 @@ async def cancel_job(
     is_cancelled = job_service.cancel(job_id)
     if not is_cancelled:
         raise HTTPException(status_code=404)
-

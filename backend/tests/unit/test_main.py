@@ -21,8 +21,9 @@ class DummyExecutor:
 
 
 class DummyRoutingProvider:
-    def __init__(self, 
-        ors_api_key: str, 
+    def __init__(
+        self,
+        ors_api_key: str,
         ors_base_url: str,
         ors_profile: str,
         max_snap_dist: int,
@@ -31,7 +32,6 @@ class DummyRoutingProvider:
         self.ors_base_url = ors_base_url
         self.ors_profile = ors_profile
         self.max_snap_dist = max_snap_dist
-
 
 
 class DummyRoutingData:
@@ -49,8 +49,13 @@ def patch_lifespan_dependencies(monkeypatch, tmp_path: Path) -> None:
         ors_base_url="https://atu.ie/ors",
     )
 
-    repos = SimpleNamespace(scenarios=object(), jobs=object(), geometries=object(), 
-        distances=object(), hospitals=object(), solutions=object(),
+    repos = SimpleNamespace(
+        scenarios=object(),
+        jobs=object(),
+        geometries=object(),
+        distances=object(),
+        hospitals=object(),
+        solutions=object(),
     )
 
     monkeypatch.setattr(main_module, "load_settings", lambda project_root: settings)

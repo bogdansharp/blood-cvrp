@@ -62,7 +62,7 @@ class JSONJobRepository(JobRepository):
             return SolverJob.model_validate(job_data)
         except (OSError, ValueError):
             return None
-        
+
     def get_all(self) -> list[SolverJob]:
         jobs = []
         for file in self._dir.glob(f"{self._FILE_PREFIX}*.json"):

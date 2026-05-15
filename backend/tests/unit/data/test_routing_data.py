@@ -15,7 +15,9 @@ class FakeDistanceRepo:
         self.cached = cached
         self.update_result = update_result
         self.get_calls: list[tuple[int, int, list[tuple[int, int]]]] = []
-        self.update_calls: list[tuple[int, int, list[tuple[int, int, float, float]]]] = []
+        self.update_calls: list[
+            tuple[int, int, list[tuple[int, int, float, float]]]
+        ] = []
 
     def get(
         self,
@@ -189,7 +191,9 @@ def test_edges_provider_empty_edge_raises() -> None:
         routing.get_edges(1, 1, [(2, 2)])
 
 
-def test_edges_update_failure_logs_warning_but_returns_result(caplog: pytest.LogCaptureFixture) -> None:
+def test_edges_update_failure_logs_warning_but_returns_result(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
     dist_repo = FakeDistanceRepo(update_result=False)
     geom_repo = FakeGeometryRepo()
     provider = FakeRoutingProvider(edges=[(100.0, 10.0)])

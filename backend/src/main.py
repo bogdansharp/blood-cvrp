@@ -39,15 +39,15 @@ async def lifespan(app: FastAPI):
         level=logging.INFO,
         format="%(levelname)s:%(name)s:%(message)s",
     )
-    
-    settings: Settings = load_settings(
-        project_root=Path(__file__).resolve().parents[2]
-    )
+
+    settings: Settings = load_settings(project_root=Path(__file__).resolve().parents[2])
     max_prep_workers = max(1, (os.cpu_count() or 2) - 1)
     max_solver_workers = max_prep_workers // 2 or 1
 
     app.state.settings = settings
-    app.state.executor = JobExecutor(max_solvers=max_solver_workers, max_preparation=max_prep_workers)
+    app.state.executor = JobExecutor(
+        max_solvers=max_solver_workers, max_preparation=max_prep_workers
+    )
     app.state.jobs = {}
     app.state.lock = threading.Lock()
     app.state.job_subscribers = {}
@@ -67,7 +67,9 @@ async def lifespan(app: FastAPI):
 
     frontend_build = Path("frontend/build")
     if frontend_build.exists():
-        app.mount("/", StaticFiles(directory=frontend_build, html=True), name="frontend")
+        app.mount(
+            "/", StaticFiles(directory=frontend_build, html=True), name="frontend"
+        )
 
     try:
         yield

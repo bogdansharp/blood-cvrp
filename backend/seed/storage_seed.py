@@ -6,6 +6,7 @@ import sys
 import time
 import requests
 from dotenv import load_dotenv
+from backend.src.models import Hospital, Scenario, VehiclePool, Depot
 
 # Allow running this file directly from the repo root.
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -13,8 +14,6 @@ if REPO_ROOT not in sys.path:
     sys.path.insert(0, REPO_ROOT)
 
 load_dotenv(os.path.join(REPO_ROOT, ".env"))
-
-from backend.src.models import Hospital, Scenario, VehiclePool, Depot
 
 # =========================================
 #   CONFIG
@@ -37,9 +36,132 @@ MATRIX_URL = f"{ORS_BASE_URL}/v2/matrix/{PROFILE}"
 SLEEP_BETWEEN_CALLS_SEC = 1
 CALL_TIMEOUT_SEC = 120
 
-mean_demand = {3: 3, 7: 3, 8: 4, 9: 6, 10: 18, 13: 5, 14: 6, 15: 7, 16: 5, 17: 4, 24: 7, 25: 2, 26: 9, 29: 9, 30: 11, 32: 20, 33: 10, 34: 2, 42: 4, 45: 5, 46: 5, 47: 18, 49: 5, 52: 2, 55: 4, 57: 13, 62: 4, 64: 17, 65: 5, 66: 14, 67: 11, 68: 8, 69: 7, 70: 7, 73: 4, 76: 7, 77: 11, 78: 2, 80: 4, 82: 12, 84: 10, 85: 4, 86: 2, 87: 8, 90: 4, 91: 9, 94: 1, 96: 3, 97: 22, 102: 1, 105: 5, 109: 14, 110: 5, 111: 5, 112: 1, 113: 3, 114: 6, 115: 7, 116: 1, 117: 18, 118: 1, 119: 3, 122: 17, 123: 9, 124: 4, 126: 8, 127: 19, 128: 15, 129: 8, 130: 6, 131: 3}
+mean_demand = {
+    3: 3,
+    7: 3,
+    8: 4,
+    9: 6,
+    10: 18,
+    13: 5,
+    14: 6,
+    15: 7,
+    16: 5,
+    17: 4,
+    24: 7,
+    25: 2,
+    26: 9,
+    29: 9,
+    30: 11,
+    32: 20,
+    33: 10,
+    34: 2,
+    42: 4,
+    45: 5,
+    46: 5,
+    47: 18,
+    49: 5,
+    52: 2,
+    55: 4,
+    57: 13,
+    62: 4,
+    64: 17,
+    65: 5,
+    66: 14,
+    67: 11,
+    68: 8,
+    69: 7,
+    70: 7,
+    73: 4,
+    76: 7,
+    77: 11,
+    78: 2,
+    80: 4,
+    82: 12,
+    84: 10,
+    85: 4,
+    86: 2,
+    87: 8,
+    90: 4,
+    91: 9,
+    94: 1,
+    96: 3,
+    97: 22,
+    102: 1,
+    105: 5,
+    109: 14,
+    110: 5,
+    111: 5,
+    112: 1,
+    113: 3,
+    114: 6,
+    115: 7,
+    116: 1,
+    117: 18,
+    118: 1,
+    119: 3,
+    122: 17,
+    123: 9,
+    124: 4,
+    126: 8,
+    127: 19,
+    128: 15,
+    129: 8,
+    130: 6,
+    131: 3,
+}
 default_demand = 2
-munster_ids = {43, 19, 42, 88, 80, 127, 59, 129, 8, 114, 83, 34, 111, 104, 93, 131, 128, 39, 132, 71, 44, 62, 74, 50, 72, 61, 81, 60, 53, 35, 126, 17, 20, 51, 100, 7, 106, 108, 41, 28, 6, 56, 124, 31, 110, 67, 14, 32, 33, 125}
+munster_ids = {
+    43,
+    19,
+    42,
+    88,
+    80,
+    127,
+    59,
+    129,
+    8,
+    114,
+    83,
+    34,
+    111,
+    104,
+    93,
+    131,
+    128,
+    39,
+    132,
+    71,
+    44,
+    62,
+    74,
+    50,
+    72,
+    61,
+    81,
+    60,
+    53,
+    35,
+    126,
+    17,
+    20,
+    51,
+    100,
+    7,
+    106,
+    108,
+    41,
+    28,
+    6,
+    56,
+    124,
+    31,
+    110,
+    67,
+    14,
+    32,
+    33,
+    125,
+}
 
 # =========================================
 #   LOAD DATA
@@ -50,16 +172,33 @@ if not API_KEY:
 
 points: dict[int, Hospital] = {}
 
+
 def coord_float_to_e6(coord: float) -> int:
     return round(coord * 1e6)
+
 
 def address_combined(*components: str) -> str:
     return ", ".join([c for c in components if c and c.strip()])
 
+
 with open(INPUT_CSV, encoding="utf-8-sig") as csv_file:
     reader = csv.DictReader(csv_file)
-    required_cols = {"OBJECTID", "POINT_X", "POINT_Y", "category", "subcategory", "name", "address1", "address2", "address3", "address4", "Eircode"}
-    assert reader.fieldnames is not None
+    required_cols = {
+        "OBJECTID",
+        "POINT_X",
+        "POINT_Y",
+        "category",
+        "subcategory",
+        "name",
+        "address1",
+        "address2",
+        "address3",
+        "address4",
+        "Eircode",
+    }
+    if reader.fieldnames is None:
+        raise ValueError(f"{csv_file} is missing a header row")
+
     for col in reader.fieldnames:
         if col in required_cols:
             required_cols.remove(col)
@@ -69,7 +208,9 @@ with open(INPUT_CSV, encoding="utf-8-sig") as csv_file:
         point_id = int(row["OBJECTID"])
         lng_e6 = coord_float_to_e6(float(row["POINT_X"]))
         lat_e6 = coord_float_to_e6(float(row["POINT_Y"]))
-        adr = address_combined(row["address1"], row["address2"], row["address3"], row["address4"])
+        adr = address_combined(
+            row["address1"], row["address2"], row["address3"], row["address4"]
+        )
         points[point_id] = Hospital(
             id=point_id,
             lat_e6=lat_e6,
@@ -88,7 +229,9 @@ ids = sorted(points.keys())
 print(f"Loaded {len(points)} locations")
 
 if len(points) != INPUT_CSV_ROWS:
-    print(f"Warning: Expected {INPUT_CSV_ROWS} rows in {INPUT_CSV}, but found {len(points)}")
+    print(
+        f"Warning: Expected {INPUT_CSV_ROWS} rows in {INPUT_CSV}, but found {len(points)}"
+    )
 
 
 # =========================================
@@ -114,25 +257,24 @@ print(f"Will make {BATCH_COUNT * (BATCH_COUNT - 1) // 2} calls to API")
 call_idx = 1
 for i1 in range(BATCH_COUNT - 1):
     for i2 in range(i1 + 1, BATCH_COUNT):
-        batch1_ids = ids[i1 * BATCH_SIZE: min(N_POINTS, (i1 + 1) * BATCH_SIZE)]
-        batch2_ids = ids[i2 * BATCH_SIZE: min(N_POINTS, (i2 + 1) * BATCH_SIZE)]
+        batch1_ids = ids[i1 * BATCH_SIZE : min(N_POINTS, (i1 + 1) * BATCH_SIZE)]
+        batch2_ids = ids[i2 * BATCH_SIZE : min(N_POINTS, (i2 + 1) * BATCH_SIZE)]
         batch_full = batch1_ids + batch2_ids
         print(f"{call_idx}. Requesting batch {i1}_{i2} of size {len(batch_full)}")
-        headers = {
-            "Authorization": API_KEY,
-            "Content-Type": "application/json"
-        }
+        headers = {"Authorization": API_KEY, "Content-Type": "application/json"}
         locations = []
         for point_id in batch_full:
             point = points[point_id]
             locations.append([point.lng_e6 / 1e6, point.lat_e6 / 1e6])
         payload = {
-            "locations":            locations,
-            "metrics":              ["distance", "duration"],
-            "units":                "m",        # distance in metres
-            "resolve_locations":    False
+            "locations": locations,
+            "metrics": ["distance", "duration"],
+            "units": "m",  # distance in metres
+            "resolve_locations": False,
         }
-        response = requests.post(MATRIX_URL, headers=headers, json=payload, timeout=CALL_TIMEOUT_SEC)
+        response = requests.post(
+            MATRIX_URL, headers=headers, json=payload, timeout=CALL_TIMEOUT_SEC
+        )
 
         if response.status_code != 200:
             raise RuntimeError(
@@ -147,10 +289,14 @@ for i1 in range(BATCH_COUNT - 1):
         n = len(distances)
         n_expected = len(batch_full)
         if n == 0 or n != len(distances[0]) or n != n_expected:
-            raise RuntimeError(f"Unexpected distance matrix size: {len(distances)}x{len(distances[0])}, expected {n_expected}x{n_expected}")
+            raise RuntimeError(
+                f"Unexpected distance matrix size: {len(distances)}x{len(distances[0])}, expected {n_expected}x{n_expected}"
+            )
         durations = data["durations"]
         if n != len(durations) or n != len(durations[0]):
-            raise RuntimeError(f"Unexpected duration matrix size: {len(durations)}x{len(durations[0])}, expected {n_expected}x{n_expected}")
+            raise RuntimeError(
+                f"Unexpected duration matrix size: {len(durations)}x{len(durations[0])}, expected {n_expected}x{n_expected}"
+            )
         for i, src_id in enumerate(batch_full):
             for j, dst_id in enumerate(batch_full):
                 if i == j:
@@ -169,7 +315,6 @@ for i1 in range(BATCH_COUNT - 1):
         time.sleep(SLEEP_BETWEEN_CALLS_SEC)
 
 
-
 # ========================================
 #  PREPARE SCENARIOS
 # ========================================
@@ -185,13 +330,15 @@ scenarios = []
 if depot1_hospital is None:
     print(f"Error: Depot hospital with id {depot_id1} not found")
 else:
-    depot1 = Depot.model_validate({
-        **depot1_hospital.model_dump(),
-        "id": 0,
-        "category": "Depot",
-        "name": "National Blood Centre",
-        "demand": 0,
-    })
+    depot1 = Depot.model_validate(
+        {
+            **depot1_hospital.model_dump(),
+            "id": 0,
+            "category": "Depot",
+            "name": "National Blood Centre",
+            "demand": 0,
+        }
+    )
     # FULL Scenario
     full_scenario = Scenario(
         id=1,
@@ -199,7 +346,7 @@ else:
         description="Scenario containing all hospitals from the dataset.",
         vehicles=[vehicles],
         depots=[depot1],
-        customers=[points[id] for id in ids if id in points]    
+        customers=[points[id] for id in ids if id in points],
     )
     scenarios.append(full_scenario)
     # FULL Filtered Scenario
@@ -210,7 +357,7 @@ else:
         description="Scenario containing filtered hospitals from the dataset.",
         vehicles=[vehicles],
         depots=[depot1],
-        customers=[points[id] for id in flt_ids if id in points]    
+        customers=[points[id] for id in flt_ids if id in points],
     )
     scenarios.append(full_flt_scenario)
     # FULL Scenario Except Munster
@@ -221,7 +368,7 @@ else:
         description="Scenario containing all hospitals except those in Munster.",
         vehicles=[vehicles],
         depots=[depot1],
-        customers=[points[id] for id in main_ids if id in points]    
+        customers=[points[id] for id in main_ids if id in points],
     )
     scenarios.append(main_scenario)
     # Filtered Scenario Except Munster
@@ -232,20 +379,22 @@ else:
         description="Scenario containing a filtered set of hospitals.",
         vehicles=[vehicles],
         depots=[depot1],
-        customers=[points[id] for id in main_flt_ids if id in points]
+        customers=[points[id] for id in main_flt_ids if id in points],
     )
     scenarios.append(main_flt_scenario)
 
 if depot2_hospital is None:
     print(f"Error: Depot hospital with id {depot_id2} not found")
 else:
-    depot2 = Depot.model_validate({
-        **depot2_hospital.model_dump(),
-        "id": 0,
-        "category": "Depot",
-        "name": "Munster Regional Transfusion Centre",
-        "demand": 0,
-    })
+    depot2 = Depot.model_validate(
+        {
+            **depot2_hospital.model_dump(),
+            "id": 0,
+            "category": "Depot",
+            "name": "Munster Regional Transfusion Centre",
+            "demand": 0,
+        }
+    )
     # Munster Scenario
     munster_scenario = Scenario(
         id=5,
@@ -253,7 +402,7 @@ else:
         description="Scenario containing all hospitals in Munster.",
         vehicles=[vehicles],
         depots=[depot2],
-        customers=[points[id] for id in munster_ids if id in points]    
+        customers=[points[id] for id in munster_ids if id in points],
     )
     scenarios.append(munster_scenario)
     # Munster Filtered Scenario
@@ -264,7 +413,7 @@ else:
         description="Scenario containing a filtered set of hospitals in Munster.",
         vehicles=[vehicles],
         depots=[depot2],
-        customers=[points[id] for id in munster_flt_ids if id in points]
+        customers=[points[id] for id in munster_flt_ids if id in points],
     )
     scenarios.append(munster_flt_scenario)
 
@@ -288,7 +437,7 @@ for point_id, hospital in points.items():
             hospital_json = hospital.model_dump_json(indent=2)
             out_file.write(hospital_json)
             success_count += 1
-        except Exception as e:            
+        except Exception as e:
             print(f"Error saving hospital {point_id} to {out_path}: {e}")
             fail_count += 1
 print(f"Finished saving hospitals. Success: {success_count}, Fail: {fail_count}")
@@ -310,18 +459,20 @@ success_count, fail_count = 0, 0
 #                 success_count += 1
 #             except Exception as e:
 #                 print(f"Error saving distance from {src_id} to {dst_id} to {name}: {e}")
-#                 fail_count += 1               
+#                 fail_count += 1
 for src_id, src in points.items():
     edges = []
     for dst_id, dst in points.items():
         if src_id == dst_id:
             continue
-        edges.append({
-            "dst_lat_e6": dst.lat_e6,
-            "dst_lng_e6": dst.lng_e6,
-            "distance": dist_matrix[idx_lookup[src_id]][idx_lookup[dst_id]],
-            "travel_time": time_matrix[idx_lookup[src_id]][idx_lookup[dst_id]],
-        })
+        edges.append(
+            {
+                "dst_lat_e6": dst.lat_e6,
+                "dst_lng_e6": dst.lng_e6,
+                "distance": dist_matrix[idx_lookup[src_id]][idx_lookup[dst_id]],
+                "travel_time": time_matrix[idx_lookup[src_id]][idx_lookup[dst_id]],
+            }
+        )
     name = f"{src.lat_e6}_{src.lng_e6}.json"
     with open(f"{DISTANCES_DIR}/{name}", "w", encoding="utf-8") as out_file:
         try:

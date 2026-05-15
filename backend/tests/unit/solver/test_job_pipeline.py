@@ -1,6 +1,13 @@
 from typing import Any
 
-from backend.src.models import Depot, Hospital, Scenario, Solution, SolveMethod, VehiclePool
+from backend.src.models import (
+    Depot,
+    Hospital,
+    Scenario,
+    Solution,
+    SolveMethod,
+    VehiclePool,
+)
 from backend.src.application.models import SolveJobRequest
 from backend.src.solver.errors import CancelledError, SolverFailedError
 from backend.src.solver.job_pipeline import JobPipeline
@@ -26,11 +33,23 @@ class FakePreparer:
 
 
 class FakeExecutor:
-    def __init__(self, result: list[Route] | None = None, error: Exception | None = None) -> None:
-        self.result = result if result is not None else [Route([0, 1, 0], demand=2, cost=20, vehicle_capacity=10)]
+    def __init__(
+        self, result: list[Route] | None = None, error: Exception | None = None
+    ) -> None:
+        self.result = (
+            result
+            if result is not None
+            else [Route([0, 1, 0], demand=2, cost=20, vehicle_capacity=10)]
+        )
         self.error = error
 
-    def run_solver(self, solver_cls: Any, solver_input: SolverInput, options: SolveMethodOptions | None, cancel_event: Any):
+    def run_solver(
+        self,
+        solver_cls: Any,
+        solver_input: SolverInput,
+        options: SolveMethodOptions | None,
+        cancel_event: Any,
+    ):
         if self.error is not None:
             raise self.error
         return self.result
@@ -155,7 +174,9 @@ def test_cancelled_before_start_returns_none() -> None:
 
 
 def test_preparation_cancelled_returns_cancelled_result() -> None:
-    result = make_pipeline(preparer=FakePreparer(CancelledError("cancelled"))).__call__()
+    result = make_pipeline(
+        preparer=FakePreparer(CancelledError("cancelled"))
+    ).__call__()
 
     assert result is not None
     assert result.cancelled is True
@@ -171,7 +192,9 @@ def test_preparation_error_returns_failed_result() -> None:
 
 
 def test_solver_failed_error_returns_failed_result() -> None:
-    result = make_pipeline(executor=FakeExecutor(error=SolverFailedError("no solution"))).__call__()
+    result = make_pipeline(
+        executor=FakeExecutor(error=SolverFailedError("no solution"))
+    ).__call__()
 
     assert result is not None
     assert result.failed is True
@@ -179,7 +202,9 @@ def test_solver_failed_error_returns_failed_result() -> None:
 
 
 def test_solver_cancelled_returns_cancelled_result() -> None:
-    result = make_pipeline(executor=FakeExecutor(error=CancelledError("cancelled"))).__call__()
+    result = make_pipeline(
+        executor=FakeExecutor(error=CancelledError("cancelled"))
+    ).__call__()
 
     assert result is not None
     assert result.cancelled is True

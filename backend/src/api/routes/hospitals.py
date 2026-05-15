@@ -22,13 +22,17 @@ async def get_hospital(
 
 @router.get("/", response_model=list[Hospital])
 async def list_hospitals(
-    hospital_service: Annotated[HospitalService, Depends(get_hospital_service)]
+    hospital_service: Annotated[HospitalService, Depends(get_hospital_service)],
 ):
     hospitals = hospital_service.list_hospitals()
     return hospitals
 
 
-@router.delete("/{hospital_id}", status_code=204, responses={404: {"description": "Hospital not found"}})
+@router.delete(
+    "/{hospital_id}",
+    status_code=204,
+    responses={404: {"description": "Hospital not found"}},
+)
 async def delete_hospital(
     hospital_id: int,
     hospital_service: Annotated[HospitalService, Depends(get_hospital_service)],

@@ -29,7 +29,11 @@ async def list_solutions(
     return solutions
 
 
-@router.delete("/{solution_id}", status_code=204, responses={404: {"description": "Solution not found"}})
+@router.delete(
+    "/{solution_id}",
+    status_code=204,
+    responses={404: {"description": "Solution not found"}},
+)
 async def delete_solution(
     solution_id: int,
     solution_service: Annotated[SolutionService, Depends(get_solution_service)],

@@ -18,6 +18,7 @@ from backend.src.models import (
     VehiclePool,
 )
 
+
 def dummy_hospital_data(**overrides) -> dict:
     data = {
         "id": 1,
@@ -31,8 +32,10 @@ def dummy_hospital_data(**overrides) -> dict:
     data.update(overrides)
     return data
 
+
 def make_hospital(**overrides) -> Hospital:
     return Hospital(**dummy_hospital_data(**overrides))
+
 
 def make_depot(**overrides) -> Depot:
     return Depot(**dummy_hospital_data(**overrides))
