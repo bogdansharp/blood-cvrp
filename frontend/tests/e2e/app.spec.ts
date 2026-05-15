@@ -142,7 +142,21 @@ const fulfillJson = async (route: Route, body: unknown, status = 200) => {
 	});
 };
 
-const mockBaseBackend = async (page: Page) => {
+const mockBaseBackend = async (page: Page, unexpectedApiRequests: string[] = []) => {
+	await page.route(`${apiBase}/**`, async (route) => {
+		const request = route.request();
+
+		unexpectedApiRequests.push(`${request.method()} ${request.url()}`);
+
+		await fulfillJson(
+			route,
+			{
+				detail: `Unexpected API request: ${request.method()} ${request.url()}`
+			},
+			500
+		);
+	});
+
 	await page.route(`${apiBase}/scenarios`, async (route) => {
 		await fulfillJson(route, [scenarioReduced]);
 	});
@@ -157,6 +171,17 @@ const mockBaseBackend = async (page: Page) => {
 
 	await page.route(
 		(url) => url.href === `${apiBase}/jobs` || url.href.startsWith(`${apiBase}/jobs?`),
+		async (route) => {
+			await fulfillJson(route, []);
+		}
+	);
+
+	await page.route(
+		(url) =>
+			url.href === `${apiBase}/solutions` ||
+			url.href === `${apiBase}/solutions/` ||
+			url.href.startsWith(`${apiBase}/solutions?`) ||
+			url.href.startsWith(`${apiBase}/solutions/?`),
 		async (route) => {
 			await fulfillJson(route, []);
 		}
