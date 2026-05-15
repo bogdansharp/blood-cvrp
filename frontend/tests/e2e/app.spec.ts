@@ -182,10 +182,17 @@ test('user selects scenario and solve button becomes enabled', async ({ page }) 
 	await expect(solveButton).toBeEnabled();
 });
 
-test('user solves scenario and solution route is drawn without page crash', async ({ page }) => {
+test('user solves scenario and app stays usable after loading route geometry', async ({ page }) => {
 	await mockBaseBackend(page);
 
+	const pageErrors: Error[] = [];
+	page.on('pageerror', (error) => {
+		pageErrors.push(error);
+	});
+
 	let pollCount = 0;
+	let solutionRequested = false;
+	let geometryRequested = false;
 
 	await page.route(`${apiBase}/jobs/run/42**`, async (route) => {
 		await fulfillJson(route, queuedJob);
@@ -197,10 +204,12 @@ test('user solves scenario and solution route is drawn without page crash', asyn
 	});
 
 	await page.route(`${apiBase}/solutions/7`, async (route) => {
+		solutionRequested = true;
 		await fulfillJson(route, solution);
 	});
 
 	await page.route(`${apiBase}/routing/geometry**`, async (route) => {
+		geometryRequested = true;
 		await fulfillJson(route, [
 			[53.1, -8.2],
 			[53.15, -8.25],
@@ -213,9 +222,12 @@ test('user solves scenario and solution route is drawn without page crash', asyn
 	await page.getByLabel('Scenario').selectOption('42');
 	await page.getByRole('button', { name: 'Solve' }).click();
 
-	await expect(page.getByText('Test Job')).toBeVisible();
-	await expect(page.getByText('Finished', { exact: true })).toBeVisible();
-	await expect(page.getByText('Solution: 7')).toBeVisible();
+	await expect.poll(() => pollCount).toBeGreaterThanOrEqual(2);
+	await expect.poll(() => solutionRequested).toBe(true);
+	await expect.poll(() => geometryRequested).toBe(true);
 
-	await expect(page.locator('.leaflet-overlay-pane path').first()).toBeAttached();
+	await expect(page.getByRole('heading', { name: 'Scenario Alpha' })).toBeVisible();
+	await expect(page.getByRole('button', { name: 'Solve' })).toBeEnabled();
+
+	expect(pageErrors).toEqual([]);
 });

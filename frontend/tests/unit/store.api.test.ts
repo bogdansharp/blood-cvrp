@@ -314,7 +314,7 @@ describe('store API/state logic', () => {
 		fetchMock.mockResolvedValueOnce({
 			ok: true,
 			text: vi.fn()
-		} as unknown as Response);
+		});
 
 		await cancelJob(123, apiBase);
 
@@ -325,7 +325,7 @@ describe('store API/state logic', () => {
 		fetchMock.mockResolvedValueOnce({
 			ok: false,
 			text: vi.fn().mockResolvedValue('Cannot cancel job')
-		} as unknown as Response);
+		});
 
 		await expect(cancelJob(123, apiBase)).rejects.toThrow('Cannot cancel job');
 	});
