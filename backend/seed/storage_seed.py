@@ -196,7 +196,9 @@ with open(INPUT_CSV, encoding="utf-8-sig") as csv_file:
         "address4",
         "Eircode",
     }
-    assert reader.fieldnames is not None
+    if reader.fieldnames is None:
+        raise ValueError(f"{csv_file} is missing a header row")
+    
     for col in reader.fieldnames:
         if col in required_cols:
             required_cols.remove(col)

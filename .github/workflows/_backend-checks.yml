@@ -44,7 +44,7 @@ jobs:
 
       # Security Static Analysis
       - name: Bandit security scan
-        run: bandit -r . -x tests
+        run: bandit -r . --exclude "./tests"
 
       # Dependency vulnerability audit
       - name: Dependency audit
