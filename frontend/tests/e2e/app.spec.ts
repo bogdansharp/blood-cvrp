@@ -154,6 +154,13 @@ const mockBaseBackend = async (page: Page) => {
 	await page.route(`${apiBase}/scenarios/42`, async (route) => {
 		await fulfillJson(route, scenario);
 	});
+
+	await page.route(
+		(url) => url.href === `${apiBase}/jobs` || url.href.startsWith(`${apiBase}/jobs?`),
+		async (route) => {
+			await fulfillJson(route, []);
+		}
+	);
 };
 
 test('home page loads', async ({ page }) => {
