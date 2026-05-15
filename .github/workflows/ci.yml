@@ -4,19 +4,9 @@ name: CI
 on:
   pull_request:
     branches: [master]
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
   push:
     branches:
       - master
-      - "feature/**"
-      - "feat/**"
-      - "fix/**"
-      - "devops/**"
-    paths-ignore:
-      - "**/*.md"
-      - "docs/**"
   workflow_dispatch:
 
 permissions:
