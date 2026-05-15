@@ -124,28 +124,15 @@ jobs:
           format: spdx-json
           output-file: release/sbom.spdx.json
 
-      - name: Upload release assets
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release upload "${{ github.event.release.tag_name }}" release/* --clobber
-
       - name: Add Docker image URI to release notes
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.event.release.tag_name }}
           IMAGE_URI: ${{ steps.image.outputs.image-digest }}
         run: |
-          gh release view "$TAG" --json body -q .body > release-notes.md
-          cat >> release-notes.md <<EOF
-          ## Deployment artifact
-          Docker image:
-          \`\`\`
-          $IMAGE_URI
-          \`\`\`
-          SBOM file is attached to this release.
-          EOF
-          gh release edit "$TAG" --notes-file release-notes.md
+          gh release edit "$TAG" \
+            --repo "${{ github.repository }}" \
+            --notes "Docker image: [https://${IMAGE_URI}](https://${IMAGE_URI})"
 
   # Trigger CD workflow after successful release
   trigger-cd:
