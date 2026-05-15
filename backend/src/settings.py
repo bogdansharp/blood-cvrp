@@ -9,7 +9,7 @@ class EnvironmentType(str, Enum):
     DEVELOPMENT = "development"
     PRODUCTION = "production"
     STAGING = "staging"
-    TEST = "test"
+    TEST = "test2"
 
 
 class Settings(BaseSettings):
