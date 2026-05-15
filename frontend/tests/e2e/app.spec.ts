@@ -1,6 +1,6 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 
-const apiBase = 'http://localhost:8000/api/v1';
+const apiBase = '/api/v1';
 
 const scenarioReduced = {
 	id: 42,

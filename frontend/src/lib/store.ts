@@ -211,10 +211,7 @@ export const jobStatusLabel = (status: JobStatus): string => {
 	return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
-export const cancelJob = async (
-	jobId: number,
-	apiBase: string = 'http://localhost:8000/api/v1'
-): Promise<void> => {
+export const cancelJob = async (jobId: number, apiBase: string = '/api/v1'): Promise<void> => {
 	const response = await fetch(`${apiBase}/jobs/cancel/${jobId}`, { method: 'POST' });
 	if (!response.ok) {
 		const detail = await response.text();
@@ -257,7 +254,7 @@ const sleep = (ms: number): Promise<void> => {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
-export const createStore = (apiBase = 'http://localhost:8000/api/v1') => {
+export const createStore = (apiBase = '/api/v1') => {
 	const { subscribe, update, set } = writable<AppViewState>(createInitialState());
 
 	let geometryQueue: GeometryRequest[] = [];
