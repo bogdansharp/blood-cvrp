@@ -29,7 +29,7 @@
 		"@testing-library/jest-dom": "^6.9.1",
 		"@testing-library/svelte": "^5.3.1",
 		"@types/leaflet": "^1.9.21",
-		"@types/node": "^24",
+		"@types/node": "^25",
 		"@vitest/coverage-v8": "^4.1.5",
 		"eslint": "^10.2.0",
 		"eslint-config-prettier": "^10.1.8",
