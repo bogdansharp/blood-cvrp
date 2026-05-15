@@ -1,4 +1,4 @@
-﻿from enum import Enum
+from enum import Enum
 from pathlib import Path
 
 from pydantic import Field, field_validator
@@ -22,11 +22,13 @@ class Settings(BaseSettings):
 
     project_root: Path = Path.cwd()
     storage_root: Path = Field(default=Path("storage"), validation_alias="STORAGE_ROOT")
-    environment: EnvironmentType = Field(default=EnvironmentType.DEVELOPMENT, validation_alias="ENVIRONMENT")
+    environment: EnvironmentType = Field(
+        default=EnvironmentType.DEVELOPMENT, validation_alias="ENVIRONMENT"
+    )
     ors_api_key: str = Field(default="", validation_alias="ORS_API_KEY")
     ors_base_url: str = Field(
         default="https://api.heigit.org/openrouteservice",
-        validation_alias="ORS_BASE_URL"
+        validation_alias="ORS_BASE_URL",
     )
     ors_profile: str = Field(default="driving-car", validation_alias="ORS_PROFILE")
     port: int = Field(default=8000, validation_alias="PORT")

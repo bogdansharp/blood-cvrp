@@ -11,9 +11,11 @@ from backend.src.solver_options import SolveMethodOptions
 #       ENUMS
 ###############################################################################
 
+
 class SolveMethod(str, Enum):
     CLARKE_WRIGHT_SAVINIGS = "clarke_wright_savings"
     ORTOOLS = "ortools"
+
 
 class SolverJobStatus(str, Enum):
     QUEUED = "queued"
@@ -25,11 +27,12 @@ class SolverJobStatus(str, Enum):
     @property
     def is_terminal(self) -> bool:
         res = self in {
-            SolverJobStatus.FINISHED, 
-            SolverJobStatus.FAILED, 
-            SolverJobStatus.CANCELLED
+            SolverJobStatus.FINISHED,
+            SolverJobStatus.FAILED,
+            SolverJobStatus.CANCELLED,
         }
         return res
+
 
 class LogLevel(str, Enum):
     INFO = "info"
@@ -37,14 +40,16 @@ class LogLevel(str, Enum):
     DEBUG = "debug"
     ERROR = "error"
 
+
 ###############################################################################
 #       DATA CLASSES
 ###############################################################################
 
+
 @dataclass
 class VehiclePool:
     capacity: int
-    quantity: int = -1      # -1 if unlimited
+    quantity: int = -1  # -1 if unlimited
 
     def __post_init__(self) -> None:
         if self.capacity < 1:
@@ -77,6 +82,7 @@ class ScenarioReduced:
             description=scenario.description,
         )
 
+
 @dataclass
 class SolutionReduced:
     id: int
@@ -101,6 +107,7 @@ class SolutionReduced:
             routes_count=len(solution.routes),
         )
 
+
 @dataclass
 class LogEntry:
     timestamp: datetime
@@ -111,6 +118,7 @@ class LogEntry:
 ###############################################################################
 #       PYDANTIC MODELS
 ###############################################################################
+
 
 class Hospital(BaseModel):
     id: int
@@ -148,8 +156,10 @@ class Hospital(BaseModel):
         value = self.display_lng_e6 if self.display_lng_e6 is not None else self.lng_e6
         return value / 1e6
 
+
 class Depot(Hospital):
     pass
+
 
 class Scenario(BaseModel):
     id: int
@@ -158,6 +168,7 @@ class Scenario(BaseModel):
     vehicles: list[VehiclePool]
     depots: list[Depot]
     customers: list[Hospital]
+
 
 class SolverJob(BaseModel):
     id: int
@@ -181,6 +192,7 @@ class SolverJob(BaseModel):
             self.name = f"{self.method.value}_{self.created_at.isoformat()}"
         return self
 
+
 class RoutePath(BaseModel):
     src: Hospital
     dst: Hospital
@@ -189,6 +201,7 @@ class RoutePath(BaseModel):
     total_travel_time: float
     vehicle_capacity: int
     vehicle_capacity_used: int
+
 
 class Solution(BaseModel):
     id: int

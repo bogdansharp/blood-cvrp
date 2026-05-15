@@ -11,7 +11,7 @@ class HospitalService:
 
     def list_hospitals(self) -> list[Hospital]:
         return self._repo.get_all()
-    
+
     def get_hospital(self, id: int) -> Hospital | None:
         return self._repo.get(id)
 

@@ -121,7 +121,9 @@ def test_get_scenario_returns_service_result(app: FastAPI) -> None:
         customers=[],
     )
 
-    app.dependency_overrides[get_scenario_service] = lambda: FakeScenarioService(scenario)
+    app.dependency_overrides[get_scenario_service] = lambda: FakeScenarioService(
+        scenario
+    )
 
     with TestClient(app) as client:
         response = client.get("/scenarios/42")
@@ -144,7 +146,7 @@ def test_run_job_builds_options_and_submits_request(app: FastAPI) -> None:
     fake_job_service = FakeJobService()
 
     app.dependency_overrides[get_job_service] = lambda: fake_job_service
-    app.dependency_overrides[get_settings] = lambda: Settings( 
+    app.dependency_overrides[get_settings] = lambda: Settings(
         solver_hard_time_limit_sec=123,
     )
 

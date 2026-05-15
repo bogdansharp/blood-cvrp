@@ -4,7 +4,9 @@ from backend.src.data.routing_provider import ORSRoutingProvider
 
 
 class FakeResponse:
-    def __init__(self, status_code: int, data: dict | None = None, text: str = "") -> None:
+    def __init__(
+        self, status_code: int, data: dict | None = None, text: str = ""
+    ) -> None:
         self.status_code = status_code
         self._data = data or {}
         self.text = text
@@ -41,18 +43,22 @@ def make_provider(fake_post: FakePost) -> ORSRoutingProvider:
 
 
 def test_matrix_request_returns_distance_and_duration() -> None:
-    fake_post = FakePost([
-        FakeResponse(
-            200,
-            {
-                "distances": [[100.5, 200.5]],
-                "durations": [[10.0, 20.0]],
-            },
-        )
-    ])
+    fake_post = FakePost(
+        [
+            FakeResponse(
+                200,
+                {
+                    "distances": [[100.5, 200.5]],
+                    "durations": [[10.0, 20.0]],
+                },
+            )
+        ]
+    )
     provider = make_provider(fake_post)
 
-    result = provider.get_distance_and_time(53100000, -8200000, [(53200000, -8300000), (53300000, -8400000)])
+    result = provider.get_distance_and_time(
+        53100000, -8200000, [(53200000, -8300000), (53300000, -8400000)]
+    )
 
     assert result == [(100.5, 10.0), (200.5, 20.0)]
 
@@ -94,25 +100,27 @@ def test_matrix_malformed_response_raises() -> None:
 
 
 def test_geometry_request_parses_geojson_coordinates_to_e6() -> None:
-    fake_post = FakePost([
-        FakeResponse(
-            200,
-            {
-                "features": [
-                    {
-                        "geometry": {
-                            "type": "LineString",
-                            "coordinates": [
-                                [-8.2, 53.1],
-                                [-8.25, 53.15],
-                                [-8.3, 53.2],
-                            ],
+    fake_post = FakePost(
+        [
+            FakeResponse(
+                200,
+                {
+                    "features": [
+                        {
+                            "geometry": {
+                                "type": "LineString",
+                                "coordinates": [
+                                    [-8.2, 53.1],
+                                    [-8.25, 53.15],
+                                    [-8.3, 53.2],
+                                ],
+                            }
                         }
-                    }
-                ]
-            },
-        )
-    ])
+                    ]
+                },
+            )
+        ]
+    )
     provider = make_provider(fake_post)
 
     result = provider.get_geometry(53100000, -8200000, 53200000, -8300000)
@@ -152,19 +160,21 @@ def test_geometry_malformed_response_raises() -> None:
 
 
 def test_snap_request_parses_location() -> None:
-    fake_post = FakePost([
-        FakeResponse(
-            200,
-            {
-                "locations": [
-                    {
-                        "location": [-8.200001, 53.100001],
-                        "snapped_distance": 12.5,
-                    }
-                ]
-            },
-        )
-    ])
+    fake_post = FakePost(
+        [
+            FakeResponse(
+                200,
+                {
+                    "locations": [
+                        {
+                            "location": [-8.200001, 53.100001],
+                            "snapped_distance": 12.5,
+                        }
+                    ]
+                },
+            )
+        ]
+    )
     provider = make_provider(fake_post)
 
     result = provider.get_snap_location(53100000, -8200000)

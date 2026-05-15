@@ -1,7 +1,15 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from backend.src.data.interfaces import DistanceRepository, GeometryRepository, HospitalRepository, JobRepository, Repositories, ScenarioRepository, SolutionRepository
+from backend.src.data.interfaces import (
+    DistanceRepository,
+    GeometryRepository,
+    HospitalRepository,
+    JobRepository,
+    Repositories,
+    ScenarioRepository,
+    SolutionRepository,
+)
 from backend.src.data.json_repositories.scenario import JSONScenarioRepository
 from backend.src.data.json_repositories.hospital import JSONHospitalRepository
 from backend.src.data.json_repositories.job import JSONJobRepository
@@ -31,5 +39,5 @@ def create_repositories(storage_root: str | Path) -> Repositories:
         geometries=JSONGeometryRepository(storage_root),
         distances=JSONDistanceRepository(storage_root),
         solutions=JSONSolutionRepository(storage_root),
-        hospitals=JSONHospitalRepository(storage_root)
+        hospitals=JSONHospitalRepository(storage_root),
     )

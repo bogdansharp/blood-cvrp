@@ -52,8 +52,10 @@ def get_routing_data(request: Request) -> RoutingData:
 def get_settings(request: Request) -> Settings:
     return request.app.state.settings
 
+
 def get_cancel_manager(request: Request) -> Any:
     return request.app.state.cancel_manager
+
 
 def get_cancel_tokens(request: Request) -> dict[int, Any]:
     return request.app.state.cancel_tokens

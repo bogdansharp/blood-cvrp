@@ -1,4 +1,9 @@
-from concurrent.futures import CancelledError as FutureCancelledError, Future, ProcessPoolExecutor, ThreadPoolExecutor
+from concurrent.futures import (
+    CancelledError as FutureCancelledError,
+    Future,
+    ProcessPoolExecutor,
+    ThreadPoolExecutor,
+)
 from threading import Lock
 from typing import Any, Callable
 
@@ -26,43 +31,31 @@ def solve_in_process(
 
 
 class JobExecutor:
-    def __init__(self,
-        max_solvers: int = 4,
-        max_preparation: int = 4
-    ) -> None:
+    def __init__(self, max_solvers: int = 4, max_preparation: int = 4) -> None:
         if max_solvers > max_preparation:
             raise ValueError("max_solvers cannot be greater than max_preparation")
         self._prep_pool = ThreadPoolExecutor(
-            max_workers=max_preparation, 
-            thread_name_prefix="prep-worker"
+            max_workers=max_preparation, thread_name_prefix="prep-worker"
         )
-        self._solver_pool = ProcessPoolExecutor(
-            max_workers=max_solvers
-        )
+        self._solver_pool = ProcessPoolExecutor(max_workers=max_solvers)
         self._futures: dict[int, Future[Any]] = {}
         self._lock = Lock()
 
-    def submit(self, 
-        job_id: int, 
-        task: Callable[[], Any]
-    ) -> None:
+    def submit(self, job_id: int, task: Callable[[], Any]) -> None:
         with self._lock:
             if job_id in self._futures:
                 raise ValueError(f"Job already submitted: {job_id}")
             self._futures[job_id] = self._prep_pool.submit(task)
 
-    def run_solver(self, 
-        solver_cls: Any, 
-        solver_input: SolverInput, 
-        options: SolveMethodOptions | None, 
-        cancel_event: Any | None
+    def run_solver(
+        self,
+        solver_cls: Any,
+        solver_input: SolverInput,
+        options: SolveMethodOptions | None,
+        cancel_event: Any | None,
     ) -> list[Route] | None:
         future = self._solver_pool.submit(
-            solve_in_process,
-            solver_cls,
-            solver_input,
-            options,
-            cancel_event
+            solve_in_process, solver_cls, solver_input, options, cancel_event
         )
         return future.result()
 

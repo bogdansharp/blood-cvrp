@@ -52,7 +52,9 @@ def test_raises_when_capacity_is_impossible() -> None:
     )
 
     with pytest.raises(SolverFailedError):
-        OrToolsSolver().solve(solver_input, SolveMethodOptions(or_target_time_sec=1), None)
+        OrToolsSolver().solve(
+            solver_input, SolveMethodOptions(or_target_time_sec=1), None
+        )
 
 
 def test_raises_on_invalid_negative_cost() -> None:
@@ -67,7 +69,9 @@ def test_raises_on_invalid_negative_cost() -> None:
     )
 
     with pytest.raises(SolverFailedError):
-        OrToolsSolver().solve(solver_input, SolveMethodOptions(or_target_time_sec=1), None)
+        OrToolsSolver().solve(
+            solver_input, SolveMethodOptions(or_target_time_sec=1), None
+        )
 
 
 def test_raises_when_cancelled_before_solving() -> None:

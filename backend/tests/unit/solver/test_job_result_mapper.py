@@ -1,6 +1,13 @@
 import pytest
 
-from backend.src.models import Depot, Hospital, Scenario, Solution, SolveMethod, VehiclePool
+from backend.src.models import (
+    Depot,
+    Hospital,
+    Scenario,
+    Solution,
+    SolveMethod,
+    VehiclePool,
+)
 from backend.src.solver.job_result_mapper import JobResultMapper
 from backend.src.solver.models import Route, SolveMethodOptions
 
@@ -80,7 +87,12 @@ def test_maps_raw_routes_to_persisted_solution() -> None:
     assert route.total_travel_time == 600
     assert route.vehicle_capacity == 10
     assert route.vehicle_capacity_used == 5
-    assert [hospital.name for hospital in route.sequence] == ["Depot", "A", "B", "Depot"]
+    assert [hospital.name for hospital in route.sequence] == [
+        "Depot",
+        "A",
+        "B",
+        "Depot",
+    ]
 
 
 def test_invalid_node_index_raises() -> None:
@@ -88,7 +100,9 @@ def test_invalid_node_index_raises() -> None:
 
     with pytest.raises(ValueError):
         mapper.map_result(
-            raw_result=[Route(nodes=[0, 999, 0], demand=1, cost=1, vehicle_capacity=10)],
+            raw_result=[
+                Route(nodes=[0, 999, 0], demand=1, cost=1, vehicle_capacity=10)
+            ],
             scenario=make_scenario(),
             cost_matrix=[
                 [(0, 0), (1, 1), (1, 1)],

@@ -12,10 +12,12 @@ INF_VEHICLES = 10**9
 
 
 class SolverInput(BaseModel):
-    n: int                  # numberof customers
-    cost: list[list[float]] # directed cost matrix n+1 x n+1 (including depot at index 0)
-    demand: list[int]       # demand for each customer (length n + 1, with depot demand = 0)
-    vehicles: dict[int, int]    # vehicle capacity to available count (INF for unlimited)
+    n: int  # numberof customers
+    cost: list[
+        list[float]
+    ]  # directed cost matrix n+1 x n+1 (including depot at index 0)
+    demand: list[int]  # demand for each customer (length n + 1, with depot demand = 0)
+    vehicles: dict[int, int]  # vehicle capacity to available count (INF for unlimited)
 
     @model_validator(mode="after")
     def _validate_shapes(self) -> "SolverInput":
@@ -56,10 +58,11 @@ class JobResult:
 
 
 class Solver(Protocol):
-    def solve(self, 
-        input: SolverInput, 
-        options: SolveMethodOptions | None, 
-        cancel_event: Any | None
+    def solve(
+        self,
+        input: SolverInput,
+        options: SolveMethodOptions | None,
+        cancel_event: Any | None,
     ) -> list[Route] | None: ...
 
 
@@ -70,10 +73,7 @@ class SolverRegistry:
     def __init__(self) -> None:
         self._methods: dict[SolveMethod, SolverClass] = {}
 
-    def register(self, 
-        method: SolveMethod, 
-        solver: SolverClass
-    ) -> None:
+    def register(self, method: SolveMethod, solver: SolverClass) -> None:
         if method in self._methods:
             raise ValueError(f"Solver method already registered: {method}")
         self._methods[method] = solver

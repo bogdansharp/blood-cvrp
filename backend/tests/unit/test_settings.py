@@ -5,13 +5,14 @@ from pydantic import ValidationError
 
 from backend.src.settings import EnvironmentType, load_settings
 
+
 @pytest.fixture(autouse=True)
 def isolate_env_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.chdir(tmp_path)
 
+
 def test_load_settings_uses_defaults(
-    tmp_path: Path, 
-    monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.delenv("STORAGE_ROOT", raising=False)
     monkeypatch.delenv("ENVIRONMENT", raising=False)

@@ -37,7 +37,13 @@ class SolveMethodOptions(BaseModel):
     objective: SolverObjective = Field(default=SolverObjective.MINIMIZE_DISTANCE)
     cost_limit: int | None = Field(default=None)
     or_balance_routes: bool = Field(default=False)  # only used by OR-Tools
-    or_target_time_sec: int = Field(default=10, gt=0) # OR-Tools
-    or_first_solution_strategy: ORFirstSolutionStrategy | None = Field(default=None) # OR-Tools
-    or_local_search_metaheuristic: ORLocalSearchMetaheuristic | None = Field(default=None) # OR-Tools
-    clarke_local_search: ClarkeWrightLocalSearch = Field(default=ClarkeWrightLocalSearch.NONE) # Clarke-Wright
+    or_target_time_sec: int = Field(default=10, gt=0)  # OR-Tools
+    or_first_solution_strategy: ORFirstSolutionStrategy | None = Field(
+        default=None
+    )  # OR-Tools
+    or_local_search_metaheuristic: ORLocalSearchMetaheuristic | None = Field(
+        default=None
+    )  # OR-Tools
+    clarke_local_search: ClarkeWrightLocalSearch = Field(
+        default=ClarkeWrightLocalSearch.NONE
+    )  # Clarke-Wright
