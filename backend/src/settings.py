@@ -1,4 +1,4 @@
-﻿from enum import Enum
+from enum import Enum
 from pathlib import Path
 
 from pydantic import Field, field_validator
@@ -9,7 +9,7 @@ class EnvironmentType(str, Enum):
     DEVELOPMENT = "development"
     PRODUCTION = "production"
     STAGING = "staging"
-    TEST = "test2"
+    TEST = "test"
 
 
 class Settings(BaseSettings):
