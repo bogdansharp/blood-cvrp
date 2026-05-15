@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1](https://github.com/bogdansharp/blood-cvrp/compare/v0.1.0...v0.1.1) (2026-05-15)
+
+
+### Features
+
+* small change to trigger release ([1677598](https://github.com/bogdansharp/blood-cvrp/commit/1677598d59cb24b468d7c0c3ac1c0c5c37fcc6ef))
+* small change to trigger release ([91c1e6d](https://github.com/bogdansharp/blood-cvrp/commit/91c1e6da21112f6054373fd1de08daa7d751be3d))
+
 ## 0.1.0 (2026-05-15)
 
 
