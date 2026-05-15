@@ -160,9 +160,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh workflow run cd.yml \
+            --repo "${{ github.repository }}" \
             --ref master \
             -f release_tag="${{ github.event.release.tag_name }}" \
-            -f image_uri="${{ needs.release.outputs.image-digest }}"
+            -f image_uri="$IMAGE_DIGEST"
 
   # Notify stakeholders about the release result
   notify-release:
