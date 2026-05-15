@@ -11,6 +11,8 @@ build/
 dist/
 coverage/
 node_modules/
+test-results/
+playwright-report/
 
 # Miscellaneous
 /static/
