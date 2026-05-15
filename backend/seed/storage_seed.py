@@ -4,9 +4,11 @@ import math
 import os
 import sys
 import time
+
 import requests
 from dotenv import load_dotenv
-from backend.src.models import Hospital, Scenario, VehiclePool, Depot
+
+from backend.src.models import Depot, Hospital, Scenario, VehiclePool
 
 # Allow running this file directly from the repo root.
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -200,8 +202,7 @@ with open(INPUT_CSV, encoding="utf-8-sig") as csv_file:
         raise ValueError(f"{csv_file} is missing a header row")
 
     for col in reader.fieldnames:
-        if col in required_cols:
-            required_cols.remove(col)
+        required_cols.discard(col)
     if required_cols:
         raise ValueError(f"Missing required columns: {required_cols}")
     for row in reader:
