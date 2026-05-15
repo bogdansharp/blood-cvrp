@@ -187,8 +187,6 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v6
-
       - name: Create release failure issue
         run: |
           gh issue create \
