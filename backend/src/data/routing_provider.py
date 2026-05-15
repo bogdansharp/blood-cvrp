@@ -1,65 +1,80 @@
+import time
+
 import requests
 
 from backend.src.data.interfaces import RoutingProvider
 
 
 class ORSRoutingProvider(RoutingProvider):
-    '''
+    """
     Routing provider implementation using external OpenRouteService API.
-    '''
+    """
 
-    _PROFILE = "driving-car"
-    _MATRIX_ENDPOINT = f"/v2/matrix/{_PROFILE}"
-    _SNAP_ENDPOINT = f"/v2/snap/{_PROFILE}"
-    _GEOMETRY_ENDPOINT = f"/v2/directions/{_PROFILE}/geojson"
-
-    def __init__(self, 
-        ors_api_key: str, 
+    def __init__(
+        self,
+        ors_api_key: str,
         ors_base_url: str,
-        call_timeout_sec: int = 30, 
-        max_snap_dist: int = 500,
-        simplify_geometry: bool = False,
+        ors_profile: str = "driving-car",
+        call_timeout_sec: int = 20,
+        max_snap_dist: int = 350,
+        simplify_geometry: bool = True,
+        http_post=requests.post,
     ) -> None:
         ors_base_url = ors_base_url.rstrip("/")
 
         self._ors_api_key = ors_api_key
         self._call_timeout_sec = call_timeout_sec
-        self._matrix_url = ors_base_url + self._MATRIX_ENDPOINT
-        self._snap_url = ors_base_url + self._SNAP_ENDPOINT
-        self._geometry_url = ors_base_url + self._GEOMETRY_ENDPOINT
+        self._ors_profile = ors_profile
+        self._matrix_url = f"{ors_base_url}/v2/matrix/{self._ors_profile}"
+        self._snap_url = f"{ors_base_url}/v2/snap/{self._ors_profile}"
+        self._geometry_url = f"{ors_base_url}/v2/directions/{self._ors_profile}/geojson"
         self._max_snap_dist = max_snap_dist
         self._simplify_geometry = simplify_geometry
+        self._geometry_cooldown_until = 0.0
+        self._http_post = http_post
+        self._geometry_cooldown_sec = 60
+        self._matrix_cooldown_sec = 60
+        self._matrix_cooldown_until = 0.0
 
+    def _get_headers(self) -> dict[str, str]:
+        return {"Authorization": self._ors_api_key, "Content-Type": "application/json"}
 
-    def get_geometry(self, 
-        src_lat_e6: int, src_lng_e6: int, dst_lat_e6: int, dst_lng_e6: int
+    def get_geometry(
+        self, src_lat_e6: int, src_lng_e6: int, dst_lat_e6: int, dst_lng_e6: int
     ) -> list[tuple[int, int]]:
+        now = time.time()
+        if now < self._geometry_cooldown_until:
+            remaining = int(self._geometry_cooldown_until - now)
+            raise RuntimeError(
+                f"Geometry requests are paused for {remaining}s due to rate limiting"
+            )
+
         coordinates = [
             [src_lng_e6 / 1e6, src_lat_e6 / 1e6],
             [dst_lng_e6 / 1e6, dst_lat_e6 / 1e6],
         ]
-        headers = {
-            "Authorization": self._ors_api_key,
-            "Content-Type": "application/json"
-        }
         payload = {
-            "coordinates":            coordinates,
-            "elevation":               False,
-            "geometry":                True,
-            "geometry_simplify":       self._simplify_geometry,
-            "instructions":            False,
-            "units":                   "m",        # distance in metres
+            "coordinates": coordinates,
+            "elevation": False,
+            "geometry": True,
+            "geometry_simplify": self._simplify_geometry,
+            "instructions": False,
+            "units": "m",  # distance in metres
         }
-        response = requests.post(
-            self._geometry_url, 
-            headers=headers, 
-            json=payload, 
-            timeout=self._call_timeout_sec
+        response = self._http_post(
+            self._geometry_url,
+            headers=self._get_headers(),
+            json=payload,
+            timeout=self._call_timeout_sec,
         )
+        if response.status_code == 429:
+            self._geometry_cooldown_until = time.time() + self._geometry_cooldown_sec
+            raise RuntimeError(
+                f"Geometry request failed: {response.status_code} {response.text}"
+            )
         if response.status_code != 200:
             raise RuntimeError(
-                f"Geometry request failed: "
-                f"{response.status_code} {response.text}"
+                f"Geometry request failed: {response.status_code} {response.text}"
             )
 
         data = response.json()
@@ -80,10 +95,14 @@ class ORSRoutingProvider(RoutingProvider):
             raise RuntimeError("Unexpected API response format: geometry is empty")
 
         if geometry.get("type") != "LineString":
-            raise RuntimeError(f"Unexpected API response format: geometry type is {geometry.get('type')}")
+            raise RuntimeError(
+                f"Unexpected API response format: geometry type is {geometry.get('type')}"
+            )
 
         if "coordinates" not in geometry:
-            raise RuntimeError("Unexpected API response format: coordinates are missing")
+            raise RuntimeError(
+                "Unexpected API response format: coordinates are missing"
+            )
 
         route_coordinates = geometry["coordinates"]
         if not route_coordinates:
@@ -104,40 +123,44 @@ class ORSRoutingProvider(RoutingProvider):
 
         return result
 
-
-    def get_distance_and_time(self, 
-        src_lat_e6: int, src_lng_e6: int, dst: list[tuple[int, int]]
+    def get_distance_and_time(
+        self, src_lat_e6: int, src_lng_e6: int, dst: list[tuple[int, int]]
     ) -> list[tuple[float, float]]:
         if not dst:
             return []
+
+        now = time.time()
+        if now < self._matrix_cooldown_until:
+            remaining = int(self._matrix_cooldown_until - now)
+            raise RuntimeError(
+                f"Matrix requests are paused for {remaining}s due to rate limiting"
+            )
 
         locations = [[src_lng_e6 / 1e6, src_lat_e6 / 1e6]]
         for dst_lat_e6, dst_lng_e6 in dst:
             locations.append([dst_lng_e6 / 1e6, dst_lat_e6 / 1e6])
 
         src_idxs, dst_idxs = [0], list(range(1, len(locations)))
-        headers = {
-            "Authorization": self._ors_api_key,
-            "Content-Type": "application/json"
-        }
         payload = {
-            "locations":            locations,
-            "destinations":         dst_idxs,
-            "metrics":              ["distance", "duration"],
-            "units":                "m",        # distance in metres
-            "resolve_locations":    False,
-            "sources":              src_idxs,
+            "locations": locations,
+            "destinations": dst_idxs,
+            "metrics": ["distance", "duration"],
+            "units": "m",  # distance in metres
+            "resolve_locations": False,
+            "sources": src_idxs,
         }
-        response = requests.post(
-            self._matrix_url, 
-            headers=headers, 
-            json=payload, 
-            timeout=self._call_timeout_sec
+        response = self._http_post(
+            self._matrix_url,
+            headers=self._get_headers(),
+            json=payload,
+            timeout=self._call_timeout_sec,
         )
+
+        if response.status_code == 429:
+            self._matrix_cooldown_until = time.time() + self._matrix_cooldown_sec
         if response.status_code != 200:
             raise RuntimeError(
-                f"Matrix request failed: "
-                f"{response.status_code} {response.text}"
+                f"Matrix request failed: {response.status_code} {response.text}"
             )
 
         data = response.json()
@@ -161,57 +184,54 @@ class ORSRoutingProvider(RoutingProvider):
         result: list[tuple[float, float]] = []
         for distance, duration in zip(distances[0], durations[0]):
             if distance is None or duration is None:
-                raise RuntimeError(f"Route is unreachable according to ORS matrix response: {data}")
+                raise ValueError(
+                    f"Route is unreachable according to ORS matrix response: {data}"
+                )
 
             result.append((float(distance), float(duration)))
 
         return result
-    
 
-    def get_snap_location(self, 
-        lat_e6: int, lng_e6: int
-    ) -> tuple[int, int, float]:
+    def get_snap_location(self, lat_e6: int, lng_e6: int) -> tuple[int, int, float]:
         locations = [[lng_e6 / 1e6, lat_e6 / 1e6]]
-        headers = {
-            "Authorization": self._ors_api_key,
-            "Content-Type": "application/json"
-        }
         payload = {
-            "locations":            locations,
-            "radius":               self._max_snap_dist,
+            "locations": locations,
+            "radius": self._max_snap_dist,
         }
-        response = requests.post(
-            self._snap_url, 
-            headers=headers, 
-            json=payload, 
-            timeout=self._call_timeout_sec
+        response = self._http_post(
+            self._snap_url,
+            headers=self._get_headers(),
+            json=payload,
+            timeout=self._call_timeout_sec,
         )
         if response.status_code != 200:
             raise RuntimeError(
-                f"Snap request failed: "
-                f"{response.status_code} {response.text}"
+                f"Snap request failed: {response.status_code} {response.text}"
             )
 
         data = response.json()
-
-        if "locations" not in data:
-            raise RuntimeError(f"Unexpected API response: {data}")
-
-        locations = data["locations"]
-        if not locations or len(locations) != 1:
+        locations = data.get("locations")
+        if not isinstance(locations, list) or len(locations) != 1:
             raise RuntimeError(f"Unexpected API response format: {data}")
 
         snap_location = locations[0]
-        if (
-            not snap_location
-            or "location" not in snap_location
-            or len(snap_location["location"]) != 2
-            or "snapped_distance" not in snap_location
-        ):  
+        if snap_location is None:
+            raise ValueError("Selected point is too far from any road")
+
+        if not isinstance(snap_location, dict):
             raise RuntimeError(f"Unexpected API response format: {data}")
 
-        snap_lng = int(round(snap_location["location"][0] * 1e6))
-        snap_lat = int(round(snap_location["location"][1] * 1e6))
-        snap_dist = float(snap_location["snapped_distance"])
+        location = snap_location.get("location")
+        snap_distance = snap_location.get("snapped_distance")
+        if (
+            not isinstance(location, list)
+            or len(location) != 2
+            or snap_distance is None
+        ):
+            raise RuntimeError(f"Unexpected API response format: {data}")
+
+        snap_lng = int(round(float(location[0]) * 1e6))
+        snap_lat = int(round(float(location[1]) * 1e6))
+        snap_dist = float(snap_distance)
 
         return (snap_lat, snap_lng, snap_dist)

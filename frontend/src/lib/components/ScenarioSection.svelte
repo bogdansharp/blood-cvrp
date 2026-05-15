@@ -1,182 +1,138 @@
 <script lang="ts">
-    import type { ScenarioPayload } from '$lib/store';
+	import { type ScenarioPayload } from '$lib/store';
 
-    type Props = {
-        scenario?: ScenarioPayload | null;
-        loading?: boolean;
-    };
+	type Props = {
+		scenario?: ScenarioPayload | null;
+		loading?: boolean;
+		deleteScenario: (scenarioId: number) => void | Promise<void>;
+		editScenario: (scenario: ScenarioPayload | null) => void;
+	};
 
-    let { scenario = null, loading = false }: Props = $props();
+	let { scenario = null, loading = false, deleteScenario, editScenario }: Props = $props();
+	let deleteInProgress: boolean = $state(false);
+
+	const requestDeleteScenario = async (scenarioId: number): Promise<void> => {
+		try {
+			deleteInProgress = true;
+			await deleteScenario(scenarioId);
+		} catch (error) {
+			console.error(`Failed to delete scenario ${scenarioId}:`, error);
+		} finally {
+			deleteInProgress = false;
+		}
+	};
 </script>
 
-<div class="scenario">
-    {#if loading}
-        <p class="status">Loading scenario...</p>
-    {:else if !scenario}
-        <p class="status">No scenario selected.</p>
-    {:else}
-        <div class="scenario-header">
-            <div>
-                <p class="label">Scenario</p>
-                <h2>{scenario.name}</h2>
-            </div>
-            <div class="pillar">
-                <span>{scenario.depots.length} depots</span>
-                <span>{scenario.customers.length} customers</span>
-            </div>
-        </div>
+<div class="grid gap-3">
+	{#if loading}
+		<p class="text-sm text-slate-600">Loading scenario...</p>
+	{:else if !scenario}
+		<p class="text-sm text-slate-600">No scenario selected.</p>
+	{:else}
+		<div class="flex items-center justify-between gap-4">
+			<div class="min-w-0">
+				<p class="mb-1 text-xs tracking-[0.16em] text-slate-500 uppercase">Scenario</p>
+				<h2 class="wrap-break-words m-0 text-lg font-semibold text-slate-900">
+					{scenario.name}
+				</h2>
+			</div>
 
-        <div class="scenario-summary">
-            <span class="summary-item">Depots: {scenario.depots.length}</span>
-            <span class="summary-item">Vehicles: {scenario.vehicles.length}</span>
-        </div>
+			<div class="grid shrink-0 gap-1 text-right text-sm text-slate-600">
+				<span>{scenario.depots.length} depots</span>
+				<span>{scenario.customers.length} customers</span>
+			</div>
+		</div>
 
-        <div class="section-block">
-            <p class="section-title">Depots</p>
-            <ul class="scenario-list">
-                {#each scenario.depots as depot}
-                    <li>
-                        <strong>{depot.name}</strong>
-                        <span class="scenario-meta">
-                            {depot.address}{depot.eircode ? ` (${depot.eircode})` : ''}
-                        </span>
-                    </li>
-                {/each}
-            </ul>
-        </div>
+		<div class="mt-2 grid gap-2">
+			<div class="grid gap-1 text-[11px] text-slate-700">
+				<span>Description</span>
+				<p class="px-2 py-1 text-sm text-slate-900">
+					{scenario.description ?? ''}
+				</p>
+			</div>
+		</div>
 
-        <details class="scenario-details">
-            <summary>Customers ({scenario.customers.length})</summary>
-            <ul class="scenario-list">
-                {#each scenario.customers as customer}
-                    <li>
-                        <strong>{customer.name}</strong>
-                        <span class="scenario-meta">
-                            {customer.address}{customer.eircode ? ` (${customer.eircode})` : ''} · demand {customer.demand}
-                        </span>
-                    </li>
-                {/each}
-            </ul>
-        </details>
+		<div class="flex flex-wrap gap-2">
+			<button
+				class="h-7.5 cursor-pointer rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55"
+				type="button"
+				onclick={() => requestDeleteScenario(scenario.id)}
+				disabled={deleteInProgress}
+			>
+				Delete
+			</button>
 
-        <details class="scenario-details">
-            <summary>Vehicles ({scenario.vehicles.length})</summary>
-            <ul class="scenario-list">
-                {#each scenario.vehicles as pool, index}
-                    <li>
-                        <strong>Pool {index + 1}</strong>
-                        <span class="scenario-meta">
-                            capacity {pool.capacity}, quantity {pool.quantity === -1 ? 'unlimited' : pool.quantity}
-                        </span>
-                    </li>
-                {/each}
-            </ul>
-        </details>
-    {/if}
+			<button
+				class="h-7.5 cursor-pointer rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55"
+				type="button"
+				onclick={() => editScenario(scenario)}
+			>
+				Edit
+			</button>
+		</div>
+
+		<details class="border-t border-slate-200 pt-3" open>
+			<summary class="cursor-pointer list-none text-sm font-bold text-slate-900 outline-none">
+				Depots ({scenario.depots.length})
+			</summary>
+
+			<ul class="m-0 grid list-none gap-2 pt-3 pl-0">
+				{#each scenario.depots as depot, index (index)}
+					<li class="grid gap-0.5 rounded-xl border border-slate-200 bg-white p-2">
+						<strong class="wrap-break-words text-sm text-slate-900">{depot.name}</strong>
+						<span class="wrap-break-words text-sm text-slate-600">
+							{depot.address}{depot.eircode ? ` (${depot.eircode})` : ''}
+						</span>
+					</li>
+				{/each}
+			</ul>
+		</details>
+
+		<details class="border-t border-slate-200 pt-3" open>
+			<summary class="cursor-pointer list-none text-sm font-bold text-slate-900 outline-none">
+				Vehicles ({scenario.vehicles.length})
+			</summary>
+
+			<ul class="m-0 grid list-none gap-2 pt-3 pl-0">
+				{#each scenario.vehicles as pool, index (index)}
+					<li class="grid gap-0.5 rounded-xl border border-slate-200 bg-white p-2">
+						<strong class="text-sm text-slate-900">Pool {index + 1}</strong>
+						<span class="text-sm text-slate-600">
+							capacity {pool.capacity}, quantity {pool.quantity === -1
+								? 'unlimited'
+								: pool.quantity}
+						</span>
+					</li>
+				{/each}
+			</ul>
+		</details>
+
+		<details class="border-t border-slate-200 pt-3">
+			<summary class="cursor-pointer list-none text-sm font-bold text-slate-900 outline-none">
+				Customers ({scenario.customers.length})
+			</summary>
+
+			<ul class="m-0 grid list-none gap-2 pt-3 pl-0">
+				{#each scenario.customers as customer, index (index)}
+					<li class="grid gap-1 rounded-xl border border-slate-200 bg-white p-2">
+						<div class="flex flex-wrap items-start gap-2">
+							<strong class="wrap-break-words min-w-0 flex-1 text-sm text-slate-900">
+								{customer.name}
+							</strong>
+
+							<span
+								class="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-bold text-blue-800"
+							>
+								demand: {customer.demand}
+							</span>
+						</div>
+
+						<span class="wrap-break-words text-sm text-slate-600">
+							{customer.address}{customer.eircode ? ` ${customer.eircode}` : ''}
+						</span>
+					</li>
+				{/each}
+			</ul>
+		</details>
+	{/if}
 </div>
-
-<style>
-    .scenario {
-        display: grid;
-        gap: 0.85rem;
-    }
-
-    .status {
-        color: #475569;
-        font-size: 0.95rem;
-    }
-
-    .scenario-header {
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
-        align-items: center;
-    }
-
-    .label {
-        text-transform: uppercase;
-        letter-spacing: 0.16em;
-        font-size: 0.75rem;
-        color: #64748b;
-        margin-bottom: 0.25rem;
-    }
-
-    h2 {
-        margin: 0;
-        font-size: 1.15rem;
-        color: #0f172a;
-    }
-
-    .pillar {
-        display: grid;
-        gap: 0.35rem;
-        text-align: right;
-        font-size: 0.9rem;
-        color: #475569;
-    }
-
-    .scenario-summary {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        font-size: 0.95rem;
-        color: #334155;
-    }
-
-    .summary-item {
-        background: #eef2ff;
-        color: #3730a3;
-        padding: 0.35rem 0.75rem;
-        border-radius: 999px;
-    }
-
-    .section-block {
-        padding: 0.85rem 0.95rem;
-        background: #f8fafc;
-        border-radius: 14px;
-        border: 1px solid rgba(148, 163, 184, 0.2);
-    }
-
-    .section-title {
-        margin: 0 0 0.65rem;
-        font-weight: 700;
-        color: #0f172a;
-    }
-
-    .scenario-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: grid;
-        gap: 0.55rem;
-    }
-
-    .scenario-list li {
-        display: grid;
-        gap: 0.15rem;
-        padding: 0.55rem;
-        border-radius: 12px;
-        background: #ffffff;
-        border: 1px solid rgba(148, 163, 184, 0.16);
-    }
-
-    .scenario-meta {
-        color: #475569;
-        font-size: 0.875rem;
-    }
-
-    .scenario-details {
-        margin-top: 0.75rem;
-        border-top: 1px solid rgba(148, 163, 184, 0.18);
-        padding-top: 0.9rem;
-    }
-
-    .scenario-details summary {
-        cursor: pointer;
-        color: #0f172a;
-        font-weight: 700;
-        font-size: 0.98rem;
-        list-style: none;
-        outline: none;
-    }
-</style>

@@ -2,7 +2,7 @@ import json
 import threading
 from pathlib import Path
 
-from backend.src.api.models import Hospital
+from backend.src.models import Hospital
 from backend.src.data.interfaces import HospitalRepository
 
 
@@ -46,7 +46,7 @@ class JSONHospitalRepository(HospitalRepository):
         try:
             with hospital_path.open("x", encoding="utf-8") as handle:
                 json.dump(hospital.model_dump(mode="json"), handle, indent=2)
-        except (FileExistsError, OSError):
+        except OSError:
             return None
 
         return hospital
@@ -60,9 +60,9 @@ class JSONHospitalRepository(HospitalRepository):
         try:
             hospital_data = json.loads(hospital_path.read_text(encoding="utf-8"))
             return Hospital.model_validate(hospital_data)
-        except (OSError, json.JSONDecodeError, ValueError):
+        except (OSError, ValueError):
             return None
-        
+
     def get_all(self) -> list[Hospital]:
         hospitals = []
         for file in self._dir.glob(f"{self._FILE_PREFIX}*.json"):
@@ -70,7 +70,7 @@ class JSONHospitalRepository(HospitalRepository):
                 hospital_data = json.loads(file.read_text(encoding="utf-8"))
                 hospital = Hospital.model_validate(hospital_data)
                 hospitals.append(hospital)
-            except (OSError, json.JSONDecodeError, ValueError):
+            except (OSError, ValueError):
                 continue
         hospitals.sort(key=lambda h: h.id)
         return hospitals

@@ -1,0 +1,195 @@
+# Build and publish release image, then trigger CD
+name: Release
+on:
+  release:
+     types: [published]
+
+permissions:
+  security-events: write
+  packages: read
+  actions: read
+  contents: write
+  pull-requests: read
+  id-token: write
+  issues: write
+
+jobs:
+
+  # CodeQL analysis
+  codeql:
+    name: CodeQL analysis
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["python", "javascript-typescript"]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4
+
+  # SonarCloud scan
+  sonarqube:
+    name: SonarCloud scan
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Download backend coverage
+        uses: actions/download-artifact@v8
+        with:
+          name: backend-coverage-${{ github.sha }}
+          path: backend
+
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend-coverage-${{ github.sha }}
+          path: frontend
+
+      - name: SonarQube Cloud scan
+        uses: SonarSource/sonarqube-scan-action@v8
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # Backend checks
+  backend:
+    uses: ./.github/workflows/_backend-checks.yml
+    with:
+      upload-coverage: true
+    needs: codeql
+
+  # Frontend checks
+  frontend:
+    uses: ./.github/workflows/_frontend-checks.yml
+    with:
+      upload-coverage: true
+    needs: codeql
+
+  # Package and publish release
+  release:
+    name: Build and publish release image
+    runs-on: ubuntu-latest
+    needs: [frontend, backend, codeql, sonarqube]
+    outputs:
+      image-uri: ${{ steps.image.outputs.image-uri }}
+      image-digest: ${{ steps.image.outputs.image-digest }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker ${{ vars.GCP_REGION }}-docker.pkg.dev --quiet
+
+      - name: Build Docker image
+        id: image
+        run: |
+          IMAGE="${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_ARTIFACTS_REPO }}/blood-cvrp:${{ github.event.release.tag_name }}"
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
+          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE")
+          echo "image-uri=$IMAGE" >> "$GITHUB_OUTPUT"
+          echo "image-digest=$DIGEST" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare release folder
+        run: mkdir -p release
+
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ steps.image.outputs.image-uri }}
+          format: spdx-json
+          output-file: release/sbom.spdx.json
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" release/* --clobber
+
+      - name: Add Docker image URI to release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+          IMAGE_URI: ${{ steps.image.outputs.image-digest }}
+        run: |
+          gh release view "$TAG" --json body -q .body > release-notes.md
+          cat >> release-notes.md <<EOF
+          ## Deployment artifact
+          Docker image:
+          \`\`\`
+          $IMAGE_URI
+          \`\`\`
+          SBOM file is attached to this release.
+          EOF
+          gh release edit "$TAG" --notes-file release-notes.md
+
+  # Trigger CD workflow after successful release
+  trigger-cd:
+    name: Trigger CD
+    runs-on: ubuntu-latest
+    needs: release
+    if: success()
+
+    steps:
+      - name: Trigger CD workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow run cd.yml \
+            --ref master \
+            -f release_tag="${{ github.event.release.tag_name }}" \
+            -f image_uri="${{ needs.release.outputs.image-digest }}"
+
+  # Notify stakeholders about the release result
+  notify-release:
+    name: Notify release result
+    needs: [release, trigger-cd]
+    if: always()
+    uses: ./.github/workflows/_notify-teams.yml
+    with:
+      title: "Release"
+      status: "release=${{ needs.release.result }}, cd-trigger=${{ needs.trigger-cd.result }}"
+      environment: release
+      release_tag: ${{ github.event.release.tag_name }}
+    secrets:
+      MS_TEAMS_WEBHOOK_URI: ${{ secrets.MS_TEAMS_WEBHOOK_URI }}
+
+  # Create an issue if release validation fails
+  release-failure-issue:
+    name: Create release failure issue
+    needs: [codeql, backend, frontend, sonarqube, release]
+    runs-on: ubuntu-latest
+    if: failure()
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Create release failure issue
+        run: |
+          gh issue create \
+            --title "Release validation failed for ${{ github.event.release.tag_name }}" \
+            --body "Release validation failed. Check workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --label "release,ci-failure"

@@ -10,6 +10,7 @@ from backend.src.data.interfaces import (
     SolutionRepository,
 )
 from backend.src.data.routing import RoutingData
+from backend.src.settings import Settings
 
 
 def get_repositories(request: Request) -> Repositories:
@@ -46,3 +47,15 @@ def get_job_executor(request: Request) -> Any:
 
 def get_routing_data(request: Request) -> RoutingData:
     return request.app.state.routing_data
+
+
+def get_settings(request: Request) -> Settings:
+    return request.app.state.settings
+
+
+def get_cancel_manager(request: Request) -> Any:
+    return request.app.state.cancel_manager
+
+
+def get_cancel_tokens(request: Request) -> dict[int, Any]:
+    return request.app.state.cancel_tokens

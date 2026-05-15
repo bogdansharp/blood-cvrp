@@ -1,4 +1,4 @@
-from backend.src.api.models import Scenario, ScenarioReduced
+from backend.src.models import Scenario, ScenarioReduced
 from fastapi import Depends
 
 from backend.src.application.dependencies import get_scenario_repository
@@ -11,12 +11,15 @@ class ScenarioService:
 
     def list_scenarios(self) -> list[ScenarioReduced]:
         return self._repo.get_all()
-    
+
     def get_scenario(self, id: int) -> Scenario | None:
         return self._repo.get(id)
 
-    def delete_scenario(self, id: int) -> None:
-        self._repo.delete(id)
+    def create_scenario(self, scenario: Scenario) -> Scenario | None:
+        return self._repo.create(scenario)
+
+    def delete_scenario(self, id: int) -> bool:
+        return self._repo.delete(id)
 
 
 def get_scenario_service(

@@ -1,167 +1,147 @@
 <script lang="ts">
-    import { jobStatusLabel, type SolverJobPayload } from '$lib/store';
+	import { jobStatusLabel, type SolverJobPayload, cancelJob } from '$lib/store';
 
-    type Props = {
-        jobs?: SolverJobPayload[];
-    };
+	type Props = {
+		jobs?: SolverJobPayload[];
+	};
 
-    let { jobs = [] }: Props = $props();
+	let { jobs = [] }: Props = $props();
+
+	let cancelJobIds: number[] = $state([]);
+
+	const requestCancelJob = async (job: SolverJobPayload): Promise<void> => {
+		if (cancelJobIds.includes(job.id)) {
+			return;
+		}
+
+		cancelJobIds = [...cancelJobIds, job.id];
+
+		try {
+			await cancelJob(job.id);
+		} catch (error) {
+			console.error(`Failed to cancel job ${job.id}:`, error);
+			cancelJobIds = cancelJobIds.filter((id) => id !== job.id);
+		}
+	};
 </script>
 
-<div class="jobs">
-    {#if jobs.length === 0}
-        <p class="status">No jobs yet.</p>
-    {:else}
-        <ul class="jobs-list">
-            {#each jobs as job (job.id)}
-                <li class="job-card">
-                    <div class="job-row">
-                        <strong>{job.name ?? `Job #${job.id}`}</strong>
-                        <span class={`badge badge-${job.status}`}>{jobStatusLabel(job.status)}</span>
-                    </div>
-                    <div class="job-meta">Method: {job.method} | Scenario: {job.scenario_id}</div>
-                    <div class="job-meta">Created: {job.created_at}</div>
-                    {#if job.started_at}
-                        <div class="job-meta">Started: {job.started_at}</div>
-                    {/if}
-                    {#if job.finished_at}
-                        <div class="job-meta">Finished: {job.finished_at}</div>
-                    {/if}
-                    {#if job.solution_id !== undefined && job.solution_id !== null}
-                        <div class="job-meta">Solution: {job.solution_id}</div>
-                    {/if}
-                    <div class="job-meta">
-                        Timing: prep {job.preparation_ms}ms, solve {job.solver_ms}ms, results {job.results_ms}ms
-                    </div>
-                    {#if job.log.length > 0}
-                        <details class="job-log">
-                            <summary>Log ({job.log.length})</summary>
-                            <ul>
-                                {#each job.log as entry (entry.timestamp + entry.message)}
-                                    <li>
-                                        <span>{entry.timestamp}</span>
-                                        <span class={`badge badge-${entry.level}`}>{entry.level}</span>
-                                        <span>{entry.message}</span>
-                                    </li>
-                                {/each}
-                            </ul>
-                        </details>
-                    {:else}
-                        <div class="job-meta">Log: none</div>
-                    {/if}
-                </li>
-            {/each}
-        </ul>
-    {/if}
+<div class="grid gap-3">
+	{#if jobs.length === 0}
+		<p class="text-sm text-slate-600">No jobs yet.</p>
+	{:else}
+		<ul class="m-0 grid list-none gap-3 p-0">
+			{#each jobs as job (job.id)}
+				<li class="rounded-2xl border border-slate-200 bg-white p-3 shadow-lg shadow-slate-900/10">
+					<div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
+						<strong class="wrap-break-words text-sm text-slate-900">
+							Job #{job.id}
+						</strong>
+
+						<span>Scenario: {job.scenario_id}</span>
+
+						<span
+							class={`inline-block rounded-full px-2 py-0.5 text-[11px] font-bold capitalize ${
+								job.status === 'finished'
+									? 'bg-green-100 text-green-800'
+									: job.status === 'running'
+										? 'bg-blue-100 text-blue-800'
+										: job.status === 'failed'
+											? 'bg-red-100 text-red-800'
+											: job.status === 'cancelled'
+												? 'bg-amber-100 text-amber-800'
+												: 'bg-slate-200 text-slate-900'
+							}`}
+						>
+							{jobStatusLabel(job.status)}
+						</span>
+
+						<span>Created: {job.created_at}</span>
+
+						{#if job.started_at}
+							<span>Started: {job.started_at}</span>
+						{/if}
+
+						{#if job.finished_at}
+							<span>Finished: {job.finished_at}</span>
+						{/if}
+
+						<span>
+							prep {job.preparation_ms}ms / solve {job.solver_ms}ms / results {job.results_ms}ms
+						</span>
+
+						<button
+							class="ml-auto h-7.5 cursor-pointer rounded-md border border-[#0f4c81] bg-[#0f4c81] px-3 text-xs text-white disabled:cursor-not-allowed disabled:opacity-55"
+							type="button"
+							onclick={() => requestCancelJob(job)}
+							hidden={job.status !== 'running' && job.status !== 'queued'}
+							disabled={cancelJobIds.includes(job.id)}
+						>
+							Cancel
+						</button>
+					</div>
+
+					<details class="mt-3 border-t border-slate-200 pt-2">
+						<summary class="cursor-pointer text-sm font-bold text-slate-900"> Details </summary>
+
+						<div class="grid gap-1 pt-2 text-xs leading-5 text-slate-600">
+							<div>Name: {job.name ?? `Job #${job.id}`}</div>
+							<div>Method: {job.method}</div>
+
+							{#if job.solution_id !== undefined && job.solution_id !== null}
+								<div>Solution: {job.solution_id}</div>
+							{/if}
+
+							{#if job.options}
+								<pre
+									class="m-0 max-w-full overflow-x-auto rounded-md bg-slate-50 p-2 text-[11px] leading-4 text-slate-700">{JSON.stringify(
+										job.options,
+										null,
+										2
+									)}</pre>
+							{:else}
+								<div>Options: none</div>
+							{/if}
+						</div>
+					</details>
+
+					<details class="mt-2 border-t border-slate-200 pt-2">
+						<summary class="cursor-pointer text-sm font-bold text-slate-900">
+							Log ({job.log.length})
+						</summary>
+
+						{#if job.log.length > 0}
+							<ul class="m-0 grid list-none gap-2 pt-2 pl-0">
+								{#each job.log as entry (entry.timestamp + entry.message)}
+									<li class="grid gap-1 rounded-md bg-slate-50 p-2 text-xs text-slate-600">
+										<div class="flex flex-wrap items-center gap-2">
+											<span class="break-all">{entry.timestamp}</span>
+											<span
+												class={`inline-block rounded-full px-2 py-0.5 text-[11px] font-bold capitalize ${
+													entry.level === 'error'
+														? 'bg-red-100 text-red-800'
+														: entry.level === 'warning'
+															? 'bg-amber-100 text-amber-800'
+															: entry.level === 'debug'
+																? 'bg-slate-200 text-slate-800'
+																: 'bg-blue-100 text-blue-800'
+												}`}
+											>
+												{entry.level}
+											</span>
+										</div>
+
+										<div class="wrap-break-words leading-5 text-slate-700">
+											{entry.message}
+										</div>
+									</li>
+								{/each}
+							</ul>
+						{:else}
+							<div class="pt-2 text-xs text-slate-600">No log entries.</div>
+						{/if}
+					</details>
+				</li>
+			{/each}
+		</ul>
+	{/if}
 </div>
-
-<style>
-    .jobs {
-        display: grid;
-        gap: 0.85rem;
-    }
-
-    .status {
-        color: #475569;
-        font-size: 0.95rem;
-    }
-
-    .jobs-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        display: grid;
-        gap: 0.85rem;
-    }
-
-    .job-card {
-        border: 1px solid rgba(148, 163, 184, 0.25);
-        border-radius: 16px;
-        padding: 1rem;
-        background: #ffffff;
-        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-    }
-
-    .job-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        margin-bottom: 0.65rem;
-    }
-
-    .job-row strong {
-        font-size: 1rem;
-        color: #0f172a;
-    }
-
-    .job-meta {
-        color: #475569;
-        font-size: 0.9rem;
-        line-height: 1.6;
-    }
-
-    .job-meta + .job-meta {
-        margin-top: 0.35rem;
-    }
-
-    .job-log {
-        margin-top: 0.75rem;
-        border-top: 1px solid rgba(148, 163, 184, 0.2);
-        padding-top: 0.75rem;
-    }
-
-    .job-log summary {
-        cursor: pointer;
-        color: #0f172a;
-        font-weight: 700;
-    }
-
-    .job-log ul {
-        list-style: none;
-        padding: 0.75rem 0 0;
-        margin: 0;
-        display: grid;
-        gap: 0.55rem;
-    }
-
-    .job-log li {
-        display: grid;
-        grid-template-columns: auto auto 1fr;
-        gap: 0.5rem;
-        align-items: center;
-        color: #475569;
-        font-size: 0.85rem;
-    }
-
-    .badge {
-        display: inline-block;
-        padding: 0.18rem 0.65rem;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: capitalize;
-        background: #e2e8f0;
-        color: #0f172a;
-    }
-
-    .badge-finished {
-        background: #dcfce7;
-        color: #166534;
-    }
-
-    .badge-running {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-
-    .badge-failed {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-
-    .badge-cancelled {
-        background: #fef3c7;
-        color: #92400e;
-    }
-</style>

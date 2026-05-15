@@ -2,7 +2,7 @@ import json
 import threading
 from pathlib import Path
 
-from backend.src.api.models import Solution
+from backend.src.models import Solution
 from backend.src.data.interfaces import SolutionRepository
 
 
@@ -46,7 +46,7 @@ class JSONSolutionRepository(SolutionRepository):
         try:
             with solution_path.open("x", encoding="utf-8") as handle:
                 json.dump(solution.model_dump(mode="json"), handle, indent=2)
-        except (FileExistsError, OSError):
+        except OSError:
             return None
 
         return solution
@@ -60,9 +60,9 @@ class JSONSolutionRepository(SolutionRepository):
         try:
             solution_data = json.loads(solution_path.read_text(encoding="utf-8"))
             return Solution.model_validate(solution_data)
-        except (OSError, json.JSONDecodeError, ValueError):
+        except (OSError, ValueError):
             return None
-        
+
     def get_all(self, scenario_id: int | None) -> list[Solution]:
         solutions: list[Solution] = []
         for file in self._dir.glob(f"{self._FILE_PREFIX}*.json"):
@@ -71,7 +71,7 @@ class JSONSolutionRepository(SolutionRepository):
                 solution = Solution.model_validate(solution_data)
                 if scenario_id is None or solution.scenario_id == scenario_id:
                     solutions.append(solution)
-            except (OSError, json.JSONDecodeError, ValueError):
+            except (OSError, ValueError):
                 continue
         return solutions
 
