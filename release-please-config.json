@@ -1,10 +1,10 @@
 {
-    "release-type": "simple",
-    "bump-minor-pre-major": true,
-    "bump-patch-for-minor-pre-major": true,
-    "packages": {
-        ".": {
-            "package-name": "blood-cvrp"
-        }
+  "release-type": "simple",
+  "bootstrap-sha": "48243305bcd005f978dec7f5ca999e78ff69f260",
+  "packages": {
+    ".": {
+      "package-name": "blood-cvrp",
+      "include-component-in-tag": false
     }
+  }
 }
