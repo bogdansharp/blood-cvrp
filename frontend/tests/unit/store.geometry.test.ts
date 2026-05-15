@@ -30,12 +30,6 @@ const textResponse = (body: string, status = 500): Response => {
 	});
 };
 
-const flushPromises = async () => {
-	for (let i = 0; i < 7; i++) {
-		await Promise.resolve();
-	}
-};
-
 const makeHospital = (overrides: Partial<Hospital> = {}): Hospital => ({
 	id: 1,
 	name: 'Hospital 1',
@@ -125,6 +119,7 @@ describe('store geometry queue', () => {
 		fetchMock = vi.fn();
 		vi.stubGlobal('fetch', fetchMock);
 	});
+
 	afterEach(() => {
 		vi.clearAllTimers();
 		vi.useRealTimers();
@@ -148,17 +143,16 @@ describe('store geometry queue', () => {
 		const store = createStore(apiBase);
 
 		await store.loadSolution(7);
-		await flushPromises();
 
-		const state = get(store);
+		await vi.waitFor(() => {
+			const state = get(store);
 
-		expect(fetchMock).toHaveBeenCalledTimes(2);
-		expect(fetchMock).toHaveBeenNthCalledWith(1, `${apiBase}/solutions/7`);
-		expect(fetchMock.mock.calls[1][0] as string).toContain('/routing/geometry');
-		expect(state.geometries.get(key)).toEqual(geometry);
-		expect(state.geometryVersion).toBe(1);
-
-		await flushPromises();
+			expect(fetchMock).toHaveBeenCalledTimes(2);
+			expect(fetchMock).toHaveBeenNthCalledWith(1, `${apiBase}/solutions/7`);
+			expect(fetchMock.mock.calls[1][0] as string).toContain('/routing/geometry');
+			expect(state.geometries.get(key)).toEqual(geometry);
+			expect(state.geometryVersion).toBe(1);
+		});
 	});
 
 	it('does not fetch duplicate route segments more than once', async () => {
@@ -178,16 +172,15 @@ describe('store geometry queue', () => {
 		const store = createStore(apiBase);
 
 		await store.loadSolution(7);
-		await flushPromises();
 
-		const state = get(store);
+		await vi.waitFor(() => {
+			const state = get(store);
 
-		expect(fetchMock).toHaveBeenCalledTimes(2);
-		expect(state.geometries.get(key)).toEqual(geometry);
-		expect(state.geometries.size).toBe(1);
-		expect(state.geometryVersion).toBe(1);
-
-		await flushPromises();
+			expect(fetchMock).toHaveBeenCalledTimes(2);
+			expect(state.geometries.get(key)).toEqual(geometry);
+			expect(state.geometries.size).toBe(1);
+			expect(state.geometryVersion).toBe(1);
+		});
 	});
 
 	it('fetches all missing geometries sequentially', async () => {
@@ -223,14 +216,15 @@ describe('store geometry queue', () => {
 		const store = createStore(apiBase);
 
 		await store.loadSolution(7);
-		await flushPromises();
 
-		const state = get(store);
+		await vi.waitFor(() => {
+			const state = get(store);
 
-		expect(fetchMock).toHaveBeenCalledTimes(3);
-		expect(state.geometries.get(firstKey)).toEqual(firstGeometry);
-		expect(state.geometries.get(secondKey)).toEqual(secondGeometry);
-		expect(state.geometryVersion).toBe(2);
+			expect(fetchMock).toHaveBeenCalledTimes(3);
+			expect(state.geometries.get(firstKey)).toEqual(firstGeometry);
+			expect(state.geometries.get(secondKey)).toEqual(secondGeometry);
+			expect(state.geometryVersion).toBe(2);
+		});
 	});
 
 	it('does not fetch geometry that is already cached', async () => {
@@ -252,7 +246,6 @@ describe('store geometry queue', () => {
 		});
 
 		await store.loadSolution(7);
-		await flushPromises();
 
 		const state = get(store);
 
@@ -277,26 +270,25 @@ describe('store geometry queue', () => {
 		const store = createStore(apiBase);
 
 		await store.loadSolution(7);
-		await flushPromises();
 
-		expect(fetchMock).toHaveBeenCalledTimes(2);
-		expect(get(store).geometries.has(key)).toBe(false);
+		await vi.waitFor(() => {
+			expect(fetchMock).toHaveBeenCalledTimes(2);
+			expect(get(store).geometries.has(key)).toBe(false);
+		});
 
 		await vi.advanceTimersByTimeAsync(59_999);
-		await flushPromises();
 
 		expect(fetchMock).toHaveBeenCalledTimes(2);
 
 		await vi.advanceTimersByTimeAsync(1);
-		await flushPromises();
 
-		const state = get(store);
+		await vi.waitFor(() => {
+			const state = get(store);
 
-		expect(fetchMock).toHaveBeenCalledTimes(3);
-		expect(state.geometries.get(key)).toEqual(geometry);
-		expect(state.geometryVersion).toBe(1);
-
-		await flushPromises();
+			expect(fetchMock).toHaveBeenCalledTimes(3);
+			expect(state.geometries.get(key)).toEqual(geometry);
+			expect(state.geometryVersion).toBe(1);
+		});
 	});
 
 	it('keeps straight-line fallback after geometry fails twice', async () => {
@@ -310,18 +302,20 @@ describe('store geometry queue', () => {
 		const store = createStore(apiBase);
 
 		await store.loadSolution(7);
-		await flushPromises();
 
-		expect(fetchMock).toHaveBeenCalledTimes(2);
+		await vi.waitFor(() => {
+			expect(fetchMock).toHaveBeenCalledTimes(2);
+		});
 
 		await vi.advanceTimersByTimeAsync(60_000);
-		await flushPromises();
 
-		const state = get(store);
+		await vi.waitFor(() => {
+			const state = get(store);
 
-		expect(fetchMock).toHaveBeenCalledTimes(3);
-		expect(state.geometries.has(key)).toBe(false);
-		expect(state.geometryVersion).toBe(0);
-		expect(state.error).not.toBeNull();
+			expect(fetchMock).toHaveBeenCalledTimes(3);
+			expect(state.geometries.has(key)).toBe(false);
+			expect(state.geometryVersion).toBe(0);
+			expect(state.error).not.toBeNull();
+		});
 	});
 });
