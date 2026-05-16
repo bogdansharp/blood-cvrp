@@ -409,7 +409,7 @@ export const createStore = (apiBase = '/api/v1') => {
 	const loadScenarioList = async (): Promise<ScenarioReduced[]> => {
 		update((state) => ({ ...state, loading: true, error: null }));
 
-		const listResponse = await safeFetch(`${apiBase}/scenarios`);
+		const listResponse = await safeFetch(`${apiBase}/scenarios/`);
 		if (!listResponse.ok) {
 			const detail = await cleanError(listResponse);
 			update((state) => ({ ...state, loading: false, error: detail }));
@@ -417,13 +417,7 @@ export const createStore = (apiBase = '/api/v1') => {
 		}
 
 		const scenarios = (await listResponse.json()) as ScenarioReduced[];
-		if (!scenarios.length) {
-			const message = 'No scenarios available.';
-			update((state) => ({ ...state, loading: false, error: message }));
-			throw new Error(message);
-		}
-
-		update((state) => ({ ...state, scenarios, loading: false }));
+		update((state) => ({ ...state, scenarios, loading: false, error: null }));
 		return scenarios;
 	};
 
@@ -592,20 +586,19 @@ export const createStore = (apiBase = '/api/v1') => {
 	};
 
 	const fetchHospitals = async () => {
-		update((state) => {
-			return { ...state, loading: true, error: null, hospitals: [] };
-		});
+		update((state) => ({ ...state, loading: true, error: null, hospitals: [] }));
 
-		const listResponse = await fetch(`${apiBase}/hospitals`);
+		const listResponse = await safeFetch(`${apiBase}/hospitals/`);
 		if (!listResponse.ok) {
-			const detail = await listResponse.text();
+			const detail = await cleanError(listResponse);
 			update((state) => ({ ...state, loading: false, error: detail }));
 			throw new Error(detail);
 		}
 
-		const hospitals_raw = (await listResponse.json()) as HospitalLocation[];
-		const hospitals = hospitals_raw.filter(isHospitalLocation);
-		update((state) => ({ ...state, loading: false, hospitals: hospitals, error: null }));
+		const hospitalsRaw = (await listResponse.json()) as HospitalLocation[];
+		const hospitals = hospitalsRaw.filter(isHospitalLocation);
+
+		update((state) => ({ ...state, loading: false, hospitals, error: null }));
 	};
 
 	const deleteScenario = async (scenarioId: number): Promise<void> => {

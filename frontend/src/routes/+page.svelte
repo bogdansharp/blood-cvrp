@@ -118,7 +118,6 @@
 			const scenarioId = await store.saveScenario(scenario);
 
 			if (scenarioId !== null) {
-				await store.loadScenarioList();
 				await store.loadScenario(scenarioId);
 			}
 		} else if (editedScenarioId !== null) {
