@@ -21,7 +21,6 @@ frontend/coverage
 
 backend/storage
 backend/preparation/storage
-storage
 runs
 
 .vscode

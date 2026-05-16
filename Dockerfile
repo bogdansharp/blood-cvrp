@@ -18,6 +18,7 @@ RUN python -m pip install --upgrade pip \
     && pip install --no-cache-dir -r backend/requirements.txt
 
 COPY backend backend
+COPY storage storage
 COPY --from=frontend-build /app/frontend/build frontend/build
 
 ENV PORT=8080
