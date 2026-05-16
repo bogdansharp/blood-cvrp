@@ -58,7 +58,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: API health check
-        run: curl --fail "$BASE_URL/api/v1/health"
+        run: curl --fail "${BASE_URL%/}/api/v1/health"
 
       - name: Set up Node
         uses: actions/setup-node@v6
@@ -114,6 +114,7 @@ jobs:
       - name: Create deployment verification issue
         run: |
           gh issue create \
+            --repo "${{ github.repository }}" \
             --title "Verify production deployment ${{ inputs.release_tag }}" \
             --body "Check production health, API response, frontend page load, and route display after deployment of ${{ inputs.release_tag }} at $BASE_URL." \
             --label "deployment,verification"
