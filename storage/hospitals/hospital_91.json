@@ -1,0 +1,18 @@
+{
+  "id": 91,
+  "name": "Rotunda Hospital",
+  "lat_e6": 53352344,
+  "lng_e6": -6263159,
+  "display_lat_e6": 53352180,
+  "display_lng_e6": -6263470,
+  "snap_distance_m": 27.56,
+  "category": "Hospital",
+  "subcategory": "Maternity",
+  "address": "Parnell Street, Dublin 1",
+  "eircode": "D01 P5W9",
+  "demand": 9,
+  "lat": 53.352344,
+  "lng": -6.263159,
+  "display_lat": 53.35218,
+  "display_lng": -6.26347
+}

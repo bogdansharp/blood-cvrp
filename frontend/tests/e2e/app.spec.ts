@@ -1,6 +1,6 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 
-const apiBase = '/api/v1';
+const apiBase = '**/api/v1';
 
 const scenarioReduced = {
 	id: 42,
@@ -157,11 +157,11 @@ const mockBaseBackend = async (page: Page, unexpectedApiRequests: string[] = [])
 		);
 	});
 
-	await page.route(`${apiBase}/scenarios`, async (route) => {
+	await page.route(`${apiBase}/scenarios/`, async (route) => {
 		await fulfillJson(route, [scenarioReduced]);
 	});
 
-	await page.route(`${apiBase}/hospitals`, async (route) => {
+	await page.route(`${apiBase}/hospitals/`, async (route) => {
 		await fulfillJson(route, hospitals);
 	});
 

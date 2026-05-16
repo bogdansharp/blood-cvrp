@@ -1,0 +1,18 @@
+{
+  "id": 75,
+  "name": "Mount Carmel",
+  "lat_e6": 53304600,
+  "lng_e6": -6265554,
+  "display_lat_e6": 53304720,
+  "display_lng_e6": -6265151,
+  "snap_distance_m": 29.9,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Braemor Park, Dublin 14",
+  "eircode": "D14 A5R2",
+  "demand": 2,
+  "lat": 53.3046,
+  "lng": -6.265554,
+  "display_lat": 53.30472,
+  "display_lng": -6.265151
+}

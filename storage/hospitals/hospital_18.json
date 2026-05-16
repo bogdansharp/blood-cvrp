@@ -1,0 +1,18 @@
+{
+  "id": 18,
+  "name": "Buncrana",
+  "lat_e6": 55134079,
+  "lng_e6": -7450115,
+  "display_lat_e6": 55134078,
+  "display_lng_e6": -7450195,
+  "snap_distance_m": 5.09,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Maginn Avenue, Buncrana, Co. Donegal",
+  "eircode": "F93 X225",
+  "demand": 2,
+  "lat": 55.134079,
+  "lng": -7.450115,
+  "display_lat": 55.134078,
+  "display_lng": -7.450195
+}

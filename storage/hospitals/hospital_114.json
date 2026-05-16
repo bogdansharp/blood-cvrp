@@ -1,0 +1,18 @@
+{
+  "id": 114,
+  "name": "St John's Hospital Limerick",
+  "lat_e6": 52663045,
+  "lng_e6": -8617065,
+  "display_lat_e6": 52662806,
+  "display_lng_e6": -8617281,
+  "snap_distance_m": 30.3,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "John's Street, Limerick",
+  "eircode": "V94 H272",
+  "demand": 6,
+  "lat": 52.663045,
+  "lng": -8.617065,
+  "display_lat": 52.662806,
+  "display_lng": -8.617281
+}

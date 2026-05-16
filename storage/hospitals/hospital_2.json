@@ -1,0 +1,18 @@
+{
+  "id": 2,
+  "name": "Athy",
+  "lat_e6": 52998136,
+  "lng_e6": -6994814,
+  "display_lat_e6": 52998033,
+  "display_lng_e6": -6994929,
+  "snap_distance_m": 13.8,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Saint Vincent's Hospital, Woodstock Street, Athy, Co. Kildare",
+  "eircode": "R14 AY22",
+  "demand": 2,
+  "lat": 52.998136,
+  "lng": -6.994814,
+  "display_lat": 52.998033,
+  "display_lng": -6.994929
+}

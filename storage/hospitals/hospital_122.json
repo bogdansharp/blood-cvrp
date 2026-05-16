@@ -1,0 +1,18 @@
+{
+  "id": 122,
+  "name": "Tallaght University Hospital",
+  "lat_e6": 53290645,
+  "lng_e6": -6378254,
+  "display_lat_e6": 53290243,
+  "display_lng_e6": -6377414,
+  "snap_distance_m": 71.54,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Belgard Square North, Dublin 24",
+  "eircode": "D24 NR0A",
+  "demand": 17,
+  "lat": 53.290645,
+  "lng": -6.378254,
+  "display_lat": 53.290243,
+  "display_lng": -6.377414
+}

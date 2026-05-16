@@ -1,0 +1,18 @@
+{
+  "id": 57,
+  "name": "Letterkenny University Hospital",
+  "lat_e6": 54960018,
+  "lng_e6": -7734343,
+  "display_lat_e6": 54960328,
+  "display_lng_e6": -7734455,
+  "snap_distance_m": 35.19,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Kilmacrennan Road, Letterkenny, Co. Donegal",
+  "eircode": "F92 AE81",
+  "demand": 13,
+  "lat": 54.960018,
+  "lng": -7.734343,
+  "display_lat": 54.960328,
+  "display_lng": -7.734455
+}

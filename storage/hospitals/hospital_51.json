@@ -1,0 +1,18 @@
+{
+  "id": 51,
+  "name": "Kenmare Community Hospital",
+  "lat_e6": 51889092,
+  "lng_e6": -9581642,
+  "display_lat_e6": 51888857,
+  "display_lng_e6": -9582377,
+  "snap_distance_m": 56.78,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Kenmare, Co. Kerry",
+  "eircode": "V93 AW24",
+  "demand": 2,
+  "lat": 51.889092,
+  "lng": -9.581642,
+  "display_lat": 51.888857,
+  "display_lng": -9.582377
+}

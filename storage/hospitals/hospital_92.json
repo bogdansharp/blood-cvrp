@@ -1,0 +1,18 @@
+{
+  "id": 92,
+  "name": "Royal Victoria Eye And Ear Hospital",
+  "lat_e6": 53332826,
+  "lng_e6": -6256183,
+  "display_lat_e6": 53332675,
+  "display_lng_e6": -6256159,
+  "snap_distance_m": 16.84,
+  "category": "Hospital",
+  "subcategory": "Opthalmic/ENT",
+  "address": "Adelaide Road, Dublin 2",
+  "eircode": "D02 XK51",
+  "demand": 2,
+  "lat": 53.332826,
+  "lng": -6.256183,
+  "display_lat": 53.332675,
+  "display_lng": -6.256159
+}

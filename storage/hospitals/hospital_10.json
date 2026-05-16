@@ -1,0 +1,18 @@
+{
+  "id": 10,
+  "name": "Beaumont Hospital",
+  "lat_e6": 53392130,
+  "lng_e6": -6225654,
+  "display_lat_e6": 53392164,
+  "display_lng_e6": -6225957,
+  "snap_distance_m": 20.45,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Beaumont Road, Dublin 9",
+  "eircode": "D09 C562",
+  "demand": 18,
+  "lat": 53.39213,
+  "lng": -6.225654,
+  "display_lat": 53.392164,
+  "display_lng": -6.225957
+}

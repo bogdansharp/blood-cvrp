@@ -1,0 +1,18 @@
+{
+  "id": 13,
+  "name": "Blackrock Clinic",
+  "lat_e6": 53303468,
+  "lng_e6": -6188172,
+  "display_lat_e6": 53304125,
+  "display_lng_e6": -6188921,
+  "snap_distance_m": 88.41,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Rock Road, Blackrock, Co. Dublin",
+  "eircode": "A94 E4X7",
+  "demand": 5,
+  "lat": 53.303468,
+  "lng": -6.188172,
+  "display_lat": 53.304125,
+  "display_lng": -6.188921
+}

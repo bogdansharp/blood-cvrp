@@ -1,0 +1,18 @@
+{
+  "id": 130,
+  "name": "Wexford General Hospital",
+  "lat_e6": 52342831,
+  "lng_e6": -6482402,
+  "display_lat_e6": 52342743,
+  "display_lng_e6": -6482134,
+  "snap_distance_m": 20.68,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Newtown Road, Wexford",
+  "eircode": "Y35 Y17D",
+  "demand": 6,
+  "lat": 52.342831,
+  "lng": -6.482402,
+  "display_lat": 52.342743,
+  "display_lng": -6.482134
+}

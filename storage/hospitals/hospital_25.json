@@ -1,0 +1,18 @@
+{
+  "id": 25,
+  "name": "Cherry Orchard Hospital ",
+  "lat_e6": 53343458,
+  "lng_e6": -6378288,
+  "display_lat_e6": 53343523,
+  "display_lng_e6": -6378567,
+  "snap_distance_m": 19.91,
+  "category": "Hospital",
+  "subcategory": "Mixed Use",
+  "address": "Ballyfermot Road, Dublin 10",
+  "eircode": "D10 Y821",
+  "demand": 2,
+  "lat": 53.343458,
+  "lng": -6.378288,
+  "display_lat": 53.343523,
+  "display_lng": -6.378567
+}

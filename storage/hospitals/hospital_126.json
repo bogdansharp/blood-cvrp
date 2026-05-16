@@ -1,0 +1,18 @@
+{
+  "id": 126,
+  "name": "University Hospital Kerry",
+  "lat_e6": 52265383,
+  "lng_e6": -9689150,
+  "display_lat_e6": 52265793,
+  "display_lng_e6": -9689454,
+  "snap_distance_m": 50.06,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Tralee, Co. Kerry",
+  "eircode": "V92 NX94",
+  "demand": 8,
+  "lat": 52.265383,
+  "lng": -9.68915,
+  "display_lat": 52.265793,
+  "display_lng": -9.689454
+}

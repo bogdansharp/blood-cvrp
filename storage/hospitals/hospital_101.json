@@ -1,0 +1,18 @@
+{
+  "id": 101,
+  "name": "Saint Mary's Hospital - Castleblayney",
+  "lat_e6": 54120058,
+  "lng_e6": -6744803,
+  "display_lat_e6": 54119963,
+  "display_lng_e6": -6744940,
+  "snap_distance_m": 13.8,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Bree, Castleblayney, Co. Monaghan",
+  "eircode": "A75 TD61",
+  "demand": 2,
+  "lat": 54.120058,
+  "lng": -6.744803,
+  "display_lat": 54.119963,
+  "display_lng": -6.74494
+}

@@ -1,0 +1,18 @@
+{
+  "id": 95,
+  "name": "Saint Dympna's Hospital",
+  "lat_e6": 52842325,
+  "lng_e6": -6927324,
+  "display_lat_e6": 52842209,
+  "display_lng_e6": -6927355,
+  "snap_distance_m": 13.03,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Athy Road, Carlow",
+  "eircode": "R93 DE62",
+  "demand": 2,
+  "lat": 52.842325,
+  "lng": -6.927324,
+  "display_lat": 52.842209,
+  "display_lng": -6.927355
+}

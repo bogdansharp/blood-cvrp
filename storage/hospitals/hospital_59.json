@@ -1,0 +1,18 @@
+{
+  "id": 59,
+  "name": "Saint Camillus Hospital - Limerick",
+  "lat_e6": 52668730,
+  "lng_e6": -8641006,
+  "display_lat_e6": 52668731,
+  "display_lng_e6": -8640785,
+  "snap_distance_m": 14.91,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Shelbourne Road, Limerick",
+  "eircode": "V94 5V24",
+  "demand": 2,
+  "lat": 52.66873,
+  "lng": -8.641006,
+  "display_lat": 52.668731,
+  "display_lng": -8.640785
+}

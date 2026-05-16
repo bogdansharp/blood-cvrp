@@ -1,0 +1,18 @@
+{
+  "id": 29,
+  "name": "Connolly Hospital Blanchardstown",
+  "lat_e6": 53388570,
+  "lng_e6": -6368138,
+  "display_lat_e6": 53388716,
+  "display_lng_e6": -6368023,
+  "snap_distance_m": 17.95,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Mill Road, Dublin 15",
+  "eircode": "D15 X40D",
+  "demand": 9,
+  "lat": 53.38857,
+  "lng": -6.368138,
+  "display_lat": 53.388716,
+  "display_lng": -6.368023
+}

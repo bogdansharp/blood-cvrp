@@ -1,0 +1,18 @@
+{
+  "id": 44,
+  "name": "Fermoy",
+  "lat_e6": 52139014,
+  "lng_e6": -8255912,
+  "display_lat_e6": 52138912,
+  "display_lng_e6": -8255560,
+  "snap_distance_m": 26.56,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Saint Patrick's Community Hospital, Courthouse Road, Fermoy, Co. Cork",
+  "eircode": "P61 H582",
+  "demand": 2,
+  "lat": 52.139014,
+  "lng": -8.255912,
+  "display_lat": 52.138912,
+  "display_lng": -8.25556
+}

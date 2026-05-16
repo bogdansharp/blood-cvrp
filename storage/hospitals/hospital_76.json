@@ -1,0 +1,18 @@
+{
+  "id": 76,
+  "name": "Naas General Hospital",
+  "lat_e6": 53211475,
+  "lng_e6": -6661579,
+  "display_lat_e6": 53211712,
+  "display_lng_e6": -6661183,
+  "snap_distance_m": 37.24,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Craddockstown Road, Naas, Co. Kildare",
+  "eircode": "W91 AE76",
+  "demand": 7,
+  "lat": 53.211475,
+  "lng": -6.661579,
+  "display_lat": 53.211712,
+  "display_lng": -6.661183
+}

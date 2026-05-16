@@ -1,0 +1,18 @@
+{
+  "id": 100,
+  "name": "Saint Joseph's Hospital -Castletownbere",
+  "lat_e6": 51651871,
+  "lng_e6": -9900693,
+  "display_lat_e6": 51651778,
+  "display_lng_e6": -9900580,
+  "snap_distance_m": 12.95,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Derrymihan West, Castletownbere, Co. Cork",
+  "eircode": "P75 PW81",
+  "demand": 2,
+  "lat": 51.651871,
+  "lng": -9.900693,
+  "display_lat": 51.651778,
+  "display_lng": -9.90058
+}

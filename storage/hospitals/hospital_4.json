@@ -1,0 +1,18 @@
+{
+  "id": 4,
+  "name": "Baggot Street",
+  "lat_e6": 53333843,
+  "lng_e6": -6244046,
+  "display_lat_e6": 53334056,
+  "display_lng_e6": -6244183,
+  "snap_distance_m": 25.39,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "14/18 Baggot Street Upper, Dublin 4",
+  "eircode": "D04 T6N3",
+  "demand": 2,
+  "lat": 53.333843,
+  "lng": -6.244046,
+  "display_lat": 53.334056,
+  "display_lng": -6.244183
+}

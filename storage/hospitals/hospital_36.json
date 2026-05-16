@@ -1,0 +1,18 @@
+{
+  "id": 36,
+  "name": "Donegal",
+  "lat_e6": 54655569,
+  "lng_e6": -8099054,
+  "display_lat_e6": 54655550,
+  "display_lng_e6": -8099349,
+  "snap_distance_m": 19.1,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Donegal Community Hospital, Drumlonagher, Donegal",
+  "eircode": "F94 V670",
+  "demand": 2,
+  "lat": 54.655569,
+  "lng": -8.099054,
+  "display_lat": 54.65555,
+  "display_lng": -8.099349
+}

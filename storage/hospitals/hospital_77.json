@@ -1,0 +1,18 @@
+{
+  "id": 77,
+  "name": "National Maternity Hospital",
+  "lat_e6": 53340248,
+  "lng_e6": -6245993,
+  "display_lat_e6": 53340312,
+  "display_lng_e6": -6246177,
+  "snap_distance_m": 14.15,
+  "category": "Hospital",
+  "subcategory": "Maternity",
+  "address": "Holles Street, Dublin 2",
+  "eircode": "D02 YH21",
+  "demand": 11,
+  "lat": 53.340248,
+  "lng": -6.245993,
+  "display_lat": 53.340312,
+  "display_lng": -6.246177
+}

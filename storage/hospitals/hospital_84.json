@@ -1,0 +1,18 @@
+{
+  "id": 84,
+  "name": "Our Lady's Children's Hospital Crumlin",
+  "lat_e6": 53326037,
+  "lng_e6": -6318603,
+  "display_lat_e6": 53325647,
+  "display_lng_e6": -6318012,
+  "snap_distance_m": 58.5,
+  "category": "Hospital",
+  "subcategory": "Paediatric",
+  "address": "Crumlin, Dublin 12",
+  "eircode": "D12 N512",
+  "demand": 10,
+  "lat": 53.326037,
+  "lng": -6.318603,
+  "display_lat": 53.325647,
+  "display_lng": -6.318012
+}

@@ -1,0 +1,18 @@
+{
+  "id": 86,
+  "name": "Peamount",
+  "lat_e6": 53316969,
+  "lng_e6": -6483731,
+  "display_lat_e6": 53315223,
+  "display_lng_e6": -6483558,
+  "snap_distance_m": 194.49,
+  "category": "Hospital",
+  "subcategory": "Mixed Use",
+  "address": "Peamount Road, Newcastle, Co. Dublin",
+  "eircode": "D22 W1Y6",
+  "demand": 2,
+  "lat": 53.316969,
+  "lng": -6.483731,
+  "display_lat": 53.315223,
+  "display_lng": -6.483558
+}

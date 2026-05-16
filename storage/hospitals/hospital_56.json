@@ -1,0 +1,18 @@
+{
+  "id": 56,
+  "name": "Kinsale",
+  "lat_e6": 51712966,
+  "lng_e6": -8527083,
+  "display_lat_e6": 51713358,
+  "display_lng_e6": -8527227,
+  "snap_distance_m": 44.67,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Rath Beg, Kinsale, Co. Cork",
+  "eircode": "P17 A027",
+  "demand": 2,
+  "lat": 51.712966,
+  "lng": -8.527083,
+  "display_lat": 51.713358,
+  "display_lng": -8.527227
+}

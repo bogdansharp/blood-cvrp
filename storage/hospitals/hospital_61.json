@@ -1,0 +1,18 @@
+{
+  "id": 61,
+  "name": "Macroom Community Hospital, ",
+  "lat_e6": 51907373,
+  "lng_e6": -8967650,
+  "display_lat_e6": 51907336,
+  "display_lng_e6": -8967446,
+  "snap_distance_m": 14.58,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Macroom, Co. Cork",
+  "eircode": "P12 AX83",
+  "demand": 2,
+  "lat": 51.907373,
+  "lng": -8.96765,
+  "display_lat": 51.907336,
+  "display_lng": -8.967446
+}

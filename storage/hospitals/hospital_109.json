@@ -1,0 +1,18 @@
+{
+  "id": 109,
+  "name": "Sligo University Hospital",
+  "lat_e6": 54274178,
+  "lng_e6": -8463361,
+  "display_lat_e6": 54274254,
+  "display_lng_e6": -8463877,
+  "snap_distance_m": 34.57,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "The Mall, Sligo",
+  "eircode": "F91 H684",
+  "demand": 14,
+  "lat": 54.274178,
+  "lng": -8.463361,
+  "display_lat": 54.274254,
+  "display_lng": -8.463877
+}

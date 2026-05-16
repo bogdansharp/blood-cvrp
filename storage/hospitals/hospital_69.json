@@ -1,0 +1,18 @@
+{
+  "id": 69,
+  "name": "Midland Regional Hospital Portlaoise",
+  "lat_e6": 53037957,
+  "lng_e6": -7275993,
+  "display_lat_e6": 53038259,
+  "display_lng_e6": -7276142,
+  "snap_distance_m": 35.01,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Dublin Road, Portlaoise, Co. Laois",
+  "eircode": "R32 RW61",
+  "demand": 7,
+  "lat": 53.037957,
+  "lng": -7.275993,
+  "display_lat": 53.038259,
+  "display_lng": -7.276142
+}

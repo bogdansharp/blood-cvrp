@@ -1,0 +1,18 @@
+{
+  "id": 42,
+  "name": "Ennis Hospital",
+  "lat_e6": 52851111,
+  "lng_e6": -8983248,
+  "display_lat_e6": 52851306,
+  "display_lng_e6": -8983545,
+  "snap_distance_m": 29.45,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Gort Road, Ennis, Co. Clare",
+  "eircode": "V95 HN29",
+  "demand": 4,
+  "lat": 52.851111,
+  "lng": -8.983248,
+  "display_lat": 52.851306,
+  "display_lng": -8.983545
+}

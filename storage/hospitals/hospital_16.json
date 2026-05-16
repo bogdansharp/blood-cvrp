@@ -1,0 +1,18 @@
+{
+  "id": 16,
+  "name": "Bon Secours Hospital - Galway",
+  "lat_e6": 53277935,
+  "lng_e6": -9019619,
+  "display_lat_e6": 53278158,
+  "display_lng_e6": -9019484,
+  "snap_distance_m": 26.37,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Renmore Road, Galway",
+  "eircode": "H91 KC7H",
+  "demand": 5,
+  "lat": 53.277935,
+  "lng": -9.019619,
+  "display_lat": 53.278158,
+  "display_lng": -9.019484
+}

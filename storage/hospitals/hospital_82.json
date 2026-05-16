@@ -1,0 +1,18 @@
+{
+  "id": 82,
+  "name": "Our Lady of Lourdes Hospital Drogheda",
+  "lat_e6": 53722735,
+  "lng_e6": -6354947,
+  "display_lat_e6": 53723156,
+  "display_lng_e6": -6354865,
+  "snap_distance_m": 47.1,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Drogheda, Co. Louth",
+  "eircode": "A92 VW28",
+  "demand": 12,
+  "lat": 53.722735,
+  "lng": -6.354947,
+  "display_lat": 53.723156,
+  "display_lng": -6.354865
+}

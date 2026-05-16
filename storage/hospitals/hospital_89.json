@@ -1,0 +1,18 @@
+{
+  "id": 89,
+  "name": "Ramelton ",
+  "lat_e6": 55034394,
+  "lng_e6": -7648339,
+  "display_lat_e6": 55034136,
+  "display_lng_e6": -7648129,
+  "snap_distance_m": 31.69,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Back Road, Ramelton, Co. Donegal",
+  "eircode": "F92 PX58",
+  "demand": 2,
+  "lat": 55.034394,
+  "lng": -7.648339,
+  "display_lat": 55.034136,
+  "display_lng": -7.648129
+}

@@ -1,0 +1,18 @@
+{
+  "id": 78,
+  "name": "National Orthopaedic Hospital Cappagh",
+  "lat_e6": 53394390,
+  "lng_e6": -6327704,
+  "display_lat_e6": 53394534,
+  "display_lng_e6": -6328348,
+  "snap_distance_m": 45.59,
+  "category": "Hospital",
+  "subcategory": "Orthopaedic",
+  "address": "Cappagh Road, Dublin 11",
+  "eircode": "D11 EV29",
+  "demand": 2,
+  "lat": 53.39439,
+  "lng": -6.327704,
+  "display_lat": 53.394534,
+  "display_lng": -6.328348
+}

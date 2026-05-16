@@ -1,0 +1,18 @@
+{
+  "id": 7,
+  "name": "Bantry General Hospital",
+  "lat_e6": 51675990,
+  "lng_e6": -9449671,
+  "display_lat_e6": 51676136,
+  "display_lng_e6": -9449464,
+  "snap_distance_m": 21.63,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Carrignagat, Bantry, Co. Cork",
+  "eircode": "P75 DX93",
+  "demand": 3,
+  "lat": 51.67599,
+  "lng": -9.449671,
+  "display_lat": 51.676136,
+  "display_lng": -9.449464
+}

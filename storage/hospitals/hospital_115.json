@@ -1,0 +1,18 @@
+{
+  "id": 115,
+  "name": "St Luke's General Hospital Kilkenny",
+  "lat_e6": 52666037,
+  "lng_e6": -7262800,
+  "display_lat_e6": 52665380,
+  "display_lng_e6": -7263930,
+  "snap_distance_m": 105.55,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Freshford Road, Kilkenny",
+  "eircode": "R95 FY71",
+  "demand": 7,
+  "lat": 52.666037,
+  "lng": -7.2628,
+  "display_lat": 52.66538,
+  "display_lng": -7.26393
+}

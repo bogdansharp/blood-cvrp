@@ -1,0 +1,18 @@
+{
+  "id": 11,
+  "name": "Belmullet Community Hospital",
+  "lat_e6": 54228283,
+  "lng_e6": -9986331,
+  "display_lat_e6": 54228433,
+  "display_lng_e6": -9986301,
+  "snap_distance_m": 16.77,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Belmullet, Co. Mayo",
+  "eircode": "F26 K1H9",
+  "demand": 2,
+  "lat": 54.228283,
+  "lng": -9.986331,
+  "display_lat": 54.228433,
+  "display_lng": -9.986301
+}

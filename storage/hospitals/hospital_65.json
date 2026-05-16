@@ -1,0 +1,18 @@
+{
+  "id": 65,
+  "name": "Mater Private Hospital",
+  "lat_e6": 53358032,
+  "lng_e6": -6264321,
+  "display_lat_e6": 53358187,
+  "display_lng_e6": -6263890,
+  "snap_distance_m": 33.42,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Eccles Street, Dublin 7",
+  "eircode": "D07 WKW8",
+  "demand": 5,
+  "lat": 53.358032,
+  "lng": -6.264321,
+  "display_lat": 53.358187,
+  "display_lng": -6.26389
+}

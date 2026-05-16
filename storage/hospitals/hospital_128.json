@@ -1,0 +1,18 @@
+{
+  "id": 128,
+  "name": "University Hospital Waterford",
+  "lat_e6": 52248556,
+  "lng_e6": -7078500,
+  "display_lat_e6": 52248050,
+  "display_lng_e6": -7078636,
+  "snap_distance_m": 57.08,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Dunmore Road, Waterford",
+  "eircode": "X91 ER8E",
+  "demand": 15,
+  "lat": 52.248556,
+  "lng": -7.0785,
+  "display_lat": 52.24805,
+  "display_lng": -7.078636
+}

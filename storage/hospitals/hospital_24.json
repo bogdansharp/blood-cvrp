@@ -1,0 +1,18 @@
+{
+  "id": 24,
+  "name": "Cavan General Hospital",
+  "lat_e6": 54001831,
+  "lng_e6": -7372203,
+  "display_lat_e6": 54002020,
+  "display_lng_e6": -7372443,
+  "snap_distance_m": 26.18,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Lisdarn, Cavan",
+  "eircode": "H12 Y7W1",
+  "demand": 7,
+  "lat": 54.001831,
+  "lng": -7.372203,
+  "display_lat": 54.00202,
+  "display_lng": -7.372443
+}

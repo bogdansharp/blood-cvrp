@@ -1,0 +1,18 @@
+{
+  "id": 131,
+  "name": "Whitfield Clinic",
+  "lat_e6": 52240358,
+  "lng_e6": -7171722,
+  "display_lat_e6": 52240577,
+  "display_lng_e6": -7171277,
+  "snap_distance_m": 38.85,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Cork Road, Butlerstown North, Waterford",
+  "eircode": "X91 DH9W",
+  "demand": 3,
+  "lat": 52.240358,
+  "lng": -7.171722,
+  "display_lat": 52.240577,
+  "display_lng": -7.171277
+}

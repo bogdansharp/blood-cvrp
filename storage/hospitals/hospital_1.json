@@ -1,0 +1,18 @@
+{
+  "id": 1,
+  "name": "Abbeyleix",
+  "lat_e6": 52911853,
+  "lng_e6": -7342784,
+  "display_lat_e6": 52911729,
+  "display_lng_e6": -7342624,
+  "snap_distance_m": 17.51,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Ballinakill Road, Abbeyleix, Co. Laois",
+  "eircode": "R32 FV52",
+  "demand": 2,
+  "lat": 52.911853,
+  "lng": -7.342784,
+  "display_lat": 52.911729,
+  "display_lng": -7.342624
+}

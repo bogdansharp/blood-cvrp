@@ -1,0 +1,18 @@
+{
+  "id": 21,
+  "name": "Carndonagh Community Hospital",
+  "lat_e6": 55245290,
+  "lng_e6": -7267704,
+  "display_lat_e6": 55245485,
+  "display_lng_e6": -7267641,
+  "snap_distance_m": 22.04,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Derry Road, Carndonagh, Co. Donegal",
+  "eircode": "F93 EW7T",
+  "demand": 2,
+  "lat": 55.24529,
+  "lng": -7.267704,
+  "display_lat": 55.245485,
+  "display_lng": -7.267641
+}

@@ -1,0 +1,18 @@
+{
+  "id": 68,
+  "name": "Midland Regional Hospital Mullingar",
+  "lat_e6": 53534176,
+  "lng_e6": -7349117,
+  "display_lat_e6": 53534007,
+  "display_lng_e6": -7348853,
+  "snap_distance_m": 25.64,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Longford Road, Mullingar, Co. Westmeath",
+  "eircode": "N91 NA43",
+  "demand": 8,
+  "lat": 53.534176,
+  "lng": -7.349117,
+  "display_lat": 53.534007,
+  "display_lng": -7.348853
+}

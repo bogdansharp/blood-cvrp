@@ -1,0 +1,18 @@
+{
+  "id": 112,
+  "name": "Sports Surgery Clinic",
+  "lat_e6": 53404731,
+  "lng_e6": -6253663,
+  "display_lat_e6": 53404426,
+  "display_lng_e6": -6254020,
+  "snap_distance_m": 41.39,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Northwood Avenue, Northwood, Santry, Dublin 9",
+  "eircode": "D09 C523",
+  "demand": 1,
+  "lat": 53.404731,
+  "lng": -6.253663,
+  "display_lat": 53.404426,
+  "display_lng": -6.25402
+}

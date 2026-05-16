@@ -1,0 +1,18 @@
+{
+  "id": 74,
+  "name": "Mount Alvernia Hospital, ",
+  "lat_e6": 52124350,
+  "lng_e6": -8684625,
+  "display_lat_e6": 52124064,
+  "display_lng_e6": -8684295,
+  "snap_distance_m": 38.96,
+  "category": "Hospital",
+  "subcategory": "Psycho-Geriatric",
+  "address": "Newberry, Mallow, Co. Cork",
+  "eircode": "P51 XT95",
+  "demand": 2,
+  "lat": 52.12435,
+  "lng": -8.684625,
+  "display_lat": 52.124064,
+  "display_lng": -8.684295
+}

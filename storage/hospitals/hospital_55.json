@@ -1,0 +1,18 @@
+{
+  "id": 55,
+  "name": "Kingsbridge Private Hospital, ",
+  "lat_e6": 54268778,
+  "lng_e6": -8481605,
+  "display_lat_e6": 54268678,
+  "display_lng_e6": -8481584,
+  "snap_distance_m": 11.19,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Ray Mcsharry Road, Sligo",
+  "eircode": "F91 X054",
+  "demand": 4,
+  "lat": 54.268778,
+  "lng": -8.481605,
+  "display_lat": 54.268678,
+  "display_lng": -8.481584
+}

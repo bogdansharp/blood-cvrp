@@ -129,7 +129,7 @@ describe('store API/state logic', () => {
 		expect(state.scenarios).toEqual(scenarios);
 		expect(state.loading).toBe(false);
 		expect(state.error).toBeNull();
-		expect(fetchMock).toHaveBeenCalledWith(`${apiBase}/scenarios`);
+		expect(fetchMock).toHaveBeenCalledWith(`${apiBase}/scenarios/`);
 	});
 
 	it('stores error and clears loading when scenario list request fails', async () => {

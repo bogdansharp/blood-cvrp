@@ -1,0 +1,18 @@
+{
+  "id": 12,
+  "name": "Birr",
+  "lat_e6": 53098019,
+  "lng_e6": -7899653,
+  "display_lat_e6": 53098242,
+  "display_lng_e6": -7899812,
+  "snap_distance_m": 26.93,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Sandymount, Birr, Co. Offaly",
+  "eircode": "R42 VN80",
+  "demand": 2,
+  "lat": 53.098019,
+  "lng": -7.899653,
+  "display_lat": 53.098242,
+  "display_lng": -7.899812
+}

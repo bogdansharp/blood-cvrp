@@ -1,0 +1,18 @@
+{
+  "id": 43,
+  "name": "Ennistymon",
+  "lat_e6": 52936128,
+  "lng_e6": -9315799,
+  "display_lat_e6": 52936176,
+  "display_lng_e6": -9315395,
+  "snap_distance_m": 27.59,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Dough, Ennistymon, Co. Clare",
+  "eircode": "V95 CD58",
+  "demand": 2,
+  "lat": 52.936128,
+  "lng": -9.315799,
+  "display_lat": 52.936176,
+  "display_lng": -9.315395
+}

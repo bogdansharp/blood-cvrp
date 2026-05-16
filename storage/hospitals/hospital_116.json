@@ -1,0 +1,18 @@
+{
+  "id": 116,
+  "name": "St Luke's Radiation Oncology Network",
+  "lat_e6": 53310155,
+  "lng_e6": -6267483,
+  "display_lat_e6": 53311173,
+  "display_lng_e6": -6267284,
+  "snap_distance_m": 114.0,
+  "category": "Hospital",
+  "subcategory": "Cancer",
+  "address": "Highfield Road, Dublin 6",
+  "eircode": "D06 HH36",
+  "demand": 1,
+  "lat": 53.310155,
+  "lng": -6.267483,
+  "display_lat": 53.311173,
+  "display_lng": -6.267284
+}

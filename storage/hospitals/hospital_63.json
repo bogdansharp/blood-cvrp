@@ -1,0 +1,18 @@
+{
+  "id": 63,
+  "name": "Manorhamilton",
+  "lat_e6": 54303696,
+  "lng_e6": -8167205,
+  "display_lat_e6": 54303974,
+  "display_lng_e6": -8166963,
+  "snap_distance_m": 34.62,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Our Lady's Hospital, Hospital Road, Manorhamilton, Co. Leitrim",
+  "eircode": "F91 X012",
+  "demand": 2,
+  "lat": 54.303696,
+  "lng": -8.167205,
+  "display_lat": 54.303974,
+  "display_lng": -8.166963
+}

@@ -1,0 +1,18 @@
+{
+  "id": 117,
+  "name": "St Vincent's University Hospital",
+  "lat_e6": 53316591,
+  "lng_e6": -6213250,
+  "display_lat_e6": 53316751,
+  "display_lng_e6": -6213654,
+  "snap_distance_m": 32.17,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Elm Park, Nutley Lane, Dublin 4",
+  "eircode": "D04 T6F4",
+  "demand": 18,
+  "lat": 53.316591,
+  "lng": -6.21325,
+  "display_lat": 53.316751,
+  "display_lng": -6.213654
+}

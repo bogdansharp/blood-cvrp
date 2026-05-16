@@ -1,0 +1,18 @@
+{
+  "id": 96,
+  "name": "Saint Francis Private Hospital",
+  "lat_e6": 53514061,
+  "lng_e6": -7334747,
+  "display_lat_e6": 53513953,
+  "display_lng_e6": -7334918,
+  "snap_distance_m": 16.51,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Ballinderry, Mullingar, Co. Westmeath",
+  "eircode": "N91 FE40",
+  "demand": 3,
+  "lat": 53.514061,
+  "lng": -7.334747,
+  "display_lat": 53.513953,
+  "display_lng": -7.334918
+}

@@ -1,0 +1,18 @@
+{
+  "id": 102,
+  "name": "Saint Patrick's Community Hospital",
+  "lat_e6": 53950502,
+  "lng_e6": -8086152,
+  "display_lat_e6": 53950428,
+  "display_lng_e6": -8085819,
+  "snap_distance_m": 23.26,
+  "category": "Hospital",
+  "subcategory": "Mixed Use",
+  "address": "Summerhill, Carrick-on-shannon, Co. Leitrim",
+  "eircode": "N41 P897",
+  "demand": 1,
+  "lat": 53.950502,
+  "lng": -8.086152,
+  "display_lat": 53.950428,
+  "display_lng": -8.085819
+}

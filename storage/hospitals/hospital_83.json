@@ -1,0 +1,18 @@
+{
+  "id": 83,
+  "name": "Our Lady's Campus",
+  "lat_e6": 52514005,
+  "lng_e6": -7888310,
+  "display_lat_e6": 52513874,
+  "display_lng_e6": -7888194,
+  "snap_distance_m": 16.53,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Lower Green, Cashel, Co. Tipperary",
+  "eircode": "E25 P407",
+  "demand": 2,
+  "lat": 52.514005,
+  "lng": -7.88831,
+  "display_lat": 52.513874,
+  "display_lng": -7.888194
+}

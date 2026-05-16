@@ -1,0 +1,18 @@
+{
+  "id": 72,
+  "name": "Millstreet",
+  "lat_e6": 52057778,
+  "lng_e6": -9077935,
+  "display_lat_e6": 52058008,
+  "display_lng_e6": -9077674,
+  "snap_distance_m": 31.14,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Inchileigh, Millstreet, Co. Cork",
+  "eircode": "P51 TV27",
+  "demand": 2,
+  "lat": 52.057778,
+  "lng": -9.077935,
+  "display_lat": 52.058008,
+  "display_lng": -9.077674
+}

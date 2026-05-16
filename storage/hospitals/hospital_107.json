@@ -1,0 +1,18 @@
+{
+  "id": 107,
+  "name": "Shiel Hospital",
+  "lat_e6": 54501640,
+  "lng_e6": -8184027,
+  "display_lat_e6": 54501679,
+  "display_lng_e6": -8184581,
+  "snap_distance_m": 36.03,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "College Street, Ballyshannon, Co. Donegal",
+  "eircode": "F94 DR40",
+  "demand": 2,
+  "lat": 54.50164,
+  "lng": -8.184027,
+  "display_lat": 54.501679,
+  "display_lng": -8.184581
+}

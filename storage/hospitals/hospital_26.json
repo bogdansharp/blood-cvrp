@@ -1,0 +1,18 @@
+{
+  "id": 26,
+  "name": "Children's University Hospital Temple Street",
+  "lat_e6": 53356893,
+  "lng_e6": -6262040,
+  "display_lat_e6": 53356757,
+  "display_lng_e6": -6262317,
+  "snap_distance_m": 23.78,
+  "category": "Hospital",
+  "subcategory": "Paediatric",
+  "address": "Children's University Hospital, Temple Street, Dublin 1",
+  "eircode": "D01 YC67",
+  "demand": 9,
+  "lat": 53.356893,
+  "lng": -6.26204,
+  "display_lat": 53.356757,
+  "display_lng": -6.262317
+}
