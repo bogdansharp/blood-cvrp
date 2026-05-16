@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/bogdansharp/blood-cvrp/compare/v0.1.1...v0.1.2) (2026-05-16)
+
+
+### Bug Fixes
+
+* **frontend:** unable to save scenario and log errors when storage is empty ([fabb9e6](https://github.com/bogdansharp/blood-cvrp/commit/fabb9e6cc237abe9e9126341d830ccf0436807e1))
+
 ## [0.1.1](https://github.com/bogdansharp/blood-cvrp/compare/v0.1.0...v0.1.1) (2026-05-15)
 
 
