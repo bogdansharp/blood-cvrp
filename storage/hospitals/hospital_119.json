@@ -1,0 +1,18 @@
+{
+  "id": 119,
+  "name": "St. Michael's Hospital ",
+  "lat_e6": 53293802,
+  "lng_e6": -6138523,
+  "display_lat_e6": 53293694,
+  "display_lng_e6": -6138632,
+  "snap_distance_m": 14.03,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "George's Street Lower, Dun Laoghaire, Co. Dublin",
+  "eircode": "A96 P902",
+  "demand": 3,
+  "lat": 53.293802,
+  "lng": -6.138523,
+  "display_lat": 53.293694,
+  "display_lng": -6.138632
+}

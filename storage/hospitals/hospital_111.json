@@ -1,0 +1,18 @@
+{
+  "id": 111,
+  "name": "South Tipperary General Hospital",
+  "lat_e6": 52355481,
+  "lng_e6": -7714321,
+  "display_lat_e6": 52355214,
+  "display_lng_e6": -7713963,
+  "snap_distance_m": 38.43,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Western Road, Clonmel, Co. Tipperary",
+  "eircode": "E91 VY40",
+  "demand": 5,
+  "lat": 52.355481,
+  "lng": -7.714321,
+  "display_lat": 52.355214,
+  "display_lng": -7.713963
+}

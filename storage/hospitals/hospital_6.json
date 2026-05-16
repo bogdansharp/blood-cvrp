@@ -1,0 +1,18 @@
+{
+  "id": 6,
+  "name": "Bandon Community Hospital",
+  "lat_e6": 51743992,
+  "lng_e6": -8724588,
+  "display_lat_e6": 51744110,
+  "display_lng_e6": -8724718,
+  "snap_distance_m": 15.92,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Cloughmacsimon, Bandon, Co. Cork",
+  "eircode": "P72 W564",
+  "demand": 2,
+  "lat": 51.743992,
+  "lng": -8.724588,
+  "display_lat": 51.74411,
+  "display_lng": -8.724718
+}

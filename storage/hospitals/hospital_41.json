@@ -1,0 +1,18 @@
+{
+  "id": 41,
+  "name": "Dunmanway",
+  "lat_e6": 51729391,
+  "lng_e6": -9089807,
+  "display_lat_e6": 51729417,
+  "display_lng_e6": -9089944,
+  "snap_distance_m": 9.84,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Dunmanway Community Hospital, Ballyhalwick, Dunmanway, Co. Cork",
+  "eircode": "P47 WN27",
+  "demand": 2,
+  "lat": 51.729391,
+  "lng": -9.089807,
+  "display_lat": 51.729417,
+  "display_lng": -9.089944
+}

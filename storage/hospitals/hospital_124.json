@@ -1,0 +1,18 @@
+{
+  "id": 124,
+  "name": "The Mater Private - Cork",
+  "lat_e6": 51886268,
+  "lng_e6": -8406199,
+  "display_lat_e6": 51886110,
+  "display_lng_e6": -8406528,
+  "snap_distance_m": 28.58,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Building 3000, City Gate, Mahon, Cork",
+  "eircode": "T12 K199",
+  "demand": 4,
+  "lat": 51.886268,
+  "lng": -8.406199,
+  "display_lat": 51.88611,
+  "display_lng": -8.406528
+}

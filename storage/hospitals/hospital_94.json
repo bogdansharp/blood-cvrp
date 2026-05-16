@@ -1,0 +1,18 @@
+{
+  "id": 94,
+  "name": "Saint Colman's Hospital",
+  "lat_e6": 52933818,
+  "lng_e6": -6239776,
+  "display_lat_e6": 52933329,
+  "display_lng_e6": -6240237,
+  "snap_distance_m": 62.52,
+  "category": "Hospital",
+  "subcategory": "Mixed Use",
+  "address": "Ballygannon, Rathdrum, Co. Wicklow",
+  "eircode": "A67 AK06",
+  "demand": 1,
+  "lat": 52.933818,
+  "lng": -6.239776,
+  "display_lat": 52.933329,
+  "display_lng": -6.240237
+}

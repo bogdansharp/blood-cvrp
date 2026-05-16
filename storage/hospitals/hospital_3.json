@@ -1,0 +1,18 @@
+{
+  "id": 3,
+  "name": "Aut Even Hospital",
+  "lat_e6": 52676510,
+  "lng_e6": -7270029,
+  "display_lat_e6": 52676359,
+  "display_lng_e6": -7270191,
+  "snap_distance_m": 20.07,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Freshford Road, Kilkenny",
+  "eircode": "R95 D370",
+  "demand": 3,
+  "lat": 52.67651,
+  "lng": -7.270029,
+  "display_lat": 52.676359,
+  "display_lng": -7.270191
+}

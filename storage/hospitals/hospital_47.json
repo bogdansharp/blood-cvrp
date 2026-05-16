@@ -1,0 +1,18 @@
+{
+  "id": 47,
+  "name": "Galway University Hospitals",
+  "lat_e6": 53275861,
+  "lng_e6": -9065014,
+  "display_lat_e6": 53276084,
+  "display_lng_e6": -9064656,
+  "snap_distance_m": 34.4,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Newcastle Road, Galway",
+  "eircode": "H91 YR71",
+  "demand": 18,
+  "lat": 53.275861,
+  "lng": -9.065014,
+  "display_lat": 53.276084,
+  "display_lng": -9.064656
+}

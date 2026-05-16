@@ -1,0 +1,18 @@
+{
+  "id": 127,
+  "name": "University Hospital Limerick",
+  "lat_e6": 52635869,
+  "lng_e6": -8653333,
+  "display_lat_e6": 52635926,
+  "display_lng_e6": -8653597,
+  "snap_distance_m": 18.93,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Saint Nessan's Road, Dooradoyle, Limerick",
+  "eircode": "V94 F858",
+  "demand": 19,
+  "lat": 52.635869,
+  "lng": -8.653333,
+  "display_lat": 52.635926,
+  "display_lng": -8.653597
+}

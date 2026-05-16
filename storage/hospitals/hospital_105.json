@@ -1,0 +1,18 @@
+{
+  "id": 105,
+  "name": "Saint Vincent's Private Hospital, ",
+  "lat_e6": 53315326,
+  "lng_e6": -6209201,
+  "display_lat_e6": 53315804,
+  "display_lng_e6": -6209666,
+  "snap_distance_m": 61.47,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Herbert Avenue, Merrion Road, Dublin 4",
+  "eircode": "D04 N2E0",
+  "demand": 5,
+  "lat": 53.315326,
+  "lng": -6.209201,
+  "display_lat": 53.315804,
+  "display_lng": -6.209666
+}

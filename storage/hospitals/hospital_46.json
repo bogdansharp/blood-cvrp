@@ -1,0 +1,18 @@
+{
+  "id": 46,
+  "name": "Galway University Hospital - Merlin Park",
+  "lat_e6": 53277419,
+  "lng_e6": -8993199,
+  "display_lat_e6": 53277416,
+  "display_lng_e6": -8992672,
+  "snap_distance_m": 35.07,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Merlin Park, Galway",
+  "eircode": "H91 N973",
+  "demand": 5,
+  "lat": 53.277419,
+  "lng": -8.993199,
+  "display_lat": 53.277416,
+  "display_lng": -8.992672
+}

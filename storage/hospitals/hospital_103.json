@@ -1,0 +1,18 @@
+{
+  "id": 103,
+  "name": "Saint Patrick's University Hospital",
+  "lat_e6": 53344001,
+  "lng_e6": -6291853,
+  "display_lat_e6": 53344034,
+  "display_lng_e6": -6291298,
+  "snap_distance_m": 36.99,
+  "category": "Hospital",
+  "subcategory": "Mental Health",
+  "address": " James St. , Dublin 8",
+  "eircode": "D08 K7YW",
+  "demand": 2,
+  "lat": 53.344001,
+  "lng": -6.291853,
+  "display_lat": 53.344034,
+  "display_lng": -6.291298
+}

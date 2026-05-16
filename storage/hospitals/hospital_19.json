@@ -1,0 +1,18 @@
+{
+  "id": 19,
+  "name": "Cahercalla",
+  "lat_e6": 52832900,
+  "lng_e6": -9003802,
+  "display_lat_e6": 52832924,
+  "display_lng_e6": -9003426,
+  "snap_distance_m": 25.43,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Community Hospital And Hospice, Cahircalla, Ennis, Co. Clare",
+  "eircode": "V95 NR59",
+  "demand": 2,
+  "lat": 52.8329,
+  "lng": -9.003802,
+  "display_lat": 52.832924,
+  "display_lng": -9.003426
+}

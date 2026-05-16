@@ -1,0 +1,18 @@
+{
+  "id": 129,
+  "name": "University Maternity Hospital Limerick",
+  "lat_e6": 52667318,
+  "lng_e6": -8633368,
+  "display_lat_e6": 52667510,
+  "display_lng_e6": -8633263,
+  "snap_distance_m": 22.54,
+  "category": "Hospital",
+  "subcategory": "Maternity",
+  "address": "Ennis Road, Limerick",
+  "eircode": "V94 C566",
+  "demand": 8,
+  "lat": 52.667318,
+  "lng": -8.633368,
+  "display_lat": 52.66751,
+  "display_lng": -8.633263
+}

@@ -1,0 +1,18 @@
+{
+  "id": 125,
+  "name": "University Dental School & Hospital",
+  "lat_e6": 51883633,
+  "lng_e6": -8512912,
+  "display_lat_e6": 51883335,
+  "display_lng_e6": -8512603,
+  "snap_distance_m": 39.37,
+  "category": "Hospital",
+  "subcategory": "Dental",
+  "address": "Cork University Hospital, Wilton, Cork",
+  "eircode": "T12 E8YV",
+  "demand": 2,
+  "lat": 51.883633,
+  "lng": -8.512912,
+  "display_lat": 51.883335,
+  "display_lng": -8.512603
+}

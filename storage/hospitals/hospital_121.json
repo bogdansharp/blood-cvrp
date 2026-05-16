@@ -1,0 +1,18 @@
+{
+  "id": 121,
+  "name": "Swinford District Hospital, ",
+  "lat_e6": 53942850,
+  "lng_e6": -8945908,
+  "display_lat_e6": 53942914,
+  "display_lng_e6": -8945290,
+  "snap_distance_m": 41.04,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Dublin Road, Swinford, Co. Mayo",
+  "eircode": "F12 K229",
+  "demand": 2,
+  "lat": 53.94285,
+  "lng": -8.945908,
+  "display_lat": 53.942914,
+  "display_lng": -8.94529
+}

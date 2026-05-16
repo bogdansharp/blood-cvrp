@@ -1,0 +1,18 @@
+{
+  "id": 20,
+  "name": "Caherciveen",
+  "lat_e6": 51941978,
+  "lng_e6": -10234503,
+  "display_lat_e6": 51942186,
+  "display_lng_e6": -10234464,
+  "snap_distance_m": 23.24,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Valentia Road, Caherciveen, Co. Kerry",
+  "eircode": "V23 PW84",
+  "demand": 2,
+  "lat": 51.941978,
+  "lng": -10.234503,
+  "display_lat": 51.942186,
+  "display_lng": -10.234464
+}

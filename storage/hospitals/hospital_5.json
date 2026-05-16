@@ -1,0 +1,18 @@
+{
+  "id": 5,
+  "name": "Baltinglass District Hospital",
+  "lat_e6": 52931516,
+  "lng_e6": -6679128,
+  "display_lat_e6": 52931640,
+  "display_lng_e6": -6679221,
+  "snap_distance_m": 15.07,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Newtownsaunders, Baltinglass, Co. Wicklow",
+  "eircode": "W91 EK59",
+  "demand": 2,
+  "lat": 52.931516,
+  "lng": -6.679128,
+  "display_lat": 52.93164,
+  "display_lng": -6.679221
+}

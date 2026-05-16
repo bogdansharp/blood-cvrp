@@ -1,0 +1,18 @@
+{
+  "id": 40,
+  "name": "Dungloe Community Hospital",
+  "lat_e6": 54951957,
+  "lng_e6": -8357646,
+  "display_lat_e6": 54952030,
+  "display_lng_e6": -8358139,
+  "snap_distance_m": 32.5,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Gweedore Road, Dungloe, Co. Donegal",
+  "eircode": "F94 Y326",
+  "demand": 2,
+  "lat": 54.951957,
+  "lng": -8.357646,
+  "display_lat": 54.95203,
+  "display_lng": -8.358139
+}

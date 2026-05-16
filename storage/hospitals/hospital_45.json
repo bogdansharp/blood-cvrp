@@ -1,0 +1,18 @@
+{
+  "id": 45,
+  "name": "Galway Clinic",
+  "lat_e6": 53282688,
+  "lng_e6": -8973849,
+  "display_lat_e6": 53282892,
+  "display_lng_e6": -8973559,
+  "snap_distance_m": 29.78,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Doughiska, Galway",
+  "eircode": "H91 HHT0",
+  "demand": 5,
+  "lat": 53.282688,
+  "lng": -8.973849,
+  "display_lat": 53.282892,
+  "display_lng": -8.973559
+}

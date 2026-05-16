@@ -1,0 +1,18 @@
+{
+  "id": 37,
+  "name": "Drogheda",
+  "lat_e6": 53711363,
+  "lng_e6": -6341016,
+  "display_lat_e6": 53711369,
+  "display_lng_e6": -6340868,
+  "snap_distance_m": 9.76,
+  "category": "Hospital",
+  "subcategory": "Continuing Care Service",
+  "address": "Saint Mary's Hospital, Dublin Road, Drogheda, Co. Louth",
+  "eircode": "A92 X862",
+  "demand": 2,
+  "lat": 53.711363,
+  "lng": -6.341016,
+  "display_lat": 53.711369,
+  "display_lng": -6.340868
+}

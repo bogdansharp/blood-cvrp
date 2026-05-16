@@ -1,0 +1,18 @@
+{
+  "id": 90,
+  "name": "Roscommon University Hospital",
+  "lat_e6": 53624762,
+  "lng_e6": -8175083,
+  "display_lat_e6": 53624868,
+  "display_lng_e6": -8174985,
+  "snap_distance_m": 13.48,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Ardsallagh Beg, Co. Roscommon",
+  "eircode": "F42 AX61",
+  "demand": 4,
+  "lat": 53.624762,
+  "lng": -8.175083,
+  "display_lat": 53.624868,
+  "display_lng": -8.174985
+}

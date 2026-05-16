@@ -1,0 +1,18 @@
+{
+  "id": 93,
+  "name": "Saint Brigids Hospital",
+  "lat_e6": 52347539,
+  "lng_e6": -7404040,
+  "display_lat_e6": 52347670,
+  "display_lng_e6": -7404192,
+  "snap_distance_m": 17.85,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Pill Road, Carrick-on-suir, Co. Tipperary",
+  "eircode": "E32 D281",
+  "demand": 2,
+  "lat": 52.347539,
+  "lng": -7.40404,
+  "display_lat": 52.34767,
+  "display_lng": -7.404192
+}

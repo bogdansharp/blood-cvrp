@@ -1,0 +1,18 @@
+{
+  "id": 106,
+  "name": "Schull",
+  "lat_e6": 51521577,
+  "lng_e6": -9546109,
+  "display_lat_e6": 51521737,
+  "display_lng_e6": -9546334,
+  "snap_distance_m": 23.6,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Colla Road, Schull, Co. Cork",
+  "eircode": "P81 NT97",
+  "demand": 2,
+  "lat": 51.521577,
+  "lng": -9.546109,
+  "display_lat": 51.521737,
+  "display_lng": -9.546334
+}

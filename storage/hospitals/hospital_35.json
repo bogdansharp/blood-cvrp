@@ -1,0 +1,18 @@
+{
+  "id": 35,
+  "name": "Dingle ",
+  "lat_e6": 52136456,
+  "lng_e6": -10266343,
+  "display_lat_e6": 52136663,
+  "display_lng_e6": -10266274,
+  "snap_distance_m": 23.48,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Farran, Dingle, Co. Kerry",
+  "eircode": "V92 PF65",
+  "demand": 2,
+  "lat": 52.136456,
+  "lng": -10.266343,
+  "display_lat": 52.136663,
+  "display_lng": -10.266274
+}

@@ -1,0 +1,18 @@
+{
+  "id": 14,
+  "name": "Bon Secours Hospital - Cork",
+  "lat_e6": 51891548,
+  "lng_e6": -8497304,
+  "display_lat_e6": 51891310,
+  "display_lng_e6": -8497184,
+  "snap_distance_m": 27.72,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "College Road, Cork",
+  "eircode": "T12 DV56",
+  "demand": 6,
+  "lat": 51.891548,
+  "lng": -8.497304,
+  "display_lat": 51.89131,
+  "display_lng": -8.497184
+}

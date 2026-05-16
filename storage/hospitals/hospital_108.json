@@ -1,0 +1,18 @@
+{
+  "id": 108,
+  "name": "Skibbereen District Hospital, ",
+  "lat_e6": 51563567,
+  "lng_e6": -9263237,
+  "display_lat_e6": 51563448,
+  "display_lng_e6": -9263217,
+  "snap_distance_m": 13.3,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Coolnagurrane, Skibbereen, Co. Cork",
+  "eircode": "P81 HC43",
+  "demand": 2,
+  "lat": 51.563567,
+  "lng": -9.263237,
+  "display_lat": 51.563448,
+  "display_lng": -9.263217
+}

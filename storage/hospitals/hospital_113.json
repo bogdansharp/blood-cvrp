@@ -1,0 +1,18 @@
+{
+  "id": 113,
+  "name": "St Columcille's Hospital",
+  "lat_e6": 53242829,
+  "lng_e6": -6132433,
+  "display_lat_e6": 53243126,
+  "display_lng_e6": -6132806,
+  "snap_distance_m": 41.31,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Bray Road, Loughlinstown, Co. Dublin",
+  "eircode": "D18 V9K1",
+  "demand": 3,
+  "lat": 53.242829,
+  "lng": -6.132433,
+  "display_lat": 53.243126,
+  "display_lng": -6.132806
+}

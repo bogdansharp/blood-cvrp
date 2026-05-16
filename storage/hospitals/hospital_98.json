@@ -1,0 +1,18 @@
+{
+  "id": 98,
+  "name": "Saint John's Community Hospital",
+  "lat_e6": 54279759,
+  "lng_e6": -8468655,
+  "display_lat_e6": 54279908,
+  "display_lng_e6": -8468844,
+  "snap_distance_m": 20.6,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Ballytivnan Road, Ballytivnan, Sligo",
+  "eircode": "F91 H224",
+  "demand": 2,
+  "lat": 54.279759,
+  "lng": -8.468655,
+  "display_lat": 54.279908,
+  "display_lng": -8.468844
+}

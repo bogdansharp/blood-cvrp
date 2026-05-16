@@ -1,0 +1,18 @@
+{
+  "id": 120,
+  "name": "Stranorlar",
+  "lat_e6": 54805432,
+  "lng_e6": -7751040,
+  "display_lat_e6": 54805646,
+  "display_lng_e6": -7750386,
+  "snap_distance_m": 48.21,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Saint Joseph's Community Hospital, Mullindrait, Stranorlar, Co. Donegal",
+  "eircode": "F93 FCR6",
+  "demand": 2,
+  "lat": 54.805432,
+  "lng": -7.75104,
+  "display_lat": 54.805646,
+  "display_lng": -7.750386
+}

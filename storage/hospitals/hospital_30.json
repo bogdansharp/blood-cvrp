@@ -1,0 +1,18 @@
+{
+  "id": 30,
+  "name": "Coombe Women & Infant University Hospital",
+  "lat_e6": 53334832,
+  "lng_e6": -6288507,
+  "display_lat_e6": 53334969,
+  "display_lng_e6": -6288755,
+  "snap_distance_m": 22.44,
+  "category": "Hospital",
+  "subcategory": "Maternity",
+  "address": "Dolphin's Barn Street, Dublin 8",
+  "eircode": "D08 XW7X",
+  "demand": 11,
+  "lat": 53.334832,
+  "lng": -6.288507,
+  "display_lat": 53.334969,
+  "display_lng": -6.288755
+}

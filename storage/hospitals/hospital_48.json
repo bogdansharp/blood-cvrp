@@ -1,0 +1,18 @@
+{
+  "id": 48,
+  "name": "Gorey District Hospital",
+  "lat_e6": 52674411,
+  "lng_e6": -6300063,
+  "display_lat_e6": 52674301,
+  "display_lng_e6": -6300110,
+  "snap_distance_m": 12.6,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Gorey, Co. Wexford",
+  "eircode": "Y25 KX86",
+  "demand": 2,
+  "lat": 52.674411,
+  "lng": -6.300063,
+  "display_lat": 52.674301,
+  "display_lng": -6.30011
+}

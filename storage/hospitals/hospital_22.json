@@ -1,0 +1,18 @@
+{
+  "id": 22,
+  "name": "Castlebar",
+  "lat_e6": 53863352,
+  "lng_e6": -9299003,
+  "display_lat_e6": 53863666,
+  "display_lng_e6": -9299000,
+  "snap_distance_m": 34.93,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Pontoon Road, Castlebar, Co. Mayo",
+  "eircode": "F23 XV38",
+  "demand": 2,
+  "lat": 53.863352,
+  "lng": -9.299003,
+  "display_lat": 53.863666,
+  "display_lng": -9.299
+}

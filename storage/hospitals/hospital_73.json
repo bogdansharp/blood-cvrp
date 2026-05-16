@@ -1,0 +1,18 @@
+{
+  "id": 73,
+  "name": "Monaghan Hospital",
+  "lat_e6": 54249492,
+  "lng_e6": -6974353,
+  "display_lat_e6": 54249319,
+  "display_lng_e6": -6974483,
+  "snap_distance_m": 21.06,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Monaghan",
+  "eircode": "H18 NV91",
+  "demand": 4,
+  "lat": 54.249492,
+  "lng": -6.974353,
+  "display_lat": 54.249319,
+  "display_lng": -6.974483
+}

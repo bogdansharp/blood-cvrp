@@ -1,0 +1,18 @@
+{
+  "id": 38,
+  "name": "Dublin Dental Hospital",
+  "lat_e6": 53342378,
+  "lng_e6": -6251954,
+  "display_lat_e6": 53342155,
+  "display_lng_e6": -6251705,
+  "snap_distance_m": 29.8,
+  "category": "Hospital",
+  "subcategory": "Dental",
+  "address": "Lincoln Place, Dublin 2",
+  "eircode": "D02 F859",
+  "demand": 2,
+  "lat": 53.342378,
+  "lng": -6.251954,
+  "display_lat": 53.342155,
+  "display_lng": -6.251705
+}

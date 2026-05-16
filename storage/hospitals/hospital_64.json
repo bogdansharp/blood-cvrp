@@ -1,0 +1,18 @@
+{
+  "id": 64,
+  "name": "Mater Misericordiae University Hospital, ",
+  "lat_e6": 53359395,
+  "lng_e6": -6268226,
+  "display_lat_e6": 53358907,
+  "display_lng_e6": -6268638,
+  "snap_distance_m": 60.76,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Eccles Street, Dublin 7",
+  "eircode": "D07 R2WY",
+  "demand": 17,
+  "lat": 53.359395,
+  "lng": -6.268226,
+  "display_lat": 53.358907,
+  "display_lng": -6.268638
+}

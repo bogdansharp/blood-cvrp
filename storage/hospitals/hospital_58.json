@@ -1,0 +1,18 @@
+{
+  "id": 58,
+  "name": "Lifford",
+  "lat_e6": 54831285,
+  "lng_e6": -7483375,
+  "display_lat_e6": 54831355,
+  "display_lng_e6": -7483834,
+  "snap_distance_m": 30.45,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Lifford Bridge, Lifford, Co. Donegal",
+  "eircode": "F93 YW02",
+  "demand": 2,
+  "lat": 54.831285,
+  "lng": -7.483375,
+  "display_lat": 54.831355,
+  "display_lng": -7.483834
+}

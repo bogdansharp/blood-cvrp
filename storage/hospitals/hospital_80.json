@@ -1,0 +1,18 @@
+{
+  "id": 80,
+  "name": "Nenagh Hospital",
+  "lat_e6": 52857652,
+  "lng_e6": -8191195,
+  "display_lat_e6": 52857736,
+  "display_lng_e6": -8191542,
+  "snap_distance_m": 25.07,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Tyone, Nenagh, Co. Tipperary",
+  "eircode": "E45 PT86",
+  "demand": 4,
+  "lat": 52.857652,
+  "lng": -8.191195,
+  "display_lat": 52.857736,
+  "display_lng": -8.191542
+}

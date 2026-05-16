@@ -1,0 +1,18 @@
+{
+  "id": 81,
+  "name": "Saint Ita's Community Hospital",
+  "lat_e6": 52455736,
+  "lng_e6": -9054022,
+  "display_lat_e6": 52455466,
+  "display_lng_e6": -9054322,
+  "snap_distance_m": 36.28,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Newcastle West, Co. Limerick",
+  "eircode": "V42 HD66",
+  "demand": 2,
+  "lat": 52.455736,
+  "lng": -9.054022,
+  "display_lat": 52.455466,
+  "display_lng": -9.054322
+}

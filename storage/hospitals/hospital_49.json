@@ -1,0 +1,18 @@
+{
+  "id": 49,
+  "name": "Hermitage Medical Clinic",
+  "lat_e6": 53359197,
+  "lng_e6": -6405997,
+  "display_lat_e6": 53359516,
+  "display_lng_e6": -6406271,
+  "snap_distance_m": 39.87,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Lucan Road Old, Dublin 20",
+  "eircode": "D20 W722",
+  "demand": 5,
+  "lat": 53.359197,
+  "lng": -6.405997,
+  "display_lat": 53.359516,
+  "display_lng": -6.406271
+}

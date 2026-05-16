@@ -1,0 +1,18 @@
+{
+  "id": 9,
+  "name": "Beacon Hospital",
+  "lat_e6": 53276791,
+  "lng_e6": -6219960,
+  "display_lat_e6": 53276666,
+  "display_lng_e6": -6219925,
+  "snap_distance_m": 14.12,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Beacon Court, Sandyford Industrial Estate, Dublin 18",
+  "eircode": "D18 AK68",
+  "demand": 6,
+  "lat": 53.276791,
+  "lng": -6.21996,
+  "display_lat": 53.276666,
+  "display_lng": -6.219925
+}

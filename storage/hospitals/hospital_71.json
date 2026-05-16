@@ -1,0 +1,18 @@
+{
+  "id": 71,
+  "name": "Midleton",
+  "lat_e6": 51917734,
+  "lng_e6": -8172661,
+  "display_lat_e6": 51917726,
+  "display_lng_e6": -8172724,
+  "snap_distance_m": 4.39,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "The Green, Midleton, Co. Cork",
+  "eircode": "P25 DT96",
+  "demand": 2,
+  "lat": 51.917734,
+  "lng": -8.172661,
+  "display_lat": 51.917726,
+  "display_lng": -8.172724
+}

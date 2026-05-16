@@ -1,0 +1,18 @@
+{
+  "id": 85,
+  "name": "Our Lady's Hospital Navan",
+  "lat_e6": 53650301,
+  "lng_e6": -6697145,
+  "display_lat_e6": 53649977,
+  "display_lng_e6": -6697385,
+  "snap_distance_m": 39.34,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Navan, Co. Meath",
+  "eircode": "C15 RK7Y",
+  "demand": 4,
+  "lat": 53.650301,
+  "lng": -6.697145,
+  "display_lat": 53.649977,
+  "display_lng": -6.697385
+}

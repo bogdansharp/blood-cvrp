@@ -1,0 +1,18 @@
+{
+  "id": 23,
+  "name": "Castlecomer",
+  "lat_e6": 52799416,
+  "lng_e6": -7214015,
+  "display_lat_e6": 52799396,
+  "display_lng_e6": -7213583,
+  "snap_distance_m": 29.13,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Donaguile, Castlecomer, Co. Kilkenny",
+  "eircode": "R95 A5XC",
+  "demand": 2,
+  "lat": 52.799416,
+  "lng": -7.214015,
+  "display_lat": 52.799396,
+  "display_lng": -7.213583
+}

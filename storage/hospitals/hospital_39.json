@@ -1,0 +1,18 @@
+{
+  "id": 39,
+  "name": "St. Joseph's Dungarvan ",
+  "lat_e6": 52087632,
+  "lng_e6": -7635731,
+  "display_lat_e6": 52087537,
+  "display_lng_e6": -7635407,
+  "snap_distance_m": 24.54,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Springmount, Dungarvan, Co. Waterford",
+  "eircode": "X35 WA22",
+  "demand": 2,
+  "lat": 52.087632,
+  "lng": -7.635731,
+  "display_lat": 52.087537,
+  "display_lng": -7.635407
+}

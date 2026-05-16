@@ -1,0 +1,18 @@
+{
+  "id": 62,
+  "name": "Mallow General Hospital",
+  "lat_e6": 52151331,
+  "lng_e6": -8663607,
+  "display_lat_e6": 52151241,
+  "display_lng_e6": -8663789,
+  "snap_distance_m": 15.94,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Kilknockin, Mallow, Co. Cork",
+  "eircode": "P51 N288",
+  "demand": 4,
+  "lat": 52.151331,
+  "lng": -8.663607,
+  "display_lat": 52.151241,
+  "display_lng": -8.663789
+}

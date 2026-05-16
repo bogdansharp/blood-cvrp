@@ -1,0 +1,18 @@
+{
+  "id": 28,
+  "name": "Clonakilty",
+  "lat_e6": 51630477,
+  "lng_e6": -8876376,
+  "display_lat_e6": 51630440,
+  "display_lng_e6": -8876178,
+  "snap_distance_m": 14.25,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Mount Carmel, Convent Road, Clonakilty, Co. Cork",
+  "eircode": "P85 K160",
+  "demand": 2,
+  "lat": 51.630477,
+  "lng": -8.876376,
+  "display_lat": 51.63044,
+  "display_lng": -8.876178
+}

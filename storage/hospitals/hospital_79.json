@@ -1,0 +1,18 @@
+{
+  "id": 79,
+  "name": "National Rehab",
+  "lat_e6": 53275810,
+  "lng_e6": -6152577,
+  "display_lat_e6": 53275484,
+  "display_lng_e6": -6152691,
+  "snap_distance_m": 37.06,
+  "category": "Hospital",
+  "subcategory": "Rehabilitation",
+  "address": "Rochestown Avenue, Dun Laoghaire, Co. Dublin",
+  "eircode": "A96 E2H2",
+  "demand": 2,
+  "lat": 53.27581,
+  "lng": -6.152577,
+  "display_lat": 53.275484,
+  "display_lng": -6.152691
+}

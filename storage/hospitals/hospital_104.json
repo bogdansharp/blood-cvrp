@@ -1,0 +1,18 @@
+{
+  "id": 104,
+  "name": "Saint Teresa's Hospital - Clogheen",
+  "lat_e6": 52271949,
+  "lng_e6": -7991592,
+  "display_lat_e6": 52271848,
+  "display_lng_e6": -7991429,
+  "snap_distance_m": 15.75,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Mountanglesby, Clogheen, Co. Tipperary",
+  "eircode": "E21 Y447",
+  "demand": 2,
+  "lat": 52.271949,
+  "lng": -7.991592,
+  "display_lat": 52.271848,
+  "display_lng": -7.991429
+}

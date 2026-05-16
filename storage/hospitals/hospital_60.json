@@ -1,0 +1,18 @@
+{
+  "id": 60,
+  "name": "Listowel",
+  "lat_e6": 52447236,
+  "lng_e6": -9497700,
+  "display_lat_e6": 52446979,
+  "display_lng_e6": -9498351,
+  "snap_distance_m": 52.54,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Convent Road, Listowel, Co. Kerry",
+  "eircode": "V31 RF79",
+  "demand": 2,
+  "lat": 52.447236,
+  "lng": -9.4977,
+  "display_lat": 52.446979,
+  "display_lng": -9.498351
+}

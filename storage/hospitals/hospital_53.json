@@ -1,0 +1,18 @@
+{
+  "id": 53,
+  "name": "Killarney",
+  "lat_e6": 52065479,
+  "lng_e6": -9517265,
+  "display_lat_e6": 52065766,
+  "display_lng_e6": -9517086,
+  "snap_distance_m": 34.15,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Saint Margaret's Road, Killarney, Co. Kerry",
+  "eircode": "V93 EH42",
+  "demand": 2,
+  "lat": 52.065479,
+  "lng": -9.517265,
+  "display_lat": 52.065766,
+  "display_lng": -9.517086
+}

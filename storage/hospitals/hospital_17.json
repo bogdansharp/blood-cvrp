@@ -1,0 +1,18 @@
+{
+  "id": 17,
+  "name": "Bon Secours Hospital - Kerry",
+  "lat_e6": 52269586,
+  "lng_e6": -9713038,
+  "display_lat_e6": 52269082,
+  "display_lng_e6": -9712967,
+  "snap_distance_m": 56.28,
+  "category": "Hospital",
+  "subcategory": "Private General",
+  "address": "Strand Street, Tralee, Co. Kerry",
+  "eircode": "V92 P663",
+  "demand": 4,
+  "lat": 52.269586,
+  "lng": -9.713038,
+  "display_lat": 52.269082,
+  "display_lng": -9.712967
+}

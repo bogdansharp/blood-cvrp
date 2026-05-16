@@ -1,0 +1,18 @@
+{
+  "id": 32,
+  "name": "Cork University Hospital",
+  "lat_e6": 51883363,
+  "lng_e6": -8510533,
+  "display_lat_e6": 51883116,
+  "display_lng_e6": -8510290,
+  "snap_distance_m": 32.18,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Wilton, Cork",
+  "eircode": "T12 DC4A",
+  "demand": 20,
+  "lat": 51.883363,
+  "lng": -8.510533,
+  "display_lat": 51.883116,
+  "display_lng": -8.51029
+}

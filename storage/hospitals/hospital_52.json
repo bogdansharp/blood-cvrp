@@ -1,0 +1,18 @@
+{
+  "id": 52,
+  "name": "Kilcreene Regional Orthopaedic Hospital",
+  "lat_e6": 52652418,
+  "lng_e6": -7274235,
+  "display_lat_e6": 52652480,
+  "display_lng_e6": -7274308,
+  "snap_distance_m": 8.46,
+  "category": "Hospital",
+  "subcategory": "Orthopaedic",
+  "address": "Kilcreene Hospital, Kilkenny",
+  "eircode": "R95 DK07",
+  "demand": 2,
+  "lat": 52.652418,
+  "lng": -7.274235,
+  "display_lat": 52.65248,
+  "display_lng": -7.274308
+}

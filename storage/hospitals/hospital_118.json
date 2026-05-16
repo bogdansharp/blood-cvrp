@@ -1,0 +1,18 @@
+{
+  "id": 118,
+  "name": "St. Joseph's Community Hospital",
+  "lat_e6": 53382624,
+  "lng_e6": -6182061,
+  "display_lat_e6": 53382520,
+  "display_lng_e6": -6182111,
+  "snap_distance_m": 12.05,
+  "category": "Hospital",
+  "subcategory": "Mixed Use",
+  "address": "Springdale Road, Dublin 5",
+  "eircode": "D05 W504",
+  "demand": 1,
+  "lat": 53.382624,
+  "lng": -6.182061,
+  "display_lat": 53.38252,
+  "display_lng": -6.182111
+}

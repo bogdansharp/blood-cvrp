@@ -1,0 +1,18 @@
+{
+  "id": 88,
+  "name": "Raheen",
+  "lat_e6": 52894012,
+  "lng_e6": -8507635,
+  "display_lat_e6": 52893809,
+  "display_lng_e6": -8507407,
+  "snap_distance_m": 27.27,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Tuamgraney, Co. Clare",
+  "eircode": "V94 AE71",
+  "demand": 2,
+  "lat": 52.894012,
+  "lng": -8.507635,
+  "display_lat": 52.893809,
+  "display_lng": -8.507407
+}

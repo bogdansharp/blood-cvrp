@@ -1,0 +1,18 @@
+{
+  "id": 99,
+  "name": "Saint Joseph's District Hospital",
+  "lat_e6": 54114189,
+  "lng_e6": -9165631,
+  "display_lat_e6": 54114066,
+  "display_lng_e6": -9165540,
+  "snap_distance_m": 14.9,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Mercy Road, Ballina, Co. Mayo",
+  "eircode": "F26 PP92",
+  "demand": 2,
+  "lat": 54.114189,
+  "lng": -9.165631,
+  "display_lat": 54.114066,
+  "display_lng": -9.16554
+}

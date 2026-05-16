@@ -1,0 +1,18 @@
+{
+  "id": 67,
+  "name": "Mercy University Hospital",
+  "lat_e6": 51898753,
+  "lng_e6": -8482449,
+  "display_lat_e6": 51898701,
+  "display_lng_e6": -8481940,
+  "snap_distance_m": 35.36,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Grenville Place, Cork",
+  "eircode": "T12 WE28",
+  "demand": 11,
+  "lat": 51.898753,
+  "lng": -8.482449,
+  "display_lat": 51.898701,
+  "display_lng": -8.48194
+}

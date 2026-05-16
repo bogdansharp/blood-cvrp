@@ -1,0 +1,18 @@
+{
+  "id": 33,
+  "name": "Cork University Maternity Hospital",
+  "lat_e6": 51882283,
+  "lng_e6": -8510566,
+  "display_lat_e6": 51882346,
+  "display_lng_e6": -8510433,
+  "snap_distance_m": 11.49,
+  "category": "Hospital",
+  "subcategory": "Maternity",
+  "address": "Wilton, Cork",
+  "eircode": "T12 YE02",
+  "demand": 10,
+  "lat": 51.882283,
+  "lng": -8.510566,
+  "display_lat": 51.882346,
+  "display_lng": -8.510433
+}

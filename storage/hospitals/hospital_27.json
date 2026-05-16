@@ -1,0 +1,18 @@
+{
+  "id": 27,
+  "name": "Clifden",
+  "lat_e6": 53489529,
+  "lng_e6": -10015578,
+  "display_lat_e6": 53489387,
+  "display_lng_e6": -10015599,
+  "snap_distance_m": 15.86,
+  "category": "Hospital",
+  "subcategory": "Community",
+  "address": "Hospital Road, Clifden, Co. Galway",
+  "eircode": "H71 YV83",
+  "demand": 2,
+  "lat": 53.489529,
+  "lng": -10.015578,
+  "display_lat": 53.489387,
+  "display_lng": -10.015599
+}

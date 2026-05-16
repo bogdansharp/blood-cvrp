@@ -1,0 +1,18 @@
+{
+  "id": 66,
+  "name": "Mayo University Hospital",
+  "lat_e6": 53852041,
+  "lng_e6": -9303429,
+  "display_lat_e6": 53852359,
+  "display_lng_e6": -9303635,
+  "snap_distance_m": 37.81,
+  "category": "Hospital",
+  "subcategory": "General/Acute",
+  "address": "Westport Road, Castlebar, Co. Mayo",
+  "eircode": "F23 H529",
+  "demand": 14,
+  "lat": 53.852041,
+  "lng": -9.303429,
+  "display_lat": 53.852359,
+  "display_lng": -9.303635
+}
