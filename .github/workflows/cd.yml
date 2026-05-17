@@ -74,7 +74,7 @@ jobs:
       - name: Run Playwright smoke tests
         working-directory: frontend
         env:
-          PLAYWRIGHT_BASE_URL: ${{ vars.STAGING_URL }}
+          PLAYWRIGHT_BASE_URL: ${{ env.BASE_URL }}
         run: |
           npm ci
           npx playwright install chromium --with-deps
