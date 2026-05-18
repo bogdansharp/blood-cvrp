@@ -26,6 +26,7 @@
 	export let onScenarioChange: (scenarioId: number | null) => void;
 	export let onAddScenario: () => void;
 	export let onSolve: () => void;
+	export let onGeometriesEnabledChange: (enabled: boolean) => void = () => {};
 
 	const defaultSolveMethod: SolveMethod = 'clarke_wright_savings';
 
@@ -46,6 +47,10 @@
 
 		selectedMethod = defaultSolveMethod;
 		onScenarioChange(value);
+	};
+
+	const handleGeometriesEnabledChange = (event: Event) => {
+		onGeometriesEnabledChange((event.target as HTMLInputElement).checked);
 	};
 </script>
 
@@ -130,19 +135,36 @@
 		<div
 			class="grid min-w-0 grid-cols-1 gap-2 min-[520px]:grid-cols-2 min-[821px]:flex min-[821px]:min-w-0 min-[821px]:flex-wrap min-[821px]:items-end min-[821px]:justify-end min-[821px]:gap-2"
 		>
-			<div class="grid min-w-0 gap-1 min-[821px]:w-23.75">
-				<label class="text-[11px] leading-none text-neutral-600" for="time-limit-input">
-					Limit, hours
-				</label>
+			<div
+				class="col-span-1 flex min-w-0 flex-nowrap items-end gap-2 min-[520px]:col-span-2 min-[821px]:w-auto"
+			>
+				<div class="grid w-23.75 min-w-0 gap-1">
+					<label class="text-[11px] leading-none text-neutral-600" for="time-limit-input">
+						Limit, hours
+					</label>
 
-				<input
-					type="number"
-					min="0"
-					id="time-limit-input"
-					class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
-					bind:value={timeLimitHours}
-					disabled={editorMode}
-				/>
+					<input
+						type="number"
+						min="0"
+						id="time-limit-input"
+						class="h-7.5 w-full min-w-0 rounded-md border border-neutral-400 bg-white px-2 text-xs text-neutral-950"
+						bind:value={timeLimitHours}
+						disabled={editorMode}
+					/>
+				</div>
+
+				<label
+					class="flex h-7.5 shrink-0 items-center gap-2 rounded-md border border-neutral-300 px-2 text-xs text-neutral-700"
+				>
+					<input
+						type="checkbox"
+						class="h-4 w-4"
+						checked={state.geometriesEnabled}
+						onchange={handleGeometriesEnabledChange}
+						disabled={editorMode}
+					/>
+					Geometry
+				</label>
 			</div>
 
 			{#if selectedMethod === 'ortools'}

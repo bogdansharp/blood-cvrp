@@ -58,7 +58,8 @@ describe('store helpers', () => {
 			hospitals: [],
 			error: null,
 			geometries: new Map(),
-			geometryVersion: 0
+			geometryVersion: 0,
+			geometriesEnabled: true
 		});
 	});
 });
