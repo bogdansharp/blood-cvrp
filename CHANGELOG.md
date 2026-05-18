@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.1.3](https://github.com/bogdansharp/blood-cvrp/compare/v0.1.2...v0.1.3) (2026-05-18)
+
+
+### Features
+
+* add Geometries checkbox to turn off geometries load ([67147d8](https://github.com/bogdansharp/blood-cvrp/commit/67147d8db6dec80d4d415dd1d08ede0eadc081b3))
+* add Geometries checkbox to turn off geometries load ([398284e](https://github.com/bogdansharp/blood-cvrp/commit/398284e23003a0c891e65866d9daebd1755fd30b))
+
+
+### Bug Fixes
+
+* Circular import in job pipeline test ([c606320](https://github.com/bogdansharp/blood-cvrp/commit/c606320bba13add7201aa29c576512e9408f065d))
+* Circular import in job pipeline test ([b0416c7](https://github.com/bogdansharp/blood-cvrp/commit/b0416c7b9060a5403e9c64d2014d78d6e45fdc42))
+* Geometry rate error messages hidden from end user ([86b167f](https://github.com/bogdansharp/blood-cvrp/commit/86b167f2828f5810aa530f8607bb8f6670a52140))
+
 ## [0.1.2](https://github.com/bogdansharp/blood-cvrp/compare/v0.1.1...v0.1.2) (2026-05-16)
 
 
