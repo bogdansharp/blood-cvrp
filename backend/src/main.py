@@ -16,12 +16,12 @@ from backend.src.data.routing_provider import ORSRoutingProvider
 from backend.src.data.routing import RoutingData
 from backend.src.solver.job_executor import JobExecutor
 
-from backend.src.api.routes.scenarios import router as scenarios_router
-from backend.src.api.routes.hospitals import router as hospitals_router
-from backend.src.api.routes.solutions import router as solutions_router
-from backend.src.api.routes.jobs import router as jobs_router
-from backend.src.api.routes.routing import router as routing_router
-from backend.src.api.routes.health import router as health_router
+from backend.src.api.scenarios import router as scenarios_router
+from backend.src.api.hospitals import router as hospitals_router
+from backend.src.api.solutions import router as solutions_router
+from backend.src.api.jobs import router as jobs_router
+from backend.src.api.routing import router as routing_router
+from backend.src.api.health import router as health_router
 
 from backend.src.data.json_repositories import create_repositories
 from backend.src.settings import Settings, load_settings
