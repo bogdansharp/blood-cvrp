@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+
 from backend.src.application.routing import RoutingService, get_routing_service
 
 router = APIRouter(prefix="/routing", tags=["routing"])

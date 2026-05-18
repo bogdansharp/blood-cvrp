@@ -360,8 +360,6 @@ export const createStore = (apiBase = '/api/v1') => {
 				);
 
 				if (!response.ok) {
-					const detail = await response.text();
-
 					if (request.attempts < 1) {
 						request.attempts += 1;
 						geometryQueue.unshift(request);
@@ -370,20 +368,11 @@ export const createStore = (apiBase = '/api/v1') => {
 						geometryCooldownUntil = Date.now() + 60_000;
 						currentGeometryKey = null;
 
-						const error_msg = detail || 'Route geometry request failed. Retrying in 60 seconds.';
-						console.error(error_msg);
-						update((state) => ({ ...state, error: error_msg }));
-
 						await sleep(60_000);
 						continue;
 					}
 
 					currentGeometryKey = null;
-
-					const error_msg =
-						detail || 'Route geometry request failed. Using straight-line fallback.';
-					console.error(error_msg);
-					update((state) => ({ ...state, error: error_msg }));
 
 					continue;
 				}
@@ -735,11 +724,7 @@ export const createStore = (apiBase = '/api/v1') => {
 			return String(value);
 		}
 
-		try {
-			return JSON.stringify(value) || 'Request failed';
-		} catch {
-			return 'Request failed';
-		}
+		return 'Request failed';
 	};
 
 	const cleanError = async (response: Response): Promise<string> => {
