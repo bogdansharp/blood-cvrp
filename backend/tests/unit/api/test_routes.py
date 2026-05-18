@@ -6,9 +6,9 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from backend.src.models import Hospital, SolveMethod, SolverJob, SolverJobStatus
-from backend.src.api.routes.jobs import router as jobs_router
-from backend.src.api.routes.routing import router as routing_router
-from backend.src.api.routes.scenarios import router as scenarios_router
+from backend.src.api.jobs import router as jobs_router
+from backend.src.api.routing import router as routing_router
+from backend.src.api.scenarios import router as scenarios_router
 from backend.src.application.dependencies import get_settings
 from backend.src.application.jobs import get_job_service
 from backend.src.application.routing import get_routing_service

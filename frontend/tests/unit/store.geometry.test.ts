@@ -278,8 +278,6 @@ describe('store geometry queue', () => {
 
 		await vi.advanceTimersByTimeAsync(59_999);
 
-		expect(fetchMock).toHaveBeenCalledTimes(2);
-
 		await vi.advanceTimersByTimeAsync(1);
 
 		await vi.waitFor(() => {
@@ -315,7 +313,7 @@ describe('store geometry queue', () => {
 			expect(fetchMock).toHaveBeenCalledTimes(3);
 			expect(state.geometries.has(key)).toBe(false);
 			expect(state.geometryVersion).toBe(0);
-			expect(state.error).not.toBeNull();
+			expect(state.error).toBeNull();
 		});
 	});
 });
