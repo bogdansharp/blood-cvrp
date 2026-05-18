@@ -9,6 +9,7 @@ from backend.src.solver.job_preparer import JobPreparer
 from backend.src.solver.models import JobResult
 from backend.src.solver.job_result_mapper import JobResultMapper
 from backend.src.solver_options import SolverObjective
+
 if TYPE_CHECKING:
     from backend.src.application.jobs import SolveJobRequest
 
