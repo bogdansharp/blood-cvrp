@@ -219,6 +219,7 @@
 		onScenarioChange={handleScenarioChange}
 		onAddScenario={() => enterEditorMode(null)}
 		onSolve={() => submitAndTrack(selectedMethod, timeLimitHours)}
+		onGeometriesEnabledChange={(enabled) => store.setGeometriesEnabled(enabled)}
 	/>
 
 	<div

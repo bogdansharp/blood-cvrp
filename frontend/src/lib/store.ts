@@ -205,6 +205,7 @@ export type AppViewState = {
 	error: string | null;
 	geometries: Map<string, [number, number][]>;
 	geometryVersion: number;
+	geometriesEnabled: boolean;
 };
 
 export const jobStatusLabel = (status: JobStatus): string => {
@@ -229,7 +230,8 @@ export const createInitialState = (): AppViewState => ({
 	hospitals: [],
 	error: null,
 	geometries: new Map(),
-	geometryVersion: 0
+	geometryVersion: 0,
+	geometriesEnabled: true
 });
 
 type GeometryRequest = {
@@ -272,6 +274,9 @@ export const createStore = (apiBase = '/api/v1') => {
 
 	const enqueueGeometriesForSolution = (solution: SolutionPayload) => {
 		const snapshot = get({ subscribe });
+		if (!snapshot.geometriesEnabled) {
+			return;
+		}
 
 		for (const route of solution.routes) {
 			let previous: Hospital | null = null;
@@ -319,6 +324,13 @@ export const createStore = (apiBase = '/api/v1') => {
 
 		try {
 			while (geometryQueue.length > 0) {
+				const oldSnapshot = get({ subscribe });
+
+				if (!oldSnapshot.geometriesEnabled) {
+					clearGeometryQueue();
+					return;
+				}
+
 				if (geometryCooldownUntil && Date.now() < geometryCooldownUntil) {
 					await sleep(geometryCooldownUntil - Date.now());
 				}
@@ -332,6 +344,10 @@ export const createStore = (apiBase = '/api/v1') => {
 				geometryQueuedKeys.delete(request.key);
 
 				const snapshot = get({ subscribe });
+				if (!snapshot.geometriesEnabled) {
+					clearGeometryQueue();
+					return;
+				}
 
 				if (snapshot.geometries.has(request.key)) {
 					continue;
@@ -445,10 +461,15 @@ export const createStore = (apiBase = '/api/v1') => {
 		dst_lng_e6: number
 	): Promise<[number, number][]> => {
 		const key = makeGeometryKey(src_lat_e6, src_lng_e6, dst_lat_e6, dst_lng_e6);
-		const existing = get({ subscribe }).geometries.get(key);
+		const snapshot = get({ subscribe });
+		const existing = snapshot.geometries.get(key);
 
 		if (existing) {
 			return existing;
+		}
+
+		if (!snapshot.geometriesEnabled) {
+			return [];
 		}
 
 		const response = await fetch(
@@ -749,6 +770,10 @@ export const createStore = (apiBase = '/api/v1') => {
 		return text || 'Request failed';
 	};
 
+	const setGeometriesEnabled = (geometriesEnabled: boolean) => {
+		update((state) => ({ ...state, geometriesEnabled }));
+	};
+
 	return {
 		subscribe,
 		set,
@@ -768,6 +793,7 @@ export const createStore = (apiBase = '/api/v1') => {
 		saveScenario,
 		snapLocation,
 		loadSolutionList,
-		upsertSolution
+		upsertSolution,
+		setGeometriesEnabled
 	};
 };
