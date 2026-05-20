@@ -22,13 +22,16 @@ jobs:
         continue-on-error: true
         with:
           workflows: "CD,Release"
+          default-branch: "master"
           actions-token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Calculate lead time for changes
         uses: DeveloperMetrics/lead-time-for-changes@main
         continue-on-error: true
         with:
-          workflows: "CD"
+          workflows: "Release,CD"
+          default-branch: "master"
+          commit-counting-method: "last"
           actions-token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Write evaluation note
