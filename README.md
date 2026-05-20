@@ -1,71 +1,67 @@
 # Blood Routing CVRP
 
-A project focused on modelling and solving a vehicle routing problem for Irish blood distribution.
+A prototype planning system for Irish blood deliveries modelled as a Capacitated Vehicle Routing Problem (CVRP). It supports scenario-based experiments for daily depot-to-hospital deliveries using realistic Irish hospital/depot locations, road-network travel data, vehicle-capacity constraints, and estimated demand values (tested up to 132 locations within prototype scope).
 
-The system is a web-based decision-support prototype. It allows a user to define routing scenarios, run optimisation jobs, and visualise resulting routes on a map.
+The web app lets users create/edit/delete scenarios, run asynchronous solver jobs, and visualise routes on an interactive map (desktop + mobile). Backend: Python + FastAPI. Frontend: SvelteKit + TypeScript + Tailwind CSS + Leaflet.
 
-## Project Overview
+Routing distance/time/geometry is obtained from OpenRouteService and cached locally to reduce repeated external API calls. Solvers include a custom Clarke–Wright Savings heuristic (optional 2-opt local search) and Google OR-Tools as a benchmark.
 
-This project investigates routing methods for national medical supply distribution, with an initial focus on blood delivery between depots and hospitals in Ireland.
+## Quickstart (local development)
 
-The practical artefact consists of:
+Prerequisites: Git, Python 3.12, Node.js (Node 24 recommended for parity with Docker).
 
-- a Python backend for scenario handling and route computation
-- a SvelteKit frontend for interaction and visualisation
-- map-based route display using Leaflet
-- comparison between custom heuristics and Google OR-Tools
+1) Clone
 
-## Current Technology Stack
-
-Backend:
-- Python 3.12
-- FastAPI
-- Google OR-Tools
-- ProcessPoolExecutor for background solve jobs
-
-Frontend:
-- SvelteKit
-- TypeScript
-- Leaflet.js
-
-Data:
-- scraped Irish hospital dataset with coordinates retrieved from https://www.geohive.ie/datasets/feb34881088341bbbf80d86af6a4f333_0
-- distance / travel-time / route geometries from OpenRoutingService API
-- JSON file-based storage to persist scenarios, Solver Jobs, Solutions, and to cache external API responses
-
-## Repository Structure
-
-```text
-blood-cvrp/
-├─ .env
-├─ .gitignore
-├─ backend/
-│  ├─ requirements.txt
-│  ├─ seed/
-│  │  ├─ Hospitals_-_HSE_Ireland.csv
-│  │  ├─ ors_api_key.env
-│  │  ├─ storage/
-│  │  ├─ storage_seed.py
-│  │  └─ __init__.py
-│  └─ src/
-│     ├─ api/
-│     ├─ application/
-│     ├─ data/
-│     ├─ solver/
-│     ├─ settings.py
-│     └─ main.py
-├─ docs/
-├─ frontend/
-│  ├─ .npmrc
-│  ├─ eslint.config.js
-│  ├─ node_modules/
-│  ├─ package-lock.json
-│  ├─ package.json
-│  ├─ src/
-│  ├─ static/
-│  ├─ svelte.config.js
-│  ├─ tsconfig.json
-│  └─ vite.config.ts
-├─ runs/
-└─ README.md
+```bash
+git clone <REPO_URL>
+cd blood-cvrp
 ```
+
+2) Configure env
+
+Create a project-root `.env`:
+
+```dotenv
+ORS_API_KEY=your_openrouteservice_key_here
+```
+
+> A key is required for full routing/geometry; some runs may work from the existing `storage/` cache.
+
+3) Backend (FastAPI)
+
+```bash
+python -m venv .venv
+
+# Windows (PowerShell)
+.\.venv\Scripts\Activate.ps1
+
+# Linux (bash)
+source .venv/bin/activate
+
+python -m pip install --upgrade pip
+pip install -r backend/requirements.txt
+python -m uvicorn backend.src.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+4) Frontend (SvelteKit)
+
+```bash
+cd frontend
+npm ci
+npm run dev
+```
+
+Open:
+
+- App: http://localhost:5173/
+- API health: http://127.0.0.1:8000/api/v1/health/
+
+The frontend dev server proxies `/api/*` to the backend.
+
+## More
+
+- Full setup (Windows/Linux), tests, and Docker deployment: [docs/environment-setup.md](docs/environment-setup.md)
+
+## Prototype scope
+
+This is a research prototype (e.g. simplified demand modelling, file-based persistence, and external routing API limits); future work would add richer operational constraints and persistence.
