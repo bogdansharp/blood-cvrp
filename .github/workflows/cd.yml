@@ -59,7 +59,7 @@ jobs:
 
     steps:
       # Checkout to load tests
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: API health check
         run: curl --fail "${BASE_URL%/}/api/v1/health/"
