@@ -65,7 +65,7 @@ jobs:
         run: curl --fail "${BASE_URL%/}/api/v1/health/"
 
       - name: Set up Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm
